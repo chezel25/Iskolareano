@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ISKOLAREALENO Scholarship Portal</title>
+<style>
+  /* Color Palette & Reset */
+  :root {
+    --orange: #FF6600;
+    --navy: #001F4D;
+    --light-gray: #F5F5F7;
+    --dark-gray: #333;
+    --white: #fff;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  body { margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--light-gray); color: var(--dark-gray); line-height: 1.6; }
+  a { color: var(--orange); text-decoration: none; }
+  a:hover, button:hover { text-decoration: underline; }
+  button { cursor: pointer; border: none; border-radius: 24px; padding: 0.6rem 1.3rem; font-weight: 700; font-size: 1rem; transition: background-color 0.3s ease; }
+  button:focus { outline: 3px solid var(--orange); }
+
+  /* Container */
+  .container { width: 90%; max-width: 1200px; margin: 0 auto; }
+
+  /* Header */
+  header { background-color: var(--white); padding: 1rem 0; display: flex; justify-content: space-between; align-items: center; }
+  .logo { display: flex; align-items: center; gap: 0.5rem; }
+  .logo img { height: 48px; border-radius: 8px; }
+  .logo-text { font-size: 1.6rem; font-weight: 900; color: var(--navy); letter-spacing: 1px; }
+  nav ul { list-style: none; display: flex; gap: 1.8rem; margin:0; padding:0; }
+  nav li a { font-weight: 600; color: var(--dark-gray); cursor:pointer; }
+  nav li a:hover { color: var(--orange); }
+
+  /* Main with Profile Panel */
+  #main { display: flex; transition: all 0.3s; }
+  #homepage-content { flex:1; padding:20px; }
+  #profile-panel {
+    width: 0; overflow: hidden; background: #f1f1f1; border-left: 1px solid #ccc; transition: width 0.3s; padding: 20px;
+  }
+  #profile-panel.active { width: 300px; }
+
+  /* Hero Section */
+  .hero { background-color: var(--white); display: flex; flex-wrap: wrap; padding: 3rem 0; border-radius: 0 0 60px 60px; }
+  .hero-left { flex:1 1 480px; padding-right:2rem; }
+  .hero-left small { color: var(--orange); font-weight:600; letter-spacing:0.15em; text-transform:uppercase; }
+  .hero-left h1 { margin:0.4rem 0 1rem; color: var(--navy); font-size:2.8rem; font-weight:900; line-height:1.1; }
+  .hero-left h1 .orange-text { color: var(--orange); }
+  .hero-left .tags { display:flex; flex-wrap:wrap; gap:0.8rem 1rem; margin-bottom:1.2rem; }
+  .hero-left .tags span { background-color: var(--light-gray); padding:0.4rem 1rem; border-radius:14px; font-size:0.9rem; font-weight:600; color: var(--navy); user-select:none; }
+  .hero-left p { max-width:380px; color: var(--dark-gray); font-size:1rem; }
+  .hero-right { flex:1 1 420px; position:relative; min-width:280px; }
+  .hero-right img { width:100%; border-radius:28px; object-fit:cover; box-shadow:10px 10px 30px rgba(0,31,77,0.1); }
+  .hero-stats { position:absolute; top:20%; right:-12%; background-color: var(--orange); color: var(--white); border-radius:20px; box-shadow:0 8px 16px rgba(255,102,0,0.25); padding:1rem 1.5rem; max-width:160px; font-weight:700; font-size:1.05rem; line-height:1.3; }
+  .hero-stats div { margin-bottom:0.85rem; border-bottom:1.5px solid rgba(255 255 255 / 0.4); padding-bottom:0.4rem; }
+  .hero-stats div:last-child { border-bottom:none; }
+  .hero-stats span { font-weight:900; font-size:1.25rem; display:block; }
+
+  /* Add more sections styles as needed... */
+</style>
+</head>
+<body>
+
+<header class="container">
+  <div class="logo">
+    <img src="logo.jpg" alt="Iskolarealeno Logo" />
+    <span class="logo-text">ISKOLAREALEÑO</span>
+  </div>
+  <nav>
+    <ul>
+      <li><a href="#home">Home</a></li>
+      <li><a href="#about">About Us</a></li>
+      <li><a href="#services">Our Services</a></li>
+      <li><a href="#news">News</a></li>
+      <li><a onclick="toggleProfile()">Profile</a></li>
+    </ul>
+  </nav>
+</header>
+
+<div id="main">
+  <div id="homepage-content">
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+      <div class="hero-left">
+        <small>Award-Winning Scholarship Excellence</small>
+        <h1>Where Innovation Drives <br /><span class="orange-text">Education Excellence</span></h1>
+        <div class="tags">
+          <span>Scholarships</span>
+          <span>Community Support</span>
+          <span>Student Programs</span>
+          <span>Educational Events</span>
+          <span>Live Sessions</span>
+        </div>
+        <p>
+          ISKOLAREALEÑO empowers student scholars from Real, Quezon to succeed.
+          Join us for scholarships, community programs, and events to help unlock your potential.
+        </p>
+      </div>
+      <div class="hero-right">
+        <img src="DOCU1.jpg" alt="Scholars in discussion with advisor" />
+        <div class="hero-stats">
+          <div><span>147+</span> Batch 1 Scholars</div>
+          <div><span>259+</span> Batch 2 Scholars</div>
+          <div><span>350+</span> Batch 3 Scholars</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Add other sections here -->
+  </div>
+
+  <!-- Profile Panel -->
+  <div id="profile-panel">
+    <h2>Update Profile</h2>
+    <input id="degree" placeholder="Degree Program"><br><br>
+    <button onclick="updateProfile()">Update</button>
+    <p id="profile-msg" style="color:green;"></p>
+  </div>
+</div>
+
+<footer>
+  &copy; 2024 ISKOLAREALEÑO | Real, Quezon, Philippines | Contact: info@iskolarealeno.ph
+</footer>
+
+<script>
+  function toggleProfile() {
+    const panel = document.getElementById('profile-panel');
+    panel.classList.toggle('active');
+    if(panel.classList.contains('active')) loadProfile();
+  }
+
+  function loadProfile() {
+    const scholar = JSON.parse(localStorage.getItem('scholar') || '{}');
+    if(!scholar.scholar_id) {
+      document.getElementById('profile-panel').innerHTML = '<p>Please login first. <a href="login.html">Login</a></p>';
+      return;
+    }
+    document.getElementById('degree').value = scholar.degree || '';
+  }
+
+  async function updateProfile() {
+    const scholar = JSON.parse(localStorage.getItem('scholar') || '{}');
+    if(!scholar.scholar_id) return alert("Please login first.");
+    const res = await fetch('http://localhost:5000/api/profile', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        scholar_id: scholar.scholar_id,
+        degree: document.getElementById('degree').value
+      })
+    });
+    const msg = await res.text();
+    document.getElementById('profile-msg').innerText = msg;
+  }
+</script>
+
+</body>
+</html>

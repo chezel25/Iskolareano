@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ISKOLAREALENO Scholarship Portal</title>
+<style>
+  /* Color Palette */
+  :root {
+    --orange: #FF6600;
+    --navy: #001F4D;
+    --light-gray: #F5F5F7;
+    --dark-gray: #333;
+    --white: #fff;
+  }
+
+  /* Reset and basics */
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--light-gray);
+    color: var(--dark-gray);
+    line-height: 1.6;
+  }
+  a {
+    color: var(--orange);
+    text-decoration: none;
+  }
+  a:hover, button:hover {
+    text-decoration: underline;
+  }
+  button {
+    cursor: pointer;
+    border: none;
+    border-radius: 24px;
+    padding: 0.6rem 1.3rem;
+    font-weight: 700;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+  }
+  button:focus {
+    outline: 3px solid var(--orange);
+  }
+
+  /* Container */
+  .container {
+    width: 90%;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  /* Header */
+  header {
+  
+    padding: 1rem 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .logo img {
+    height: 48px;
+    border-radius: 8px;
+  }
+  .logo-text {
+    font-size: 1.6rem;
+    font-weight: 900;
+    color: var(--navy);
+    letter-spacing: 1px;
+  }
+
+  nav ul {
+    list-style: none;
+    display: flex;
+    gap: 1.8rem;
+  }
+  nav li a {
+    font-weight: 600;
+    color: var(--dark-gray);
+  }
+  nav li a:hover {
+    color: var(--orange);
+  }
+
+    /* Profile Panel */
+      #main {
+      display: flex;
+      transition: all 0.3s;
+    }
+    #profile-panel {
+      width: 0;
+      overflow: hidden;
+      background: #f1f1f1;
+      border-left: 1px solid #ccc;
+      transition: width 0.3s;
+      padding: 20px;
+    }
+
+    #profile-panel.active {
+      width: 300px; /* panel width when open */
+    }
+  /* Hero Section */
+  .hero {
+    background-color: var(--white);
+    display: flex;
+    flex-wrap: wrap;
+    padding: 3rem 0;
+    border-radius: 0 0 60px 60px;
+  }
+  .hero-left {
+    flex: 1 1 480px;
+    padding-right: 2rem;
+  }
+  .hero-left small {
+    color: var(--orange);
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+  .hero-left h1 {
+    margin: 0.4rem 0 1rem;
+    color: var(--navy);
+    font-size: 2.8rem;
+    font-weight: 900;
+    line-height: 1.1;
+  }
+  .hero-left h1 .orange-text {
+    color: var(--orange);
+  }
+  .hero-left .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem 1rem;
+    margin-bottom: 1.2rem;
+  }
+  .hero-left .tags span {
+    background-color: var(--light-gray);
+    padding: 0.4rem 1rem;
+    border-radius: 14px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--navy);
+    cursor: default;
+    user-select: none;
+  }
+  .hero-left p {
+    max-width: 380px;
+    color: var(--dark-gray);
+    font-size: 1rem;
+  }
+  .hero-right {
+    flex: 1 1 420px;
+    position: relative;
+    min-width: 280px;
+  }
+  .hero-right img {
+    width: 100%;
+    border-radius: 28px;
+    object-fit: cover;
+    box-shadow: 10px 10px 30px rgba(0, 31, 77, 0.1);
+  }
+  .hero-stats {
+    position: absolute;
+    top: 20%;
+    right: -12%;
+    background-color: var(--orange);
+    color: var(--white);
+    border-radius: 20px;
+    box-shadow: 0 8px 16px rgba(255,102,0,0.25);
+    padding: 1rem 1.5rem;
+    max-width: 160px;
+    font-weight: 700;
+    font-size: 1.05rem;
+    line-height: 1.3;
+  }
+  .hero-stats div {
+    margin-bottom: 0.85rem;
+    border-bottom: 1.5px solid rgba(255 255 255 / 0.4);
+    padding-bottom: 0.4rem;
+  }
+  .hero-stats div:last-child {
+    border-bottom: none;
+  }
+  .hero-stats span {
+    font-weight: 900;
+    font-size: 1.25rem;
+    display: block;
+  }
+
+  /* Section Titles */
+  .section-subtitle {
+    margin-top: 3rem;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    letter-spacing: 0.1em;
+    font-weight: 700;
+    color: var(--orange);
+  }
+  .section-title {
+    color: var(--navy);
+    font-weight: 900;
+    font-size: 2.2rem;
+    margin: 0.3rem 0 1rem;
+  }
+  .section-title .orange-text {
+    color: var(--orange);
+  }
+  .section-description {
+    max-width: 600px;
+    color: var(--dark-gray);
+    font-size: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  /* Crafting Excellence Section */
+  .crafting-section {
+    background-color: var(--white);
+    padding: 3rem 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    align-items: center;
+  }
+  .craft-img {
+    flex: 1 1 440px;
+    position: relative;
+    border-radius: 28px;
+    overflow: hidden;
+  }
+  .craft-img img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+  .years-box {
+    position: absolute;
+    bottom: 18px;
+    left: 18px;
+    background-color: var(--orange);
+    color: white;
+    font-weight: 700;
+    font-size: 1.1rem;
+    padding: 0.6rem 1rem;
+    border-radius: 14px;
+    box-shadow: 0 4px 8px rgba(255,102,0,0.5);
+    user-select: none;
+  }
+  .craft-text {
+    flex: 1 1 460px;
+    background-color: var(--navy);
+    color: var(--white);
+    border-radius: 28px;
+    padding: 2rem 3rem;
+    box-shadow: 0 12px 30px rgba(0, 31, 77, 0.2);
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+  .craft-text strong {
+    color: var(--orange);
+    font-weight: 900;
+  }
+
+  /* Services Section */
+  .services-section {
+    background-color: var(--light-gray);
+    padding: 4rem 0;
+    text-align: center;
+  }
+  .services-list {
+    display: flex;
+    gap: 2rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .service-card {
+    background-color: var(--white);
+    width: 300px;
+    border-radius: 20px;
+    box-shadow: 0 8px 20px rgb(0 31 77 / 0.15);
+    padding: 2rem 1.5rem 2.5rem;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    transition: box-shadow 0.3s ease;
+  }
+  .service-card:hover {
+    box-shadow: 0 12px 30px rgb(255 102 0 / 0.35);
+  }
+  .service-icon {
+    background-color: var(--navy);
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    color: var(--white);
+    font-size: 1.8rem;
+  }
+  .service-title {
+    font-weight: 900;
+    color: var(--navy);
+    font-size: 1.2rem;
+  }
+  .service-desc {
+    flex-grow: 1;
+    color: var(--dark-gray);
+    font-size: 0.95rem;
+  }
+  .service-link {
+    align-self: flex-start;
+    color: var(--orange);
+    font-weight: 700;
+  }
+  .service-link:hover {
+    text-decoration: underline;
+  }
+  .btn-view-all {
+    margin-top: 2.5rem;
+    padding: 0.8rem 2rem;
+    background-color: var(--orange);
+    color: var(--white);
+    border-radius: 24px;
+    font-weight: 700;
+    font-size: 1rem;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  .btn-view-all:hover {
+    background-color: #cc5200;
+  }
+  /* News Grid */
+  .news-section {
+    max-width: 1100px;
+    margin: 4rem auto;
+    padding: 0 2rem;
+    color: #eee;
+  }
+  .news-header {
+    font-weight: 900;
+    font-size: 1.75rem;
+    margin-bottom: 1rem;
+    border-bottom: 3px solid #FF6600;
+    padding-bottom: 0.3rem;
+    color: #FF6600;
+    font-family: 'Arial Black', Gadget, sans-serif;
+  }
+  .news-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit,minmax(280px,1fr));
+    gap: 1.7rem;
+  }
+  .news-card {
+    background-color: white;
+    border-radius: 12px;
+    padding: 1.2rem;
+    box-shadow: 0 0 6px #FF6600AA;
+    display: flex;
+    flex-direction: column;
+    color: #200707;
+    transition: box-shadow 0.3s ease;
+  }
+  .news-card:hover {
+    box-shadow: 0 0 12px #FF6600FF;
+  }
+  .news-card img {
+    border-radius: 8px;
+    margin-bottom: 0.8rem;
+    max-height: 160px;
+    object-fit: cover;
+    width: 100%;
+    filter: brightness(0.9);
+  }
+  .news-card h3 {
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+    font-weight: 700;
+  }
+  .news-card p {
+    font-size: 1rem;
+    flex-grow: 1;
+    line-height: 1.4;
+  }
+  .news-card button {
+    margin-top: 0.9rem;
+    background-color: #FF6600;
+    border: none;
+    color: #fff;
+    padding: 0.55rem 1.2rem;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+    width: fit-content;
+    align-self: flex-start;
+    transition: background-color 0.3s ease;
+  }
+
+  .news-card.join-now {
+    background-color: white;
+    color: black;
+  }
+  .news-card.join-now button {
+    background-color: #FF6600;
+    color: white;
+    font-weight: 900;
+  }
+  .news-card.join-now button:hover {
+    background-color: #FF6600;
+  }
+  /* Footer */
+  footer {
+    background-color: var(--navy);
+    color: var(--white);
+    padding: 2rem 1rem;
+    text-align: center;
+    font-size: 0.9rem;
+    font-weight: 400;
+    margin-top: 4rem;
+  }
+
+  /* Responsive */
+  @media (max-width: 920px) {
+    .hero {
+      flex-direction: column;
+      border-radius: 0;
+    }
+    .hero-left, .hero-right {
+      flex: 1 1 100%;
+      padding: 0;
+    }
+    .hero-stats {
+      position: static;
+      max-width: none;
+      margin-top: 1.5rem;
+      box-shadow: none;
+      border-radius: 8px;
+      padding: 1rem;
+      background-color: var(--orange);
+      color: var(--white);
+      font-weight: 700;
+      font-size: 1rem;
+      display: flex;
+      justify-content: space-around;
+    }
+    .hero-stats div {
+      margin: 0;
+      border-bottom: none;
+    }
+    .crafting-section {
+      flex-direction: column;
+    }
+    .craft-img, .craft-text {
+      flex: 1 1 100%;
+      padding: 0;
+    }
+    .services-list {
+      flex-direction: column;
+      gap: 1.5rem;
+      align-items: center;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .hero-left h1 {
+      font-size: 2rem;
+    }
+    .logo-text {
+      font-size: 1.3rem;
+    }
+    .hero-left .tags span {
+      font-size: 0.8rem;
+    }
+  }
+  /* Main with Profile Panel */
+  #main { display: flex;
+  transition: all 0.3s;
+  flex-direction: row-reverse; /* This flips left/right */ }
+  #homepage-content { flex:1; padding:50px; }
+  #profile-panel {
+    width: 0; overflow: hidden; background: #f1f1f1; border-left: 1px solid #ccc; transition: width 0.3s; padding: 1px;
+  }
+  #profile-panel.active { width: 300px; }
+
+</style>
+</head>
+<body>
+   
+<header class="container" role="banner">
+  <div class="logo" aria-label="Iskolarealeno logo and name">
+    <img src="logo.jpg" alt="Iskolarealeno Logo" />
+    <span class="logo-text">ISKOLAREALEÑO</span>
+  </div>
+  <nav role="navigation" aria-label="Main navigation">
+    <ul>
+      <li><a href="#home" tabindex="0">Home</a></li>
+      <li><a href="#about" tabindex="0">About Us</a></li>
+      <li><a href="#services" tabindex="0">Our Services</a></li>
+      <li><a href="#news" tabindex="0">News</a></li>
+      <li><a onclick="toggleProfile()">Profile</a></li>
+    </ul>
+  </nav>
+</header>
+ <div id="main">
+<main class="container" role="main" aria-label="Main content">
+
+  <!-- Hero Section --><section id="home"></section>
+  <section class="hero" aria-label="Where Innovation Drives section">
+    <div class="hero-left">
+      <small>Award-Winning Scholarship Excellence</small>
+      <h1>
+        Where Innovation Drives <br />
+        <span class="orange-text">Education Excellence</span>
+      </h1>
+      <div class="tags" aria-label="Areas of focus">
+        <span>Scholarships</span>
+        <span>Community Support</span>
+        <span>Student Programs</span>
+        <span>Educational Events</span>
+        <span>Live Sessions</span>
+      </div>
+      <p>
+        ISKOLAREALEÑO empowers student scholars from Real, Quezon to succeed.
+        Join us for scholarships, community programs, and events to help unlock your potential.
+      </p>
+    </div>
+    <div class="hero-right" aria-label="Scholarship related image">
+      <img src="DOCU1.jpg" alt="Scholars in discussion with advisor" />
+      <div class="hero-stats" aria-label="Statistics of ISKOLAREALEÑO achievements">
+        <div>
+          <span>147+</span> Batch 1 Scholars
+        </div>
+        <div>
+          <span>259+</span> Batch 2 Scholars
+        </div>
+        <div>
+          <span>350+</span> Batch 3 Scholars
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ABOUT SECTION -->
+   <section id="about"></section>
+  <section class="crafting-section" aria-label="Crafting Excellence">
+    <div class="craft-img">
+      <img src="DOCU2.jpg" alt="Scholarship officer handshake with student" />
+      <div class="years-box">25+ Years of Experience</div>
+    </div>
+    <div class="craft-text">
+      <h2><span class="orange-text">Crafting Excellence</span> in Every Scholarship</h2>
+      <p>
+        ISKOLAREALEÑO has consistently provided excellent scholarship opportunities for deserving students in Real, Quezon.
+        Our mission is to support and uplift scholars toward a successful future.
+        <strong>Our Mission</strong> is to empower through education and community development.
+      </p>
+      <button aria-label="Learn more about our mission">Learn More →</button>
+    </div>
+  </section>
+
+  <!-- Services Section --><section id="services"></section>
+  <section class="services-section" aria-label="Our Services">
+    <div class="section-subtitle">Our Services</div>
+    <h2 class="section-title">Services That Fit<br /><span class="orange-text">Your Scholarship Needs</span></h2>
+    <p class="section-description">
+      Explore the various programs and services designed to support student scholars in their academic journey.
+    </p>
+
+    <div class="services-list">
+      <article class="service-card" tabindex="0" aria-labelledby="service1-title">
+        <div class="service-icon" aria-hidden="true">🎓</div>
+        <h3 id="service1-title" class="service-title">Scholarship Programs</h3>
+        <p class="service-desc">
+          Various scholarship programs tailored for Real, Quezon students aiming for academic excellence.
+        </p>
+        <a href="#" class="service-link" aria-label="Learn more about Scholarship Programs">Learn more →</a>
+      </article>
+
+      <article class="service-card" tabindex="0" aria-labelledby="service2-title">
+        <div class="service-icon" aria-hidden="true">🏫</div>
+        <h3 id="service2-title" class="service-title">Community Support</h3>
+        <p class="service-desc">
+          Programs that develop community engagement and social involvement among scholars.
+        </p>
+        <a href="#" class="service-link" aria-label="Learn more about Community Support">Learn more →</a>
+      </article>
+
+      <article class="service-card" tabindex="0" aria-labelledby="service3-title">
+        <div class="service-icon" aria-hidden="true">📚</div>
+        <h3 id="service3-title" class="service-title">Academic Workshops</h3>
+        <p class="service-desc">
+          Workshops and sessions that help improve knowledge and skills for academic success.
+        </p>
+        <a href="#" class="service-link" aria-label="Learn more about Academic Workshops">Learn more →</a>
+      </article>
+    </div>
+
+    <button class="btn-view-all" aria-label="View all services">View All Services →</button>
+  </section>
+
+<section id="news"></section>
+<section class="news-section" aria-label="News and Event updates">
+  <h3 class="news-header">News</h3>
+  <div class="news-grid">
+
+    <article class="news-card">
+      <img src="DOCU2.jpg" alt="Group meeting or event" />
+      <h3>Announcements</h3>
+<div id="announcements">...</div>
+      <p>Our scholars participated in the Real town outreach program to help local communities.</p>
+      <button>Read More</button>
+    </article>
+
+    <article class="news-card">
+       <img src="DOCU3.jpg" alt="Students standing outdoors" />
+     
+      <h3>Virtual Training Sessions Launched</h3>
+      <p>Join our free online seminars designed to enhance students' skills and knowledge.</p>
+      <button>Read More</button>
+    </article>
+
+    <article class="news-card join-now">
+      <img src="DOCU4.jpg" alt="Large gathering orientation" />
+      <h3>JOIN NOW! Welcoming new scholars</h3>
+      <p>Become part of the ISKOLAREALENO family and pursue your education with our full support.</p>
+      <button>Apply Now</button>
+    </article>
+</main>
+<div id="profile-panel">
+  <h2>Update Profile</h2>
+
+  <!-- Profile Picture Preview -->
+  <div style="text-align:center; margin-bottom:15px;">
+    <img id="profile-preview" src="default-avatar.png" 
+         alt="Profile Picture" style="width:100px; height:100px; border-radius:50%; object-fit:cover; border:2px solid #ccc;">
+  </div>
+
+  <!-- Profile Picture Input -->
+  <label for="profile-pic">Choose Profile Picture:</label><br>
+  <input type="file" id="profile-pic" accept="image/*"><br><br>
+  
+ <!-- Display Name and Degree -->
+  <p><strong>Name:</strong> <span id="scholar-name">Loading...</span></p>
+  <p><strong>Degree:</strong> <span id="scholar-degree">Loading...</span></p>
+
+  <!-- Add Semester -->
+  <label for="semester">Semester:</label><br>
+  <input type="text" id="semester" placeholder="e.g. 1st Semester"><br><br>
+
+  <!-- Upload Grade File -->
+  <label for="grade-file">Grade File:</label><br>
+  <input type="file" id="grade-file" accept=".pdf,.doc,.docx,.xls,.xlsx"><br><br>
+
+  <!-- Upload Journal -->
+  <label for="journal">Journal:</label><br>
+  <input type="file" id="journal" accept=".pdf,.doc,.docx,.txt"><br><br>
+
+  <button onclick="updateProfile()">Update</button>
+   <button><a href="BLUE ORANGE.html"> Logout</a></button>
+  <p id="profile-msg" style="color:green;"></p>
+</div>
+
+
+
+  
+</div>
+
+<footer>
+  &copy; 2024 ISKOLAREALEÑO | Real, Quezon, Philippines | Contact: info@iskolarealeno.ph
+</footer>
+
+
+
+<script>
+     function toggleProfile() {
+    const panel = document.getElementById('profile-panel');
+    panel.classList.toggle('active');
+    if(panel.classList.contains('active')) loadProfile();
+  }
+
+  function loadProfile() {
+    const scholar = JSON.parse(localStorage.getItem('scholar') || '{}');
+    if(!scholar.scholar_id) {
+      document.getElementById('profile-panel').innerHTML = '<p>Please login first. <a href="login.html">Login</a></p>';
+      return;
+    }
+    document.getElementById('degree').value = scholar.degree || '';
+  }
+
+async function loadAnnouncements() {
+  const res = await fetch('http://localhost:5000/api/announcements');
+  const data = await res.json();
+  if (!data || data.length === 0) {
+    document.getElementById('announcements').innerHTML = "<p>No announcements yet.</p>";
+    return;
+  }
+  let html = "<ul>";
+  data.forEach(a => {
+    html += `<li><b>${a.title}</b> (${a.date})<br>${a.content}</li><hr>`;
+  });
+  html += "</ul>";
+  document.getElementById('announcements').innerHTML = html;
+}
+
+async function loadGraduates() {
+  const res = await fetch('http://localhost:5000/api/graduates');
+  const data = await res.json();
+  if (!data || data.length === 0) {
+    document.getElementById('graduates').innerHTML = "<p>No graduates yet.</p>";
+    return;
+  }
+  let html = "";
+  data.forEach(g => {
+    html += `
+      <div style="border:1px solid #ccc; padding:10px; margin:10px; border-radius:10px; width:300px;">
+        <img src="http://localhost:5000/uploads/${g.photo}" width="100" style="border-radius:50%;"><br>
+        <b>${g.name}</b><br>
+        <small>${g.degree} (${g.year})</small><br>
+        <i>"${g.message}"</i>
+      </div>`;
+  });
+  document.getElementById('graduates').innerHTML = html;
+}
+
+loadAnnouncements();
+loadGraduates();
+const scholarprofile = JSON.parse(localStorage.getItem('scholar') || '{}');
+if(!scholar.scholar_id) {
+  document.getElementById('profile-panel').innerHTML = '<p>Please login first. <a href="login.html">Login</a></p>';
+}
+
+
+//PROFILE FEATURES
+
+const scholar = JSON.parse(localStorage.getItem('scholar') || '{}');
+
+// If not logged in
+if(!scholar.scholar_id) {
+  document.getElementById('profile-panel').innerHTML = '<p>Please login first. <a href="login.html">Login</a></p>';
+}
+
+// Preview profile picture on file select
+document.getElementById('profile-pic').addEventListener('change', function() {
+  const file = this.files[0];
+  if(file) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      document.getElementById('profile-preview').src = e.target.result;
+    }
+    reader.readAsDataURL(file);
+  }
+});
+
+async function updateProfile() {
+  const degree = document.getElementById('degree').value;
+  const picFile = document.getElementById('profile-pic').files[0];
+
+  const formData = new FormData();
+  formData.append('scholar_id', scholar.scholar_id);
+  formData.append('degree', degree);
+  if(picFile) formData.append('profile_pic', picFile);
+
+  try {
+    const res = await fetch('http://localhost:5000/api/profile', {
+      method: 'POST',
+      body: formData
+    });
+    const text = await res.text();
+    document.getElementById('profile-msg').textContent = text;
+
+    // Optionally save uploaded picture locally
+    if(picFile) {
+      const reader = new FileReader();
+      reader.onload = e => localStorage.setItem('profile_pic', e.target.result);
+      reader.readAsDataURL(picFile);
+    }
+
+  } catch (err) {
+    console.error(err);
+    document.getElementById('profile-msg').textContent = "Update failed. Try again.";
+  }
+}
+
+// Load existing profile picture from localStorage if available
+const savedPic = localStorage.getItem('profile_pic');
+if(savedPic) {
+  document.getElementById('profile-preview').src = savedPic;
+}
+// Fetch scholar info from backend
+async function loadProfile() {
+  try {
+    const res = await fetch(`http://localhost:5000/api/scholar/${scholar.scholar_id}`);
+    const data = await res.json();
+
+    if(data) {
+      scholar = {...scholar, ...data}; // merge with localStorage object
+      localStorage.setItem('scholar', JSON.stringify(scholar));
+
+      document.getElementById('scholar-name').textContent = scholar.name || '';
+      document.getElementById('scholar-degree').textContent = scholar.degree || '';
+    }
+  } catch(err) {
+    console.error(err);
+    document.getElementById('scholar-name').textContent = "Error loading";
+    document.getElementById('scholar-degree').textContent = "Error loading";
+  }
+}
+
+async function updateProfile() {
+  const semester = document.getElementById('semester').value;
+  const gradeFile = document.getElementById('grade-file').files[0];
+  const journal = document.getElementById('journal').files[0];
+
+  const formData = new FormData();
+  formData.append('scholar_id', scholar.scholar_id);
+  formData.append('semester', semester);
+  if(gradeFile) formData.append('grade_file', gradeFile);
+  if(journal) formData.append('journal', journal);
+
+  try {
+    const res = await fetch('http://localhost:5000/api/profile/update', {
+      method: 'POST',
+      body: formData
+    });
+    const text = await res.text();
+    document.getElementById('profile-msg').textContent = text;
+  } catch(err) {
+    console.error(err);
+    document.getElementById('profile-msg').textContent = "Update failed. Try again.";
+  }
+}
+
+</script>
+</body>
+</html>
