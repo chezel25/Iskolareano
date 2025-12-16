@@ -8,7 +8,11 @@ const nodemailer = require('nodemailer');
 const app = express();
 app.use(express.json());
 app.use(cors());
+app.use(express.static(path.join(__dirname, '..', 'frontend')));
 app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
+app.get(['/', '/index.html', '/home', '/homepage.html'], (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'frontend/static', 'BLUE ORANGE.html'));
+});
 
 // -------------------- DATABASE SETUP --------------------
 
