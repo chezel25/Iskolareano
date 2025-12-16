@@ -10,6 +10,14 @@ app.use(express.json());
 app.use(cors());
 app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
 
+// Serve frontend static files so the app can be accessed at http://localhost:5000
+app.use(express.static(path.join(__dirname, '..', 'frontend')));
+
+// Default route — serve BLUE ORANGE.html as the main landing (avoids opening old index.html)
+app.get(['/', '/index.html', '/home', '/homepage.html'], (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'frontend/static/BLUE ORANGE.html'));
+});
+
 // -------------------- DATABASE SETUP --------------------
 
 const dbFile = path.join(__dirname, 'database.db');
