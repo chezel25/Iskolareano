@@ -1,10 +1,19 @@
 require('dotenv').config({ path: '../.env' });
+
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const nodemailer = require('nodemailer');
 const { createClient } = require('@supabase/supabase-js');
 
-const supabase = createClient(
+// Public client: login/signup
+const supabasePublic = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_ANON_KEY
+);
+
+// Admin client: create users, bypass RLS
+const supabaseAdmin = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
@@ -12,82 +21,180 @@ const supabase = createClient(
 const app = express();
 app.use(express.json());
 app.use(cors());
+
+// Static files
 app.use(express.static(path.join(__dirname, '..', 'frontend')));
 app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
 
-// -------------------- FRONTEND ROUTES --------------------
-app.get(['/', '/index.html', '/home', '/homepage.html'], (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'frontend/static', 'BLUE ORANGE.html'));
+// Landing page
+app.get(['/', '/index.html', '/home'], (req, res) => {
+  res.sendFile(
+    path.join(__dirname, '..', 'frontend/static', 'BLUE ORANGE.html')
+  );
 });
 
-// -------------------- APPLICANT ROUTES --------------------
-
-// Applicant Registration
+// Applicant registration
 app.post('/api/register', async (req, res) => {
   const { full_name, email, password } = req.body;
 
   try {
-    const { data, error } = await supabase.auth.signUp({
+    const { data, error } = await supabasePublic.auth.signUp({
       email,
       password,
-      options: { data: { full_name, role: 'applicant' } }
+      options: {
+        data: { full_name, role: 'applicant' }
+      }
     });
 
     if (error) throw error;
-    res.json({ message: 'Registration successful', user_id: data.user.id });
+
+    res.json({
+      message: 'Registration successful',
+      user_id: data.user.id
+    });
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
 });
 
-// Applicant Login
+// Unified login (applicant + scholar)
 app.post('/api/login', async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error || !data.user) throw new Error('Invalid credentials');
+    const { data: authData, error: authError } =
+      await supabasePublic.auth.signInWithPassword({
+        email,
+        password
+      });
 
-    // fetch user role
-    const { data: profile, error: profileError } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', data.user.id)
-      .single();
+    if (authError || !authData.user) {
+      return res.status(401).json({ error: 'Invalid email or password' });
+    }
 
-    if (profileError) throw profileError;
+    // Fetch role and profile data
+    const { data: profile, error: profileError } =
+      await supabaseAdmin
+        .from('profiles')
+        .select('full_name, role, scholar_id, degree')
+        .eq('id', authData.user.id)
+        .single();
 
-    res.json({ message: 'Login successful', role: profile.role });
-  } catch (err) {
-    res.status(401).json({ error: err.message });
+    if (profileError || !profile) {
+      return res.status(404).json({ error: 'Profile not found' });
+    }
+
+    res.json({
+      message: 'Login successful',
+      role: profile.role,
+      full_name: profile.full_name,
+      scholar_id: profile.scholar_id,
+      degree: profile.degree
+    });
+
+  } catch {
+    res.status(500).json({ error: 'Server error' });
   }
 });
 
-// -------------------- ADMIN ROUTES --------------------
-
-// Admin Login
+// Admin login
 app.post('/api/admin/login', async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error || !data.user) throw new Error('Invalid admin credentials');
+    const { data, error } =
+      await supabaseAdmin.auth.signInWithPassword({
+        email,
+        password
+      });
 
-    //skip role check
-    res.json({ message: 'Login successful', redirect: '/static/admin-dashboard.html' });
+    if (error || !data.user) {
+      return res.status(401).json({ error: 'Invalid admin credentials' });
+    }
+
+    res.json({
+      message: 'Login successful',
+      redirect: '/static/admin-dashboard.html'
+    });
   } catch (err) {
-    res.status(401).json({ error: err.message });
+    res.status(500).json({ error: err.message });
   }
 });
 
-// Get all applicants from Supabase
-app.get('/api/admin/applicants', async (req, res) => {
+// Admin creates scholar account
+app.post('/api/admin/create-scholar', async (req, res) => {
+  const { name, email, degree } = req.body;
+  const defaultPassword = 'ISKOLREAN01';
+
   try {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('full_name, email, degree')
-      .eq('role', 'applicant')
-      .order('created_at', { ascending: false });
+    // Create auth user
+    const { data: authData, error: authError } =
+      await supabaseAdmin.auth.admin.createUser({
+        email,
+        password: defaultPassword,
+        email_confirm: true
+      });
+
+    if (authError) throw authError;
+
+    // Create profile
+    const { data: profile, error: profileError } =
+      await supabaseAdmin
+        .from('profiles')
+        .insert({
+          id: authData.user.id,
+          full_name: name,
+          email,
+          role: 'scholar',
+          degree: degree || null
+        })
+        .select()
+        .single();
+
+    if (profileError) throw profileError;
+
+    // Send credentials email
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+      }
+    });
+
+    await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: 'Your Scholar Account',
+      text: `Hello ${name},
+
+Your scholar account has been created.
+
+Scholar ID: ${profile.scholar_id}
+Temporary Password: ${defaultPassword}
+
+Please log in and change your password immediately.`
+    });
+
+    res.json({
+      message: 'Scholar created successfully',
+      scholar_id: profile.scholar_id
+    });
+
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// List scholars (admin)
+app.get('/api/admin/scholars', async (req, res) => {
+  try {
+    const { data, error } =
+      await supabaseAdmin
+        .from('profiles')
+        .select('*')
+        .eq('role', 'scholar')
+        .order('created_at', { ascending: false });
 
     if (error) throw error;
     res.json(data);
@@ -96,7 +203,6 @@ app.get('/api/admin/applicants', async (req, res) => {
   }
 });
 
-// -------------------- START SERVER --------------------
 app.listen(5000, () => {
-  console.log('🚀 Server running at http://localhost:5000');
+  console.log('Server running at http://localhost:5000');
 });

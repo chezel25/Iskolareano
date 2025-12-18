@@ -16,10 +16,8 @@
   function showCreateScholarForm() {
   const html = `
     <h3>Create Scholar Account</h3>
-    <input id="new_scholar_id" placeholder="Scholar ID"><br>
     <input id="new_name" placeholder="Full Name"><br>
     <input id="new_email" placeholder="Email"><br>
-    <input id="new_password" type="password" placeholder="Password"><br>
     <input id="new_degree" placeholder="Degree (optional)"><br>
     <button onclick="createScholar()">Create Scholar</button>
   `;
@@ -31,14 +29,18 @@ async function createScholar() {
     method: 'POST',
     headers: {'Content-Type':'application/json'},
     body: JSON.stringify({
-      scholar_id: document.getElementById('new_scholar_id').value,
       name: document.getElementById('new_name').value,
       email: document.getElementById('new_email').value,
-      password: document.getElementById('new_password').value,
       degree: document.getElementById('new_degree').value
     })
   });
-  alert(await res.text());
+
+  const result = await res.json();
+  if(res.ok) {
+    alert(`Scholar account created!\nEmail sent with Scholar ID and default password.`);
+  } else {
+    alert(`Failed: ${result.error}`);
+  }
 }
 
 async function loadApplicants() {
@@ -60,21 +62,28 @@ async function loadApplicants() {
 }
 
 async function loadScholars() {
-  const res = await fetch('http://localhost:5000/api/admin/scholars');
-  const data = await res.json();
-  let html = "<h3>Current Scholars</h3><table border='1'><tr><th>Name</th><th>ID</th><th>Degree</th><th>Semester</th><th>Grade File</th><th>Journal</th></tr>";
-  data.forEach(s => {
-    html += `<tr>
-      <td>${s.name}</td>
-      <td>${s.scholar_id}</td>
-      <td>${s.degree || '-'}</td>
-      <td>${s.semester || '-'}</td>
-      <td>${s.grade_file ? `<a href="http://localhost:5000/uploads/${s.grade_file}" target="_blank">View Grade</a>` : '-'}</td>
-      <td>${s.journal || '-'}</td>
-    </tr>`;
-  });
-  html += "</table>";
-  document.getElementById('content').innerHTML = html;
+  try {
+    const res = await fetch('http://localhost:5000/api/admin/scholars');
+    const data = await res.json();
+
+    let html = "<h3>Current Scholars</h3><table border='1'><tr><th>Scholar ID</th><th>Full Name</th><th>Email</th><th>Degree</th></tr>";
+
+    data.forEach(s => {
+      html += `<tr>
+        <td>${s.scholar_id || '-'}</td>
+        <td>${s.full_name || '-'}</td>
+        <td>${s.email || '-'}</td>
+        <td>${s.degree || '-'}</td>
+      </tr>`;
+    });
+
+    html += "</table>";
+    document.getElementById('content').innerHTML = html;
+
+  } catch (err) {
+    console.error(err);
+    alert("Failed to load scholars.");
+  }
 }
 
 async function showAnnouncements() {
