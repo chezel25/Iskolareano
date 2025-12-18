@@ -1,15 +1,18 @@
 <!DOCTYPE html>
 <html>
-<head><meta charset="utf-8"><title>Admin Login</title></head>
+<head>
+  <meta charset="utf-8">
+  <title>Applicant Login</title>
+</head>
 <body>
-<h2>Admin Login</h2>
+<h2>Applicant Login</h2>
 <input id="email" placeholder="Email"><br>
 <input id="password" type="password" placeholder="Password"><br>
-<button onclick="loginAdmin()">Login</button>
+<button onclick="login()">Login</button>
 
 <script>
-async function loginAdmin() {
-  const res = await fetch('http://localhost:5000/api/admin/login', {
+async function login() {
+  const res = await fetch('http://localhost:5000/api/login', {
     method: 'POST',
     headers: {'Content-Type':'application/json'},
     body: JSON.stringify({
@@ -19,12 +22,13 @@ async function loginAdmin() {
   });
 
   const data = await res.json();
-
-  if (res.ok && data.redirect) {
-    localStorage.setItem('isAdmin', 'true');
-    window.location = data.redirect;
+  if (res.ok) {
+    localStorage.setItem('role', data.role);
+    alert('Login successful');
+    // redirect to applicant dashboard (create later)
+    window.location = 'applicant-dashboard.html';
   } else {
-    alert(data?.error || 'Invalid admin credentials');
+    alert(data.error);
   }
 }
 </script>

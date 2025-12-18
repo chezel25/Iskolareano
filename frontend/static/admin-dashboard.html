@@ -44,16 +44,17 @@ async function createScholar() {
 async function loadApplicants() {
   const res = await fetch('http://localhost:5000/api/admin/applicants');
   const data = await res.json();
-  let html = "<h3>Scholarship Applicants</h3><table border='1'><tr><th>Name</th><th>Email</th><th>Course</th><th>Requirements</th><th>File</th></tr>";
+
+  let html = "<h3>Applicants</h3><table border='1'><tr><th>Full Name</th><th>Email</th><th>Degree</th></tr>";
+
   data.forEach(a => {
     html += `<tr>
-      <td>${a.name}</td>
-      <td>${a.email}</td>
-      <td>${a.course}</td>
-      <td>${a.requirements}</td>
-      <td>${a.file ? `<a href="http://localhost:5000/uploads/${a.file}" target="_blank">View File</a>` : 'None'}</td>
+      <td>${a.full_name || ''}</td>
+      <td>${a.email || ''}</td>
+      <td>${a.degree || '-'}</td>
     </tr>`;
   });
+
   html += "</table>";
   document.getElementById('content').innerHTML = html;
 }

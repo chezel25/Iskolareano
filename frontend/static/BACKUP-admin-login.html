@@ -17,14 +17,11 @@ async function loginAdmin() {
       password: document.getElementById('password').value
     })
   });
-
-  const data = await res.json();
-
-  if (res.ok && data.redirect) {
+  if (res.ok) {
     localStorage.setItem('isAdmin', 'true');
-    window.location = data.redirect;
+    window.location = 'admin-dashboard.html';
   } else {
-    alert(data?.error || 'Invalid admin credentials');
+    alert('Invalid admin credentials');
   }
 }
 </script>

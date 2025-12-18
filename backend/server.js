@@ -80,11 +80,15 @@ app.post('/api/admin/login', async (req, res) => {
   }
 });
 
-
-// Admin: View all applicants
+// Get all applicants from Supabase
 app.get('/api/admin/applicants', async (req, res) => {
   try {
-    const { data, error } = await supabase.from('profiles').select('*').eq('role', 'applicant');
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('full_name, email, degree')
+      .eq('role', 'applicant')
+      .order('created_at', { ascending: false });
+
     if (error) throw error;
     res.json(data);
   } catch (err) {
