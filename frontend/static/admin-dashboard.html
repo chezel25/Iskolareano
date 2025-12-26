@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><title>Admin Dashboard</title></head>
+<body>
+<h1>Admin Dashboard</h1>
+<a href="#" onclick="loadApplicants()">📄 View Applicants</a> |
+<a href="#" onclick="loadScholars()">🎓 View Scholars</a> |
+<a href="#" onclick="showAnnouncements()">📢 Announcements</a> |
+<a href="#" onclick="showGraduates()">🏅 Graduated Scholars</a>
+<a href="#" onclick="showCreateScholarForm()">➕ Create Scholar</a> |
+
+<hr>
+<div id="content"></div>
+
+<script>
+  function showCreateScholarForm() {
+  const html = `
+    <h3>Create Scholar Account</h3>
+    <input id="new_name" placeholder="Full Name"><br>
+    <input id="new_email" placeholder="Email"><br>
+    <input id="new_degree" placeholder="Degree (optional)"><br>
+    <button onclick="createScholar()">Create Scholar</button>
+  `;
+  document.getElementById('content').innerHTML = html;
+}
+
+async function createScholar() {
+  const res = await fetch('http://localhost:5000/api/admin/create-scholar', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({
+      name: document.getElementById('new_name').value,
+      email: document.getElementById('new_email').value,
+      degree: document.getElementById('new_degree').value
+    })
+  });
+
+  const result = await res.json();
+  if(res.ok) {
+    alert(`Scholar account created!\nEmail sent with Scholar ID and default password.`);
+  } else {
+    alert(`Failed: ${result.error}`);
+  }
+}
+
+async function loadApplicants() {
+  const res = await fetch('http://localhost:5000/api/admin/applicants');
+  const data = await res.json();
+
+  let html = "<h3>Applicants</h3><table border='1'><tr><th>Full Name</th><th>Email</th><th>Degree</th></tr>";
+
+  data.forEach(a => {
+    html += `<tr>
+      <td>${a.full_name || ''}</td>
+      <td>${a.email || ''}</td>
+      <td>${a.degree || '-'}</td>
+    </tr>`;
+  });
+
+  html += "</table>";
+  document.getElementById('content').innerHTML = html;
+}
+
+async function loadScholars() {
+  try {
+    const res = await fetch('http://localhost:5000/api/admin/scholars');
+    const data = await res.json();
+
+    let html = "<h3>Current Scholars</h3><table border='1'><tr><th>Scholar ID</th><th>Full Name</th><th>Email</th><th>Degree</th></tr>";
+
+    data.forEach(s => {
+      html += `<tr>
+        <td>${s.scholar_id || '-'}</td>
+        <td>${s.full_name || '-'}</td>
+        <td>${s.email || '-'}</td>
+        <td>${s.degree || '-'}</td>
+      </tr>`;
+    });
+
+    html += "</table>";
+    document.getElementById('content').innerHTML = html;
+
+  } catch (err) {
+    console.error(err);
+    alert("Failed to load scholars.");
+  }
+}
+
+async function showAnnouncements() {
+  const res = await fetch('http://localhost:5000/api/announcements');
+  const data = await res.json();
+  let html = `
+    <h3>Manage Announcements</h3>
+    <input id="title" placeholder="Title"><br>
+    <textarea id="contentInput" placeholder="Write announcement..."></textarea><br>
+    <button onclick="postAnnouncement()">Post</button>
+    <hr>
+    <h4>Existing Announcements:</h4>
+    <ul>`;
+  data.forEach(a => {
+    html += `<li>
+      <b>${a.title}</b> (${a.date})<br>${a.content}
+      <button onclick="deleteAnnouncement(${a.id})">Delete</button>
+    </li><hr>`;
+  });
+  html += "</ul>";
+  document.getElementById('content').innerHTML = html;
+}
+
+async function postAnnouncement() {
+  await fetch('http://localhost:5000/api/admin/announcement', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({
+      title: document.getElementById('title').value,
+      content: document.getElementById('contentInput').value
+    })
+  });
+  alert("Announcement posted!");
+  showAnnouncements();
+}
+
+async function deleteAnnouncement(id) {
+  if (confirm("Delete this announcement?")) {
+    await fetch(`http://localhost:5000/api/admin/announcement/${id}`, { method: 'DELETE' });
+    showAnnouncements();
+  }
+}
+
+// Graduates management
+async function showGraduates() {
+  const res = await fetch('http://localhost:5000/api/graduates');
+  const data = await res.json();
+  let html = `
+    <h3>Graduated Scholars</h3>
+    <form id="graduateForm" enctype="multipart/form-data">
+      <input id="g_name" placeholder="Full Name"><br>
+      <input id="g_degree" placeholder="Degree"><br>
+      <input id="g_year" placeholder="Year Graduated"><br>
+      <textarea id="g_message" placeholder="Farewell Message"></textarea><br>
+      <input type="file" id="g_photo"><br>
+      <button type="button" onclick="addGraduate()">Add Graduate</button>
+    </form>
+    <hr><h4>List of Graduates</h4>
+  `;
+  data.forEach(g => {
+    html += `
+      <div style="border:1px solid #aaa; padding:10px; margin:10px;">
+        ${g.photo ? `<img src="http://localhost:5000/uploads/${g.photo}" width="100"><br>` : ''}
+        <b>${g.name}</b> (${g.degree}, ${g.year})<br>
+        <i>"${g.message}"</i><br>
+        <button onclick="deleteGraduate(${g.id})">Delete</button>
+      </div>`;
+  });
+  document.getElementById('content').innerHTML = html;
+}
+
+async function addGraduate() {
+  const formData = new FormData();
+  formData.append('name', g_name.value);
+  formData.append('degree', g_degree.value);
+  formData.append('year', g_year.value);
+  formData.append('message', g_message.value);
+  if(g_photo.files[0]) formData.append('photo', g_photo.files[0]);
+
+  await fetch('http://localhost:5000/api/admin/graduate', {
+    method: 'POST',
+    body: formData
+  });
+  alert("Graduate added!");
+  showGraduates();
+}
+
+async function deleteGraduate(id) {
+  if (confirm("Remove this graduate?")) {
+    await fetch(`http://localhost:5000/api/admin/graduate/${id}`, { method: 'DELETE' });
+    showGraduates();
+  }
+  
+}
+</script>
+</body>
+</html>

@@ -47,7 +47,7 @@
 
   /* Header */
   header {
-    background-color: var(--white);
+  
     padding: 1rem 0;
     display: flex;
     justify-content: space-between;
@@ -83,6 +83,23 @@
     color: var(--orange);
   }
 
+    /* Profile Panel */
+      #main {
+      display: flex;
+      transition: all 0.3s;
+    }
+    #profile-panel {
+      width: 0;
+      overflow: hidden;
+      background: #f1f1f1;
+      border-left: 1px solid #ccc;
+      transition: width 0.3s;
+      padding: 20px;
+    }
+
+    #profile-panel.active {
+      width: 300px; /* panel width when open */
+    }
   /* Hero Section */
   .hero {
     background-color: var(--white);
@@ -456,3 +473,12 @@
       font-size: 0.8rem;
     }
   }
+  /* Main with Profile Panel */
+  #main { display: flex;
+  transition: all 0.3s;
+  flex-direction: row-reverse; /* This flips left/right */ }
+  #homepage-content { flex:1; padding:50px; }
+  #profile-panel {
+    width: 0; overflow: hidden; background: #f1f1f1; border-left: 1px solid #ccc; transition: width 0.3s; padding: 1px;
+  }
+  #profile-panel.active { width: 300px; }

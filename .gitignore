@@ -1,0 +1,11 @@
+# Secrets
+backend/.env
+
+# Node dependencies
+node_modules/
+
+# Legacy local DB
+backend/database.db
+
+# Uploads
+uploads/
