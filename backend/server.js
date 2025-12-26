@@ -17,6 +17,8 @@ const supabaseAdmin = createClient(
 );
 
 const app = express();
+
+// MIDDLEWARE
 app.use(express.json());
 app.use(cors());
 
@@ -33,151 +35,109 @@ app.get(['/', '/index.html', '/home', '/homepage.html'], (req, res) => {
 
 // -------------------- DATABASE SETUP --------------------
 
-const dbFile = path.join(__dirname, 'database.db');
-const db = new sqlite3.Database(dbFile);
 
-db.serialize(() => {
 
-  db.run(`CREATE TABLE IF NOT EXISTS scholars (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    scholar_id TEXT UNIQUE,
-    name TEXT,
-    email TEXT,
-    password TEXT,
-    degree TEXT,
-    photo TEXT
-  )`);
 
-  db.run(`CREATE TABLE IF NOT EXISTS applications (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT,
-    email TEXT,
-    course TEXT,
-    requirements TEXT,
-    file TEXT
-  )`);
+// UPLOAD FOLDER
+app.use("/uploads", express.static(path.join(__dirname, "..", "uploads")));
 
-  db.run(`CREATE TABLE IF NOT EXISTS grades (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    scholar_id TEXT,
-    semester TEXT,
-    grade_file TEXT,
-    journal TEXT
-  )`);
+// ---------------------- DATABASE CONNECTION ----------------------
+console.log("Loaded DATABASE_URL:", process.env.DATABASE_URL);
 
-  db.run(`CREATE TABLE IF NOT EXISTS admin (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    email TEXT,
-    password TEXT
-  )`);
-
-  db.run(`CREATE TABLE IF NOT EXISTS announcements (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    title TEXT,
-    content TEXT,
-    date TEXT
-  )`);
-
-  db.run(`CREATE TABLE IF NOT EXISTS graduates (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT,
-    degree TEXT,
-    year TEXT,
-    message TEXT,
-    photo TEXT
-  )`);
-
-  // Insert default admin
-  db.get(`SELECT * FROM admin WHERE email='admin@example.com'`, (err, row) => {
-    if (!row) {
-      db.run(`INSERT INTO admin (email, password) VALUES ('admin@example.com', 'admin123')`);
-      console.log('✔ Default admin created: admin@example.com / admin123');
-    }
-  });
+const pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: { rejectUnauthorized: false } // Required for Neon
 });
 
+// TEST DB CONNECTION
+pool.query("SELECT NOW()")
+    .then(() => console.log("✅ PostgreSQL connected"))
+    .catch(err => console.error("❌ PostgreSQL connection error:", err));
 
-// -------------------- FILE UPLOAD SETUP --------------------
-
+// ---------------------- FILE UPLOADS ----------------------
 const storage = multer.diskStorage({
-  destination: path.join(__dirname, '..', 'uploads'),
-  filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname))
+    destination: path.join(__dirname, "..", "uploads"),
+    filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname)),
 });
 
 const upload = multer({ storage });
 
+// ---------------------- ROUTES ----------------------
 
-// -------------------- SCHOLAR ROUTES --------------------
+// Default route → show homepage2.html
+// Homepage
+app.use(express.static(path.join(__dirname, '..', 'frontend')));
+// ---------------- SCHOLAR REGISTRATION ----------------
+app.post("/api/register", async (req, res) => {
+    const { name, email, password } = req.body;
+    const scholar_id = "S" + Date.now();
 
-// Register new scholar
-app.post('/api/register', (req, res) => {
-  const { name, email, password } = req.body;
-  const scholar_id = "S" + Date.now();
-
-  db.run(
-    `INSERT INTO scholars (scholar_id, name, email, password) VALUES (?, ?, ?, ?)`,
-    [scholar_id, name, email, password],
-    err => {
-      if (err) return res.status(500).send(err.message);
-      res.send({ scholar_id });
+    try {
+        await pool.query(
+            `INSERT INTO scholars (scholar_id, name, email, password)
+             VALUES ($1,$2,$3,$4)`,
+            [scholar_id, name, email, password]
+        );
+        res.send({ scholar_id });
+    } catch (err) {
+        res.status(500).send(err.message);
     }
-  );
 });
 
-// Scholar Login
-app.post('/api/login', (req, res) => {
-  const { scholar_id, password } = req.body;
+// ---------------- SCHOLAR LOGIN ----------------
+app.post("/api/login", async (req, res) => {
+    const { scholar_id, password } = req.body;
 
-  db.get(
-    `SELECT scholar_id, name, degree, email FROM scholars WHERE scholar_id=? AND password=?`,
-    [scholar_id, password],
-    (err, row) => {
-      if (err) return res.status(500).json({ error: "Server error" });
-      if (!row) return res.status(400).json({ error: "Invalid ID or password" });
+    try {
+        const result = await pool.query(
+            `SELECT scholar_id, name, degree, email 
+             FROM scholars 
+             WHERE scholar_id=$1 AND password=$2`,
+            [scholar_id, password]
+        );
 
-      res.json(row);
+        if (result.rows.length === 0)
+            return res.status(400).json({ error: "Invalid ID or password" });
+
+        res.json(result.rows[0]);
+
+    } catch (err) {
+        res.status(500).send("Server error");
     }
-  );
 });
 
-// Apply for scholarship (applicant)
-app.post('/api/apply', upload.single('file'), (req, res) => {
-  const { name, email, course, requirements } = req.body;
-  const file = req.file ? req.file.filename : null;
+// ---------------- ADMIN LOGIN ----------------
+app.post("/api/admin/login", async (req, res) => {
+    const { email, password } = req.body;
 
-  db.run(
-    `INSERT INTO applications (name, email, course, requirements, file) VALUES (?, ?, ?, ?, ?)`,
-    [name, email, course, requirements, file],
-    err => err ? res.status(500).send(err.message) : res.send("Application submitted")
-  );
-});
+    try {
+        const result = await pool.query(
+            "SELECT * FROM admin WHERE email=$1 AND password=$2",
+            [email, password]
+        );
 
-// Update scholar degree
-app.post('/api/profile', (req, res) => {
-  const { scholar_id, degree } = req.body;
+        console.log("Admin login query result:", result.rows);
 
-  db.run(
-    `UPDATE scholars SET degree=? WHERE scholar_id=?`,
-    [degree, scholar_id],
-    err => {
-      if (err) return res.status(500).send(err.message);
-      res.send("Profile updated");
+        if (result.rows.length === 0)
+            return res.status(401).json({ error: "Invalid admin credentials" });
+
+        res.json({
+            message: "Login successful",
+            admin: result.rows[0]
+        });
+
+    } catch (err) {
+        res.status(500).json({ error: err.message });
     }
-  );
 });
 
-// Upload grades + journal
-app.post('/api/upload', upload.single('grade_file'), (req, res) => {
-  const { scholar_id, semester, journal } = req.body;
-  const filename = req.file ? req.file.filename : null;
-
-  db.run(
-    `INSERT INTO grades (scholar_id, semester, grade_file, journal) VALUES (?, ?, ?, ?)`,
-    [scholar_id, semester, filename, journal],
-    err => err ? res.status(500).send(err.message) : res.send("Grade uploaded")
-  );
+// ---------------- TEST API ----------------
+app.get("/api/test", (req, res) => {
+    res.send("🟢 Backend is running!");
 });
 
+// ---------------- START SERVER ----------------
+const PORT = process.env.PORT || 5000;
 
 // Applicant registration
 app.post('/api/register', async (req, res) => {
@@ -319,6 +279,7 @@ Please log in and change your password.`
 });
 
 
-app.listen(5000, () => {
-  console.log('Server running at http://localhost:5000');
+app.listen(PORT, () => {
+  console.log('Server running at http://localhost:${PORT}');
 });
+
