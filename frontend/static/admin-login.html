@@ -17,6 +17,7 @@ async function loginAdmin() {
       password: document.getElementById('password').value
     })
   });
+<<<<<<< HEAD
 
   const data = await res.json();
 
@@ -25,6 +26,13 @@ async function loginAdmin() {
     window.location = data.redirect;
   } else {
     alert(data?.error || 'Invalid admin credentials');
+=======
+  if (res.ok) {
+    localStorage.setItem('isAdmin', 'true');
+    window.location = 'admin-dashboard.html';
+  } else {
+    alert('Invalid admin credentials');
+>>>>>>> main
   }
 }
 </script>
