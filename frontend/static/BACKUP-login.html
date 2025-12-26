@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><title>Scholar Login</title></head>
+<body>
+
+<h2>Scholar Login</h2>
+
+<input id="scholar_id" placeholder="Scholar ID"><br>
+<input id="password" type="password" placeholder="Password"><br>
+
+<button onclick="login()">Login</button>
+
+<script>
+async function login() {
+  const scholar_id = document.getElementById('scholar_id').value;
+  const password    = document.getElementById('password').value;
+
+  const res = await fetch('http://localhost:5000/api/login', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ scholar_id, password })
+  });
+
+  const data = await res.json();
+
+  if (res.ok) {
+    // Save individually (recommended)
+    localStorage.setItem("scholar_id", data.scholar_id);
+    localStorage.setItem("scholar_name", data.name);
+    localStorage.setItem("scholar_degree", data.degree);
+
+    // Or save the whole object
+    localStorage.setItem("scholar", JSON.stringify(data));
+
+    window.location = 'homepage2.html';
+  } else {
+    alert(data.error);
+  }
+}
+</script>
+
+</body>
+</html>
