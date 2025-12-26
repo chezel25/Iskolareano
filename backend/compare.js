@@ -17,19 +17,13 @@ const supabaseAdmin = createClient(
 );
 
 const app = express();
+// MIDDLEWARE
 app.use(express.json());
 app.use(cors());
 // Paths
 app.use(express.static(path.join(__dirname, '..', 'frontend')));
 // Uploads
 app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
-
-app.get(['/', '/index.html', '/home'], (req, res) => {
-  res.sendFile(
-    path.join(__dirname, '..', 'frontend/static', 'BLUE ORANGE.html')
-  );
-});
-
 
 // Applicant registration
 app.post('/api/register', async (req, res) => {
@@ -170,7 +164,3 @@ Please log in and change your password.`
   }
 });
 
-
-app.listen(5000, () => {
-  console.log('Server running at http://localhost:5000');
-});
