@@ -63,7 +63,7 @@ async function loadApplicants() {
 
 async function loadScholars() {
   try {
-    const res = await fetch('http://localhost:5000/api/admin/scholars');
+    const res = await fetch('http://localhost:5000/api/admin/view-scholars');
     const data = await res.json();
 
     let html = "<h3>Current Scholars</h3><table border='1'><tr><th>Scholar ID</th><th>Full Name</th><th>Email</th><th>Degree</th></tr>";

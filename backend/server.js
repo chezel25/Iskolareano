@@ -1,4 +1,4 @@
-require('dotenv').config({ path: '../.env' });
+require('dotenv').config();
 
 const express = require('express');
 const cors = require('cors');
@@ -121,7 +121,6 @@ app.post('/api/admin/login', async (req, res) => {
   }
 });
 
-
 // Admin creates scholar
 app.post('/api/admin/create-scholar', async (req, res) => {
   const { name, email, degree } = req.body;
@@ -170,6 +169,58 @@ Please log in and change your password.`
   }
 });
 
+// View Scholar
+app.get('/api/admin/view-scholars', async (req, res) => {
+  try {
+    const { data, error } = await supabaseAdmin
+      .from('profiles')
+      .select('id, full_name, email, scholar_id, degree')
+      .eq('role', 'scholar');
+
+    if (error) throw error;
+
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Token login
+app.get('/api/me', async (req, res) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) {
+    return res.status(401).json({ error: 'No authorization header' });
+  }
+
+  const token = authHeader.replace('Bearer ', '');
+
+  try {
+    // Validate token via Supabase Auth
+    const { data: authData, error: authError } =
+      await supabaseAdmin.auth.getUser(token);
+
+    if (authError || !authData.user) {
+      return res.status(401).json({ error: 'Invalid token' });
+    }
+
+    const userId = authData.user.id;
+
+    // Fetch profile record
+    const { data: profile, error: profileError } =
+      await supabaseAdmin
+        .from('profiles')
+        .select('full_name, email, role, scholar_id, degree, semester')
+        .eq('id', userId)
+        .single();
+
+    if (profileError) throw profileError;
+
+    res.json(profile);
+
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
 app.listen(5000, () => {
   console.log('Server running at http://localhost:5000');
