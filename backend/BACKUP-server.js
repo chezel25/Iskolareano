@@ -1,332 +1,234 @@
-require('dotenv').config({ path: '../.env' });
-const express = require('express');
-const sqlite3 = require('sqlite3').verbose();
-const cors = require('cors');
-const multer = require('multer');
-const path = require('path');
-const nodemailer = require('nodemailer');
+import express from 'express';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import nodemailer from 'nodemailer';
+import { createClient } from '@supabase/supabase-js';
 
-const { createClient } = require('@supabase/supabase-js');
+dotenv.config();
 
+const app = express();
+app.use(cors());
+app.use(express.json());
+
+// ---------------- SUPABASE ----------------
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
+// Test DB connection
+(async () => {
+  const { data, error } = await supabase.from('scholars').select('*').limit(1);
+  if (error) {
+    console.error("❌ Postgres connection failed:", error.message);
+  } else {
+    console.log("✅ Postgres connected, test query success");
+  }
+})();
 
-const app = express();
-app.use(express.json());
-app.use(cors());
-app.use(express.static(path.join(__dirname, '..', 'frontend')));
-app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
-app.get(['/', '/index.html', '/home', '/homepage.html'], (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'frontend/static', 'BLUE ORANGE.html'));
-});
-
-// -------------------- DATABASE SETUP --------------------
-
-const dbFile = path.join(__dirname, 'database.db');
-const db = new sqlite3.Database(dbFile);
-
-db.serialize(() => {
-
-  db.run(`CREATE TABLE IF NOT EXISTS scholars (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    scholar_id TEXT UNIQUE,
-    name TEXT,
-    email TEXT,
-    password TEXT,
-    degree TEXT,
-    photo TEXT
-  )`);
-
-  db.run(`CREATE TABLE IF NOT EXISTS applications (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT,
-    email TEXT,
-    course TEXT,
-    requirements TEXT,
-    file TEXT
-  )`);
-
-  db.run(`CREATE TABLE IF NOT EXISTS grades (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    scholar_id TEXT,
-    semester TEXT,
-    grade_file TEXT,
-    journal TEXT
-  )`);
-
-  db.run(`CREATE TABLE IF NOT EXISTS admin (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    email TEXT,
-    password TEXT
-  )`);
-
-  db.run(`CREATE TABLE IF NOT EXISTS announcements (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    title TEXT,
-    content TEXT,
-    date TEXT
-  )`);
-
-  db.run(`CREATE TABLE IF NOT EXISTS graduates (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT,
-    degree TEXT,
-    year TEXT,
-    message TEXT,
-    photo TEXT
-  )`);
-
-  // Insert default admin
-  db.get(`SELECT * FROM admin WHERE email='admin@example.com'`, (err, row) => {
-    if (!row) {
-      db.run(`INSERT INTO admin (email, password) VALUES ('admin@example.com', 'admin123')`);
-      console.log('✔ Default admin created: admin@example.com / admin123');
-    }
-  });
-});
-
-
-// -------------------- FILE UPLOAD SETUP --------------------
-
-const storage = multer.diskStorage({
-  destination: path.join(__dirname, '..', 'uploads'),
-  filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname))
-});
-
-const upload = multer({ storage });
-
-
-// -------------------- SCHOLAR ROUTES --------------------
-
-// Register new scholar
-app.post('/api/register', (req, res) => {
-  const { name, email, password } = req.body;
-  const scholar_id = "S" + Date.now();
-
-  db.run(
-    `INSERT INTO scholars (scholar_id, name, email, password) VALUES (?, ?, ?, ?)`,
-    [scholar_id, name, email, password],
-    err => {
-      if (err) return res.status(500).send(err.message);
-      res.send({ scholar_id });
-    }
-  );
-});
-
-// Scholar Login
-app.post('/api/login', (req, res) => {
-  const { scholar_id, password } = req.body;
-
-  db.get(
-    `SELECT scholar_id, name, degree, email FROM scholars WHERE scholar_id=? AND password=?`,
-    [scholar_id, password],
-    (err, row) => {
-      if (err) return res.status(500).json({ error: "Server error" });
-      if (!row) return res.status(400).json({ error: "Invalid ID or password" });
-
-      res.json(row);
-    }
-  );
-});
-
-// Apply for scholarship (applicant)
-app.post('/api/apply', upload.single('file'), (req, res) => {
-  const { name, email, course, requirements } = req.body;
-  const file = req.file ? req.file.filename : null;
-
-  db.run(
-    `INSERT INTO applications (name, email, course, requirements, file) VALUES (?, ?, ?, ?, ?)`,
-    [name, email, course, requirements, file],
-    err => err ? res.status(500).send(err.message) : res.send("Application submitted")
-  );
-});
-
-// Update scholar degree
-app.post('/api/profile', (req, res) => {
-  const { scholar_id, degree } = req.body;
-
-  db.run(
-    `UPDATE scholars SET degree=? WHERE scholar_id=?`,
-    [degree, scholar_id],
-    err => {
-      if (err) return res.status(500).send(err.message);
-      res.send("Profile updated");
-    }
-  );
-});
-
-// Upload grades + journal
-app.post('/api/upload', upload.single('grade_file'), (req, res) => {
-  const { scholar_id, semester, journal } = req.body;
-  const filename = req.file ? req.file.filename : null;
-
-  db.run(
-    `INSERT INTO grades (scholar_id, semester, grade_file, journal) VALUES (?, ?, ?, ?)`,
-    [scholar_id, semester, filename, journal],
-    err => err ? res.status(500).send(err.message) : res.send("Grade uploaded")
-  );
-});
-
-
-// -------------------- ADMIN ROUTES --------------------
-
-// Admin login
-app.post('/api/admin/login', (req, res) => {
+// ---------------- LOGIN SCHOLAR ----------------
+app.post('/api/login', async (req, res) => {
   const { email, password } = req.body;
 
-  db.get(
-    `SELECT * FROM admin WHERE email=? AND password=?`,
-    [email, password],
-    (err, row) => {
-      if (err) return res.status(500).send(err.message);
-      if (!row) return res.status(401).send("Invalid admin credentials");
+  if (!email || !password) {
+    return res.status(400).json({ error: 'Email and password required' });
+  }
 
-      res.send({ message: "Login successful" });
+  // ⚠️ IMPORTANT: use ANON KEY for login, NOT service role
+  const supabaseAuth = createClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_ANON_KEY
+  );
+
+  try {
+    // 1️⃣ AUTHENTICATE USER
+    const { data, error } = await supabaseAuth.auth.signInWithPassword({
+      email,
+      password
+    });
+
+    if (error) {
+      return res.status(401).json({ error: error.message });
     }
-  );
+
+    const user = data.user;
+
+    // 2️⃣ FETCH SCHOLAR PROFILE
+    const { data: scholar, error: profileError } = await supabase
+      .from('scholars')
+      .select('*')
+      .eq('id', user.id)
+      .single();
+
+    if (profileError) {
+      return res.status(404).json({ error: 'Scholar profile not found' });
+    }
+
+    // 3️⃣ RETURN DATA (NO PASSWORD EVER)
+    res.json({
+      id: scholar.id,
+      scholar_id: scholar.scholar_id,
+      name: scholar.name,
+      degree: scholar.degree,
+      email: scholar.email
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+// ---------------- FORGOT PASSWORD ----------------
+app.post('/api/forgot-password', async (req, res) => {
+  const { email } = req.body;
+
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: 'http://localhost:5500/reset-password.html'
+  });
+
+  if (error) {
+    console.error(error);
+    return res.status(400).json({ error: 'Email not found' });
+  }
+
+  res.json({ message: 'Password reset email sent' });
 });
 
-// Get all applicants
-app.get('/api/admin/applicants', (req, res) => {
-  db.all(`SELECT * FROM applications ORDER BY id DESC`, [], (err, rows) =>
-    err ? res.status(500).send(err.message) : res.send(rows)
-  );
+// ---------------- RESET PASSWORD ----------------
+app.post('/api/forgot-password', async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({ error: 'Email is required' });
+  }
+
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: 'http://localhost:5500/reset-password.html'
+  });
+
+  if (error) {
+    console.error('RESET ERROR:', error);
+    return res.status(400).json({ error: error.message });
+  }
+
+  res.json({ message: 'Password reset email sent' });
 });
 
-// Get all scholars + journal
-app.get('/api/admin/scholars', (req, res) => {
-  db.all(
-    `SELECT s.name, s.scholar_id, s.degree, g.semester, g.grade_file, g.journal
-     FROM scholars s LEFT JOIN grades g ON s.scholar_id = g.scholar_id
-     ORDER BY s.name`,
-    [],
-    (err, rows) => err ? res.status(500).send(err.message) : res.send(rows)
-  );
-});
+// ---------------- TEMP PASSWORD ----------------
+function generateTempPassword() {
+  return 'ISKOLAREAN' + Math.floor(100 + Math.random() * 900);
+}
 
-
-// -------------------- ANNOUNCEMENTS --------------------
-
-app.post('/api/admin/announcement', (req, res) => {
-  const { title, content } = req.body;
-  const date = new Date().toLocaleString();
-
-  db.run(
-    `INSERT INTO announcements (title, content, date) VALUES (?, ?, ?)`,
-    [title, content, date],
-    err => err ? res.status(500).send(err.message) : res.send("Announcement posted")
-  );
-});
-
-app.get('/api/announcements', (req, res) => {
-  db.all(
-    `SELECT * FROM announcements ORDER BY id DESC`,
-    [],
-    (err, rows) => err ? res.status(500).send(err.message) : res.send(rows)
-  );
-});
-
-app.delete('/api/admin/announcement/:id', (req, res) => {
-  db.run(
-    `DELETE FROM announcements WHERE id=?`,
-    [req.params.id],
-    err => err ? res.status(500).send(err.message) : res.send("Announcement deleted")
-  );
-});
-
-
-// -------------------- GRADUATES --------------------
-
-app.post('/api/admin/graduate', upload.single('photo'), (req, res) => {
-  const { name, degree, year, message } = req.body;
-  const photo = req.file ? req.file.filename : null;
-
-  db.run(
-    `INSERT INTO graduates (name, degree, year, message, photo) VALUES (?, ?, ?, ?, ?)`,
-    [name, degree, year, message, photo],
-    err => err ? res.status(500).send(err.message) : res.send("Graduate added")
-  );
-});
-
-app.get('/api/graduates', (req, res) => {
-  db.all(
-    `SELECT * FROM graduates ORDER BY id DESC`,
-    [],
-    (err, rows) => err ? res.status(500).send(err.message) : res.send(rows)
-  );
-});
-
-app.delete('/api/admin/graduate/:id', (req, res) => {
-  db.run(
-    `DELETE FROM graduates WHERE id=?`,
-    [req.params.id],
-    err => err ? res.status(500).send(err.message) : res.send("Graduate removed")
-  );
-});
-
-
-// -------------------- SCHOLAR CREATED BY ADMIN --------------------
-
-app.post('/api/admin/create-scholar', (req, res) => {
-  const { scholar_id, name, email, password, degree } = req.body;
-
-  db.run(
-    `INSERT INTO scholars (scholar_id, name, email, password, degree) VALUES (?, ?, ?, ?, ?)`,
-    [scholar_id, name, email, password, degree],
-    err => err ? res.status(500).send(err.message) : res.send("Scholar account created")
-  );
-});
-
-
-// -------------------- PASSWORD RESET --------------------
-
+// ---------------- EMAIL TRANSPORT ----------------
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: 'your-email@gmail.com',
-    pass: 'your-email-password'
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS
   }
 });
 
-app.post('/api/reset-password', (req, res) => {
-  const { email, newPassword } = req.body;
+// ---------------- CREATE SCHOLAR ----------------
+app.post('/api/admin/create-scholar', async (req, res) => {
+  const { scholar_id, name, email, degree } = req.body;
+  const tempPassword = generateTempPassword();
 
-  db.get(`SELECT * FROM scholars WHERE email=?`, [email], (err, row) => {
-    if (!row) return res.status(404).send('Email not found');
-
-    db.run(`UPDATE scholars SET password=? WHERE email=?`, [newPassword, email], err => {
-      if (err) return res.status(500).send(err.message);
-
-      const mailOptions = {
-        from: 'your-email@gmail.com',
-        to: email,
-        subject: 'Password Reset - ISKOLAREALENO',
-        text: `Your password has been reset.\nNew Password: ${newPassword}`
-      };
-
-      transporter.sendMail(mailOptions, (error) => {
-        if (error) return res.status(500).send(error.message);
-        res.send('Password reset successfully. Check your email.');
-      });
-    });
-  });
-});
-// test route
-app.get('/api/supabase-test', async (req, res) => {
   try {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*');
-    if (error) throw error;
-    res.json(data);
+    // 1️⃣ CREATE AUTH USER
+    const { data: authData, error: authError } =
+      await supabase.auth.admin.createUser({
+        email,
+        password: tempPassword,
+        email_confirm: true
+      });
+
+    if (authError) {
+      console.error("Auth error:", authError);
+      return res.status(400).json({ error: authError.message });
+    }
+
+    console.log("✅ Auth user created:", authData.user.id);
+
+    // 2️⃣ INSERT SCHOLAR PROFILE (LINKED TO AUTH USER)
+    const { error: insertError } = await supabase
+      .from('scholars')
+      .insert({
+        id: authData.user.id, // 🔑 CRITICAL
+        scholar_id,
+        name,
+        email,
+        degree
+      });
+
+    if (insertError) {
+      console.error("Insert error:", insertError);
+      return res.status(400).json({ error: insertError.message });
+    }
+
+    // 3️⃣ SEND EMAIL
+    await transporter.sendMail({
+      from: `"Iskolar ng Realeno" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: 'Scholar Account Created',
+      text: `Hello ${name},
+
+Your scholar account has been created.
+
+Email: ${email}
+Temporary Password: ${tempPassword}
+
+Please log in and change your password immediately.
+
+Regards,
+Iskolar ng Realeno Team`
+    });
+
+    res.json({
+      success: true,
+      message: 'Scholar created successfully'
+    });
+
   } catch (err) {
-    res.status(500).send(err.message);
+    console.error("SERVER ERROR:", err);
+    res.status(500).json({ error: 'Server error' });
   }
 });
-// -------------------- START SERVER --------------------
 
-app.listen(5000, () =>
-  console.log("🚀 Server running at http://localhost:5000")
+
+// ---------------- GET ALL SCHOLARS ----------------
+app.get('/api/admin/scholars', async (req, res) => {
+  const { data, error } = await supabase
+    .from('scholars')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) return res.status(500).json(error);
+  res.json(data);
+});
+
+// ---------------- ANNOUNCEMENTS ----------------
+app.post('/api/admin/announcement', async (req, res) => {
+  const { title, content } = req.body;
+
+  const { error } = await supabase
+    .from('announcements')
+    .insert({ title, content });
+
+  if (error) return res.status(500).json(error);
+  res.send('Announcement posted');
+});
+
+app.get('/api/announcements', async (req, res) => {
+  const { data, error } = await supabase
+    .from('announcements')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) return res.status(500).json(error);
+  res.json(data);
+});
+
+// ---------------- SERVER ----------------
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () =>
+  console.log(`✅ Server running on http://localhost:${PORT}`)
 );
