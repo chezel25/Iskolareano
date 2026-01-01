@@ -1,5 +1,3 @@
-document.getElementById("loginBtn").addEventListener("click", login);
-
 async function login() {
   const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value.trim();

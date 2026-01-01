@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>ISKOLAREALENO Scholarship Portal</title>
-<link rel="stylesheet" href="/iskolarealeno/frontend/css/homepage2.css">
+<link rel="stylesheet" href="/css/homepage2.css">
 
 
 </head>
@@ -12,7 +12,7 @@
    
 <header class="container" role="banner">
   <div class="logo" aria-label="Iskolarealeno logo and name">
-    <img src="/iskolarealeno/frontend/img/logo.jpg" alt="Iskolarealeno Logo" />
+    <img src="/img/logo.jpg" alt="Iskolarealeno Logo" />
     <span class="logo-text">ISKOLAREALEÑO</span>
   </div>
   <nav role="navigation" aria-label="Main navigation">
@@ -49,7 +49,7 @@
       </p>
     </div>
     <div class="hero-right" aria-label="Scholarship related image">
-      <img src="/iskolarealeno/frontend/img/DOCU1.jpg" alt="Scholars in discussion with advisor" />
+      <img src="/img/DOCU1.jpg" alt="Scholars in discussion with advisor" />
       <div class="hero-stats" aria-label="Statistics of ISKOLAREALEÑO achievements">
         <div>
           <span>147+</span> Batch 1 Scholars
@@ -68,7 +68,7 @@
    <section id="about"></section>
   <section class="crafting-section" aria-label="Crafting Excellence">
     <div class="craft-img">
-      <img src="/iskolarealeno/frontend/img/DOCU2.jpg" alt="Scholarship officer handshake with student" />
+      <img src="/img/DOCU2.jpg" alt="Scholarship officer handshake with student" />
       <div class="years-box">25+ Years of Experience</div>
     </div>
     <div class="craft-text">
@@ -128,7 +128,7 @@
   <div class="news-grid">
 
     <article class="news-card">
-      <img src="/iskolarealeno/frontend/img/DOCU2.jpg" alt="Group meeting or event" />
+      <img src="/img/DOCU2.jpg" alt="Group meeting or event" />
       <h3>Announcements</h3>
 <div id="announcements">...</div>
       <p>Our scholars participated in the Real town outreach program to help local communities.</p>
@@ -136,7 +136,7 @@
     </article>
 
     <article class="news-card">
-       <img src="/iskolarealeno/frontend/img/DOCU3.jpg" alt="Students standing outdoors" />
+       <img src="/img/DOCU3.jpg" alt="Students standing outdoors" />
      
       <h3>Virtual Training Sessions Launched</h3>
       <p>Join our free online seminars designed to enhance students' skills and knowledge.</p>
@@ -144,7 +144,7 @@
     </article>
 
     <article class="news-card join-now">
-      <img src="/iskolarealeno/frontend/img/DOCU4.jpg" alt="Large gathering orientation" />
+      <img src="/img/DOCU4.jpg" alt="Large gathering orientation" />
       <h3>JOIN NOW! Welcoming new scholars</h3>
       <p>Become part of the ISKOLAREALENO family and pursue your education with our full support.</p>
       <button>Apply Now</button>
@@ -155,7 +155,7 @@
 
   <!-- Profile Picture Preview -->
   <div style="text-align:center; margin-bottom:15px;">
-    <img id="profile-preview" src="/iskolarealeno/frontend/img/default-avatar.png" 
+    <img id="profile-preview" src="/img/default-avatar.png" 
          alt="Profile Picture" style="width:100px; height:100px; border-radius:50%; object-fit:cover; border:2px solid #ccc;">
   </div>
 
@@ -183,177 +183,10 @@
    <button><a href="BLUE ORANGE.html"> Logout</a></button>
   <p id="profile-msg" style="color:green;"></p>
 </div>
-
-
-
-  
 </div>
-
 <footer>
   &copy; 2024 ISKOLAREALEÑO | Real, Quezon, Philippines | Contact: info@iskolarealeno.ph
 </footer>
-
-
-
-<script>
-     function toggleProfile() {
-    const panel = document.getElementById('profile-panel');
-    panel.classList.toggle('active');
-    if(panel.classList.contains('active')) loadProfile();
-  }
-
-  function loadProfile() {
-    const scholar = JSON.parse(localStorage.getItem('scholar') || '{}');
-    if(!scholar.scholar_id) {
-      document.getElementById('profile-panel').innerHTML = '<p>Please login first. <a href="login.html">Login</a></p>';
-      return;
-    }
-    document.getElementById('degree').value = scholar.degree || '';
-  }
-
-async function loadAnnouncements() {
-  const res = await fetch('http://localhost:5000/api/announcements');
-  const data = await res.json();
-  if (!data || data.length === 0) {
-    document.getElementById('announcements').innerHTML = "<p>No announcements yet.</p>";
-    return;
-  }
-  let html = "<ul>";
-  data.forEach(a => {
-    html += `<li><b>${a.title}</b> (${a.date})<br>${a.content}</li><hr>`;
-  });
-  html += "</ul>";
-  document.getElementById('announcements').innerHTML = html;
-}
-
-async function loadGraduates() {
-  const res = await fetch('http://localhost:5000/api/graduates');
-  const data = await res.json();
-  if (!data || data.length === 0) {
-    document.getElementById('graduates').innerHTML = "<p>No graduates yet.</p>";
-    return;
-  }
-  let html = "";
-  data.forEach(g => {
-    html += `
-      <div style="border:1px solid #ccc; padding:10px; margin:10px; border-radius:10px; width:300px;">
-        <img src="http://localhost:5000/uploads/${g.photo}" width="100" style="border-radius:50%;"><br>
-        <b>${g.name}</b><br>
-        <small>${g.degree} (${g.year})</small><br>
-        <i>"${g.message}"</i>
-      </div>`;
-  });
-  document.getElementById('graduates').innerHTML = html;
-}
-
-loadAnnouncements();
-loadGraduates();
-const scholarprofile = JSON.parse(localStorage.getItem('scholar') || '{}');
-if(!scholar.scholar_id) {
-  document.getElementById('profile-panel').innerHTML = '<p>Please login first. <a href="login.html">Login</a></p>';
-}
-
-
-//PROFILE FEATURES
-
-const scholar = JSON.parse(localStorage.getItem('scholar') || '{}');
-
-// If not logged in
-if(!scholar.scholar_id) {
-  document.getElementById('profile-panel').innerHTML = '<p>Please login first. <a href="login.html">Login</a></p>';
-}
-
-// Preview profile picture on file select
-document.getElementById('profile-pic').addEventListener('change', function() {
-  const file = this.files[0];
-  if(file) {
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      document.getElementById('profile-preview').src = e.target.result;
-    }
-    reader.readAsDataURL(file);
-  }
-});
-
-async function updateProfile() {
-  const degree = document.getElementById('degree').value;
-  const picFile = document.getElementById('profile-pic').files[0];
-
-  const formData = new FormData();
-  formData.append('scholar_id', scholar.scholar_id);
-  formData.append('degree', degree);
-  if(picFile) formData.append('profile_pic', picFile);
-
-  try {
-    const res = await fetch('http://localhost:5000/api/profile', {
-      method: 'POST',
-      body: formData
-    });
-    const text = await res.text();
-    document.getElementById('profile-msg').textContent = text;
-
-    // Optionally save uploaded picture locally
-    if(picFile) {
-      const reader = new FileReader();
-      reader.onload = e => localStorage.setItem('profile_pic', e.target.result);
-      reader.readAsDataURL(picFile);
-    }
-
-  } catch (err) {
-    console.error(err);
-    document.getElementById('profile-msg').textContent = "Update failed. Try again.";
-  }
-}
-
-// Load existing profile picture from localStorage if available
-const savedPic = localStorage.getItem('profile_pic');
-if(savedPic) {
-  document.getElementById('profile-preview').src = savedPic;
-}
-// Fetch scholar info from backend
-async function loadProfile() {
-  try {
-    const res = await fetch(`http://localhost:5000/api/scholar/${scholar.scholar_id}`);
-    const data = await res.json();
-
-    if(data) {
-      scholar = {...scholar, ...data}; // merge with localStorage object
-      localStorage.setItem('scholar', JSON.stringify(scholar));
-
-      document.getElementById('scholar-name').textContent = scholar.name || '';
-      document.getElementById('scholar-degree').textContent = scholar.degree || '';
-    }
-  } catch(err) {
-    console.error(err);
-    document.getElementById('scholar-name').textContent = "Error loading";
-    document.getElementById('scholar-degree').textContent = "Error loading";
-  }
-}
-
-async function updateProfile() {
-  const semester = document.getElementById('semester').value;
-  const gradeFile = document.getElementById('grade-file').files[0];
-  const journal = document.getElementById('journal').files[0];
-
-  const formData = new FormData();
-  formData.append('scholar_id', scholar.scholar_id);
-  formData.append('semester', semester);
-  if(gradeFile) formData.append('grade_file', gradeFile);
-  if(journal) formData.append('journal', journal);
-
-  try {
-    const res = await fetch('http://localhost:5000/api/profile/update', {
-      method: 'POST',
-      body: formData
-    });
-    const text = await res.text();
-    document.getElementById('profile-msg').textContent = text;
-  } catch(err) {
-    console.error(err);
-    document.getElementById('profile-msg').textContent = "Update failed. Try again.";
-  }
-}
-
-</script>
+<script src="/js/homepage2.js"></script>
 </body>
 </html>

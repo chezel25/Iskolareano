@@ -84,12 +84,14 @@ app.post('/api/login', async (req, res) => {
       });
     }
 
-    res.json({
-      full_name: profile.full_name,
-      role: profile.role,
-      scholar_id: profile.scholar_id,
-      degree: profile.degree
-    });
+      res.json({
+        access_token: data.session.access_token,
+        full_name: profile.full_name,
+        role: profile.role,
+        scholar_id: profile.scholar_id,
+        degree: profile.degree
+      });
+
 
   } catch (err) {
     res.status(500).json({ error: 'Server error' });
@@ -169,6 +171,23 @@ Please log in and change your password.`
   }
 });
 
+// View Applicants
+app.get('/api/admin/view-applicants', async (req, res) => {
+  try {
+    const { data, error } = await supabaseAdmin
+      .from('profiles')
+      .select('id, full_name, email, degree')
+      .eq('role', 'applicant')
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // View Scholar
 app.get('/api/admin/view-scholars', async (req, res) => {
   try {
@@ -217,6 +236,42 @@ app.get('/api/me', async (req, res) => {
 
     res.json(profile);
 
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Updates Profile
+app.post('/api/profile/update', async (req, res) => {
+  try {
+    const { degree, semester } = req.body;
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader) {
+      return res.status(401).json({ error: 'No token' });
+    }
+
+    const token = authHeader.replace('Bearer ', '');
+
+    const { data: authData, error: authError } =
+      await supabaseAdmin.auth.getUser(token);
+
+    if (authError || !authData.user) {
+      return res.status(401).json({ error: 'Invalid token' });
+    }
+
+    const updates = {};
+    if (degree) updates.degree = degree;
+    if (semester) updates.semester = semester;
+
+    const { error } = await supabaseAdmin
+      .from('profiles')
+      .update(updates)
+      .eq('id', authData.user.id);
+
+    if (error) throw error;
+
+    res.json({ message: 'Profile updated successfully' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
