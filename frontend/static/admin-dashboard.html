@@ -16,33 +16,42 @@
   function showCreateScholarForm() {
   const html = `
     <h3>Create Scholar Account</h3>
-    <input id="new_name" placeholder="Full Name"><br>
-    <input id="new_email" placeholder="Email"><br>
-    <input id="new_degree" placeholder="Degree (optional)"><br>
-    <button onclick="createScholar()">Create Scholar</button>
+    <input id="first_name" placeholder="First Name"><br>
+<input id="middle_name" placeholder="Middle Name"><br>
+<input id="last_name" placeholder="Last Name"><br>
+<input id="address" placeholder="Address"><br>
+<input id="email" placeholder="Email"><br>
+<input id="degree" placeholder="Degree"><br>
+<button onclick="createScholar()">Create Scholar</button>
   `;
   document.getElementById('content').innerHTML = html;
 }
 
 async function createScholar() {
+  const first_name = document.getElementById('first_name').value;
+  const middle_name = document.getElementById('middle_name').value;
+  const last_name = document.getElementById('last_name').value;
+  const address = document.getElementById('address').value;
+  const email = document.getElementById('email').value;
+  const degree = document.getElementById('degree').value;
+
+  console.log("Sending request:", { first_name, middle_name, last_name, address, email, degree });
+
   const res = await fetch('http://localhost:5000/api/admin/create-scholar', {
     method: 'POST',
-    headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({
-      name: document.getElementById('new_name').value,
-      email: document.getElementById('new_email').value,
-      degree: document.getElementById('new_degree').value
-    })
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ first_name, middle_name, last_name, address, email, degree })
   });
 
-  const result = await res.json();
-  if(res.ok) {
-    alert(`Scholar account created!\nEmail sent with Scholar ID and default password.`);
+  const data = await res.json();
+  console.log("Response:", data);
+
+  if (res.ok) {
+    alert("✅ Scholar account created. Check email for temporary password.");
   } else {
-    alert(`Failed: ${result.error}`);
+    alert("❌ Error: " + data.error);
   }
 }
-
 async function loadApplicants() {
   const res = await fetch('http://localhost:5000/api/admin/applicants');
   const data = await res.json();
