@@ -112,7 +112,7 @@
 
   <input id="email" type="email" class="input-box" placeholder="Email">
   <input id="password" type="password" class="input-box" placeholder="Password">
-<button type="button" onclick="login()">Login</button>
+<button type="button" id="loginBtn">Login</button>
 
   <a href="signup.html" class="back">← Sign up</a>
   <a href="forgot-password.html" class="back">← forgot password?</a>
@@ -120,32 +120,47 @@
 
 <!-- Load Supabase JS -->
 <script>
-async function login() {
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
+document.addEventListener("DOMContentLoaded", () => {
+  const btn = document.getElementById("loginBtn");
 
-  const res = await fetch("http://localhost:5000/api/login", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password })
+  btn.addEventListener("click", async () => {
+    alert("Login button clicked"); // ✅ TEST — YOU MUST SEE THIS
+
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+
+    try {
+      const res = await fetch("http://localhost:5000/api/login", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ email, password })
+});
+
+const data = await res.json();
+
+// 👇 ADD THESE
+
+
+      if (!res.ok) {
+        alert("❌ " + data.error);
+        return;
+      }
+
+      localStorage.setItem("user", JSON.stringify(data.user));
+      localStorage.setItem("role", data.role);
+
+      if (data.role === "applicant") {
+        window.location.href = "applicant-dashboard.html";
+      } else if (data.role === "scholar") {
+        window.location.href = "homepage2.html";
+      }
+
+    } catch (err) {
+      alert("FETCH ERROR: " + err.message);
+    }
   });
-
-  const data = await res.json();
-
-  if (!res.ok) {
-    alert("❌ " + data.error);
-    return;
-  }
-
-  alert("✅ Login successful");
-
-  localStorage.setItem("scholar", JSON.stringify(data));
-  window.location.href = "homepage2.html";
-}
+});
 </script>
-
-
-
 
 
 </body>

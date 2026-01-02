@@ -65,7 +65,7 @@ const supabase = createClient(
   }
 })();
 
-// ---------------- LOGIN SCHOLAR ----------------
+// ---------------- LOGIN (APPLICANT OR SCHOLAR) ----------------
 app.post('/api/login', async (req, res) => {
   const { email, password } = req.body;
 
@@ -73,14 +73,12 @@ app.post('/api/login', async (req, res) => {
     return res.status(400).json({ error: 'Email and password required' });
   }
 
-  // ⚠️ IMPORTANT: use ANON KEY for login, NOT service role
   const supabaseAuth = createClient(
     process.env.SUPABASE_URL,
     process.env.SUPABASE_ANON_KEY
   );
 
   try {
-    // 1️⃣ AUTHENTICATE USER
     const { data, error } = await supabaseAuth.auth.signInWithPassword({
       email,
       password
@@ -92,24 +90,98 @@ app.post('/api/login', async (req, res) => {
 
     const user = data.user;
 
-    // 2️⃣ FETCH SCHOLAR PROFILE
-    const { data: scholar, error: profileError } = await supabase
+    // CHECK SCHOLARS
+    const { data: scholar } = await supabase
       .from('scholars')
       .select('*')
       .eq('id', user.id)
       .single();
 
-    if (profileError) {
-      return res.status(404).json({ error: 'Scholar profile not found' });
+    if (scholar) {
+      return res.json({
+        role: "scholar",
+        user: scholar
+      });
     }
 
-    // 3️⃣ RETURN DATA (NO PASSWORD EVER)
-    res.json({
-      id: scholar.id,
-      scholar_id: scholar.scholar_id,
-      name: scholar.name,
-      degree: scholar.degree,
-      email: scholar.email
+    // CHECK APPLICANTS
+    const { data: applicant } = await supabase
+      .from('applicants')
+      .select('*')
+      .eq('id', user.id)
+      .single();
+
+    if (applicant) {
+      return res.json({
+        role: "applicant",
+        user: applicant
+      });
+    }
+
+    return res.status(404).json({ error: "Profile not found" });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+
+// ---------------- SIGN-UP SCHOLAR APPLICANT----------------
+app.post('/api/login', async (req, res) => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return res.status(400).json({ error: 'Email and password required' });
+  }
+
+  const supabaseAuth = createClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_ANON_KEY
+  );
+
+  try {
+    // 1️⃣ AUTHENTICATE
+    const { data, error } = await supabaseAuth.auth.signInWithPassword({
+      email,
+      password
+    });
+
+    if (error) {
+      return res.status(401).json({ error: error.message });
+    }
+
+    // 2️⃣ CHECK SCHOLARS BY EMAIL
+    const { data: scholar } = await supabase
+      .from('scholars')
+      .select('*')
+      .eq('email', email)
+      .single();
+
+    if (scholar) {
+      return res.json({
+        role: 'scholar',
+        user: scholar
+      });
+    }
+
+    // 3️⃣ CHECK APPLICANTS BY EMAIL
+    const { data: applicant } = await supabase
+      .from('applicants')
+      .select('*')
+      .eq('email', email)
+      .single();
+
+    if (applicant) {
+      return res.json({
+        role: 'applicant',
+        user: applicant
+      });
+    }
+
+    // 4️⃣ NOT FOUND
+    return res.status(404).json({
+      error: 'No applicant or scholar profile found'
     });
 
   } catch (err) {
@@ -117,62 +189,7 @@ app.post('/api/login', async (req, res) => {
     res.status(500).json({ error: 'Server error' });
   }
 });
-// ---------------- SIGN-UP SCHOLAR APPLICANT----------------
-app.post('/api/signup', async (req, res) => {
-  console.log("📥 SIGNUP REQUEST RECEIVED");
-  console.log(req.body);
 
-  const { first_name, middle_name, last_name, address, email, password } = req.body;
-
-  if (!first_name || !last_name || !email || !password) {
-    return res.status(400).json({ error: 'Missing required fields' });
-  }
-
-  try {
-    // 1️⃣ Create Auth User
-    const { data: authData, error: authError } =
-      await supabase.auth.admin.createUser({
-        email,
-        password,
-        email_confirm: true
-      });
-
-    if (authError) {
-      console.error("❌ AUTH ERROR:", authError);
-      return res.status(400).json({ error: authError.message });
-    }
-
-    console.log("✅ AUTH USER CREATED:", authData.user.id);
-
-    // 2️⃣ Insert Applicant Profile
-    const { error: insertError } = await supabase
-      .from('applicants')
-      .insert({
-        id: authData.user.id,
-        first_name,
-        middle_name,
-        last_name,
-        address,
-        email
-      });
-
-    if (insertError) {
-      console.error("❌ INSERT ERROR:", insertError);
-      return res.status(400).json({ error: insertError.message });
-    }
-
-    console.log("✅ APPLICANT PROFILE CREATED");
-
-    res.json({
-      success: true,
-      message: 'Signup successful. You can now log in.'
-    });
-
-  } catch (err) {
-    console.error("🔥 SIGNUP FAILED:", err);
-    res.status(500).json({ error: 'Server error' });
-  }
-});
 
 // ---------------- FORGOT PASSWORD ----------------
 app.post('/api/forgot-password', async (req, res) => {
@@ -333,6 +350,10 @@ app.post('/api/profile/update', async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
+});
+
+app.listen(5000, () => {
+  console.log('Server running at http://localhost:5000');
 });
 
 // ---------------- ANNOUNCEMENTS ----------------
