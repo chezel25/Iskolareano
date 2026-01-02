@@ -45,32 +45,29 @@ async function loadGraduates() {
 }
 
 // Load scholar profile
+console.log("TOKEN FROM LOCALSTORAGE:", localStorage.getItem('access_token'));
+console.log("PROFILE STATUS:", res.status);
 async function loadProfile() {
   const token = localStorage.getItem('access_token');
+  if (!token) return;
 
-  if (!token) {
-    document.getElementById('profile-panel').innerHTML =
-      '<p>Please login first. <a href="login.html">Login</a></p>';
+  const res = await fetch('/api/me', {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+
+  if (!res.ok) {
+    console.error('PROFILE FAILED', res.status);
     return;
   }
 
-  try {
-    const res = await fetch('http://localhost:5000/api/me', {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    });
+  const data = await res.json();
 
-    if (!res.ok) throw new Error('Failed to load profile');
-
-    const data = await res.json();
-
-    document.getElementById('scholar-name').textContent = data.full_name || '';
-    document.getElementById('scholar-degree').textContent = data.degree || '';
-  } catch (err) {
-    console.error(err);
-  }
+  document.getElementById('scholar-name').textContent = data.full_name || '';
+  document.getElementById('scholar-degree').textContent = data.degree || '';
 }
+
 
 
 // Update profile

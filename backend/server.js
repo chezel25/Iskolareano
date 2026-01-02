@@ -115,9 +115,11 @@ app.post('/api/admin/login', async (req, res) => {
     }
 
     res.json({
-      message: 'Login successful',
-      redirect: '/static/admin-dashboard.html'
+      access_token: session.access_token,
+      role: profile.role
     });
+
+
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -207,46 +209,40 @@ app.get('/api/admin/view-scholars', async (req, res) => {
 // Token login
 app.get('/api/me', async (req, res) => {
   const authHeader = req.headers.authorization;
+
   if (!authHeader) {
-    return res.status(401).json({ error: 'No authorization header' });
+    return res.status(401).json({ error: 'Missing Authorization header' });
   }
 
   const token = authHeader.replace('Bearer ', '');
 
-  try {
-    // Validate token via Supabase Auth
-    const { data: authData, error: authError } =
-      await supabaseAdmin.auth.getUser(token);
+  const { data: authData, error: authError } =
+    await supabasePublic.auth.getUser(token);
 
-    if (authError || !authData.user) {
-      return res.status(401).json({ error: 'Invalid token' });
-    }
-
-    const userId = authData.user.id;
-
-    // Fetch profile record
-    const { data: profile, error: profileError } =
-      await supabaseAdmin
-        .from('profiles')
-        .select('full_name, email, role, scholar_id, degree, semester')
-        .eq('id', userId)
-        .single();
-
-    if (profileError) throw profileError;
-
-    res.json(profile);
-
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+  if (authError || !authData?.user) {
+    return res.status(401).json({ error: 'Invalid token' });
   }
+
+  const { data: profile, error: profileError } =
+    await supabaseAdmin
+      .from('profiles')
+      .select('full_name, degree')
+      .eq('id', authData.user.id)
+      .single();
+
+  if (profileError) {
+    return res.status(500).json({ error: profileError.message });
+  }
+
+  res.json(profile);
 });
 
 // Updates Profile
 app.post('/api/profile/update', async (req, res) => {
   try {
-    const { degree, semester } = req.body;
+    const { degree} = req.body; //{ degree, semester } later
     const authHeader = req.headers.authorization;
-
+    
     if (!authHeader) {
       return res.status(401).json({ error: 'No token' });
     }
@@ -254,7 +250,7 @@ app.post('/api/profile/update', async (req, res) => {
     const token = authHeader.replace('Bearer ', '');
 
     const { data: authData, error: authError } =
-      await supabaseAdmin.auth.getUser(token);
+      await supabasePublic.auth.getUser(token);
 
     if (authError || !authData.user) {
       return res.status(401).json({ error: 'Invalid token' });
@@ -262,7 +258,7 @@ app.post('/api/profile/update', async (req, res) => {
 
     const updates = {};
     if (degree) updates.degree = degree;
-    if (semester) updates.semester = semester;
+    // if (semester) updates.semester = semester;
 
     const { error } = await supabaseAdmin
       .from('profiles')
