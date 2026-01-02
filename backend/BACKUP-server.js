@@ -4,12 +4,35 @@ import dotenv from 'dotenv';
 import nodemailer from 'nodemailer';
 import { createClient } from '@supabase/supabase-js';
 
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+
+
+
+
+
 dotenv.config();
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Serve static frontend files
+app.use(express.static(path.join(__dirname, '..', 'frontend', 'static')));
+
+// Default landing
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'frontend/static/index.html'));
+});
+
+// Serve reset-password.html at /reset-password.html
+app.get('/reset-password.html', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'frontend/static/reset-password.html'));
+});
 // ---------------- SUPABASE ----------------
 const supabase = createClient(
   process.env.SUPABASE_URL,
@@ -81,52 +104,53 @@ app.post('/api/login', async (req, res) => {
 app.post('/api/forgot-password', async (req, res) => {
   const { email } = req.body;
 
-  const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: 'http://localhost:5500/reset-password.html'
-  });
+  try {
+    const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: 'http://localhost:5000/reset-password.html' // must match backend
+    });
 
-  if (error) {
-    console.error(error);
-    return res.status(400).json({ error: 'Email not found' });
-  }
+    if (error) throw error;
 
-  res.json({ message: 'Password reset email sent' });
-});
-
-// ---------------- RESET PASSWORD ----------------
-app.post('/api/forgot-password', async (req, res) => {
-  const { email } = req.body;
-
-  if (!email) {
-    return res.status(400).json({ error: 'Email is required' });
-  }
-
-  const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: 'http://localhost:5500/reset-password.html'
-  });
-
-  if (error) {
-    console.error('RESET ERROR:', error);
-    return res.status(400).json({ error: error.message });
-  }
-
-  res.json({ message: 'Password reset email sent' });
-});
-
-// ---------------- TEMP PASSWORD ----------------
-function generateTempPassword() {
-  return 'ISKOLAREAN' + Math.floor(100 + Math.random() * 900);
-}
-
-// ---------------- EMAIL TRANSPORT ----------------
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
+    res.json({ success: true, message: 'Reset email sent' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
   }
 });
 
+// ---------------- RESET PASSWORD (BACKEND) ----------------
+app.post('/api/reset-password', async (req, res) => {
+  const { access_token, newPassword } = req.body;
+
+  if (!access_token || !newPassword) {
+    return res.status(400).json({ error: 'Missing token or new password' });
+  }
+
+  try {
+    // Authenticate user with access token
+    const { data: userData, error: tokenError } = await supabase.auth.getUser(access_token);
+    if (tokenError) throw tokenError;
+
+    const userId = userData.user.id;
+
+    // Update password using admin key
+    const { data, error } = await supabase.auth.admin.updateUserById(userId, {
+      password: newPassword
+    });
+
+    if (error) throw error;
+
+    res.json({ success: true, message: 'Password updated successfully' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ---------------- SERVE RESET PASSWORD HTML ----------------
+app.get('/reset-password.html', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'frontend/static/reset-password.html'));
+});
 // ---------------- CREATE SCHOLAR ----------------
 app.post('/api/admin/create-scholar', async (req, res) => {
   const { scholar_id, name, email, degree } = req.body;
