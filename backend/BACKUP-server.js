@@ -139,14 +139,14 @@ app.post('/api/signup', async (req, res) => {
 
     if (authError) {
       console.error("❌ AUTH ERROR:", authError);
-      throw authError;
+      return res.status(400).json({ error: authError.message });
     }
 
     console.log("✅ AUTH USER CREATED:", authData.user.id);
 
-    // 2️⃣ Insert Scholar Profile
+    // 2️⃣ Insert Applicant Profile
     const { error: insertError } = await supabase
-      .from('scholars')
+      .from('applicants')
       .insert({
         id: authData.user.id,
         first_name,
@@ -158,10 +158,10 @@ app.post('/api/signup', async (req, res) => {
 
     if (insertError) {
       console.error("❌ INSERT ERROR:", insertError);
-      throw insertError;
+      return res.status(400).json({ error: insertError.message });
     }
 
-    console.log("✅ SCHOLAR PROFILE CREATED");
+    console.log("✅ APPLICANT PROFILE CREATED");
 
     res.json({
       success: true,
@@ -170,10 +170,9 @@ app.post('/api/signup', async (req, res) => {
 
   } catch (err) {
     console.error("🔥 SIGNUP FAILED:", err);
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: 'Server error' });
   }
 });
-
 
 // ---------------- FORGOT PASSWORD ----------------
 app.post('/api/forgot-password', async (req, res) => {
@@ -299,6 +298,42 @@ Iskolar ng Realeno Team`
   }
 });
 
+// ---------------- LOAD PROFILE ----------------
+
+app.post('/api/profile/update', async (req, res) => {
+  try {
+    const { degree} = req.body; //{ degree, semester } later
+    const authHeader = req.headers.authorization;
+    
+    if (!authHeader) {
+      return res.status(401).json({ error: 'No token' });
+    }
+
+    const token = authHeader.replace('Bearer ', '');
+
+    const { data: authData, error: authError } =
+      await supabasePublic.auth.getUser(token);
+
+    if (authError || !authData.user) {
+      return res.status(401).json({ error: 'Invalid token' });
+    }
+
+    const updates = {};
+    if (degree) updates.degree = degree;
+    // if (semester) updates.semester = semester;
+
+    const { error } = await supabaseAdmin
+      .from('profiles')
+      .update(updates)
+      .eq('id', authData.user.id);
+
+    if (error) throw error;
+
+    res.json({ message: 'Profile updated successfully' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
 // ---------------- ANNOUNCEMENTS ----------------
 app.post('/api/admin/announcement', async (req, res) => {
