@@ -1,18 +1,238 @@
 <!DOCTYPE html>
-<html>
-<head><meta charset="utf-8"><title>Admin Dashboard</title></head>
-<body>
-<h1>Admin Dashboard</h1>
-<a href="#" onclick="loadApplicants()">📄 View Applicants</a> |
-<a href="#" onclick="loadScholars()">🎓 View Scholars</a> |
-<a href="#" onclick="showAnnouncements()">📢 Announcements</a> |
-<a href="#" onclick="showGraduates()">🏅 Graduated Scholars</a>
-<a href="#" onclick="showCreateScholarForm()">➕ Create Scholar</a> |
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Admin Dashboard</title>
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+/>
 
-<hr>
-<div id="content"></div>
+<style>
+body {
+  margin: 0;
+  font-family: "Segoe UI", Arial, sans-serif;
+  background: #eef2ff;
+  color: #111827;
+}
+
+/* LAYOUT */
+.container {
+  max-width: 1200px;
+  margin: 30px auto;
+  padding: 20px;
+}
+
+/* HEADER */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.header h1 {
+  margin: 0;
+}
+
+.logout {
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  background: white;
+  cursor: pointer;
+}
+
+/* NAV STICKERS */
+.nav {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin-bottom: 30px;
+}
+
+.nav-card {
+  background: white;
+  border-radius: 16px;
+  padding: 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.06);
+  transition: transform .15s ease;
+}
+
+.nav-card:hover {
+  transform: translateY(-3px);
+}
+
+.nav-icon {
+  font-size: 28px;
+  background: #eef2ff;
+  padding: 12px;
+  border-radius: 12px;
+}
+
+.nav-text {
+  font-weight: 600;
+}
+
+/* CONTENT CARD */
+.card {
+  background: white;
+  border-radius: 18px;
+  padding: 22px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+}
+
+/* TABLE */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+th {
+  text-align: left;
+  font-size: 13px;
+  color: #6b7280;
+  padding-bottom: 10px;
+}
+
+td {
+  padding: 14px 0;
+  border-top: 1px solid #e5e7eb;
+}
+
+/* BADGES */
+.badge {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.pending { background:#fde68a; color:#92400e; }
+.approved { background:#bbf7d0; color:#065f46; }
+.rejected { background:#fecaca; color:#7f1d1d; }
+
+/* BUTTONS */
+button {
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+}
+
+.approve { background:#111827; color:white; }
+.reject { background:#dc2626; color:white; }
+
+/* INPUTS */
+input, textarea {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+}
+.nav {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin-bottom: 30px;
+}
+
+/* All nav cards share same style */
+.nav-card {
+ 
+  color: rgb(9, 1, 1);
+  border-radius: 14px;
+  padding: 16px 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(11, 46, 127, 0.05);
+  transition: all .2s ease;
+  position: relative;
+  text-decoration: none; /* remove underline for <a> */
+}
+
+.nav-card:hover {
+  background: #eb8125; /* lighter blue on hover */
+  transform: translateY(-2px);
+}
+
+
+
+/* Text inside card */
+.nav-text {
+  font-weight: 600;
+  font-size: 15px;
+}
+
+/* Ensure <a> inherits nav-card styles */
+a.nav-card {
+  display: flex;
+  color: inherit; /* remove link color */
+  text-decoration: none; /* remove underline */
+}
+
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header">
+    <h1>Admin Dashboard</h1>
+    <button class="logout" onclick="location.href='login.html'">Logout</button>
+  </div>
+
+  <div class="nav">
+  <!-- Applicants redirect to another file -->
+   <a href="admin-applicant.html" class="nav-card">
+    <div class="nav-indicator"></div>
+    <div class="nav-text">Applicants</div>
+  </a>
+  <!-- Other cards stay on current page -->
+  <div class="nav-card" onclick="loadScholars()">
+    <div class="nav-indicator"></div>
+    <div class="nav-text">Scholars</div>
+  </div>
+
+  <div class="nav-card" onclick="showAnnouncements()">
+    <div class="nav-indicator"></div>
+    <div class="nav-text">Announcements</div>
+  </div>
+
+  <div class="nav-card" onclick="showGraduates()">
+    <div class="nav-indicator"></div>
+    <div class="nav-text">Graduates</div>
+  </div>
+
+  <div class="nav-card" onclick="showCreateScholarForm()">
+    <div class="nav-indicator"></div>
+    <div class="nav-text">Create Scholar</div>
+  </div>
+</div>
+
+<!-- Content area -->
+<div id="content" class="card">
+  <p>Select an option above to manage the system.</p>
+</div>
+
+
+
+<!-- KEEP YOUR EXISTING JS (UNCHANGED LOGIC) -->
 
 <script>
+
+//CREATE SCHOLAR FORM
   function showCreateScholarForm() {
   const html = `
     <h3>Create Scholar Account</h3>

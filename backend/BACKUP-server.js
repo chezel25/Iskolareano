@@ -127,87 +127,60 @@ app.post('/api/login', async (req, res) => {
 });
 
 
-// ---------------- SIGN-UP SCHOLAR APPLICANT----------------
-app.post('/api/login', async (req, res) => {
-  const { email, password } = req.body;
+// ---------------- SIGN-UP SCHOLAR APPLICANT ----------------
+app.post('/api/signup', async (req, res) => {
+  const { first_name, middle_name, last_name, address, email, password } = req.body;
 
-  if (!email || !password) {
-    return res.status(400).json({ error: 'Email and password required' });
+  if (!first_name || !last_name || !email || !password) {
+    return res.status(400).json({ error: 'Missing required fields' });
   }
 
-  const supabaseAuth = createClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_ANON_KEY
-  );
-
   try {
-    // 1️⃣ AUTHENTICATE
-    const { data, error } = await supabaseAuth.auth.signInWithPassword({
+    // 1️⃣ Sign up user in Supabase Auth (email confirmation enabled)
+    const { data: authData, error: authError } = await supabase.auth.signUp({
       email,
-      password
+      password,
+      options: {
+        data: { first_name, middle_name, last_name, address }
+      }
     });
 
-    if (error) {
-      return res.status(401).json({ error: error.message });
+    if (authError) {
+      console.error('Auth Error:', authError);
+      return res.status(400).json({ error: authError.message });
     }
 
-    // 2️⃣ CHECK SCHOLARS BY EMAIL
-    const { data: scholar } = await supabase
-      .from('scholars')
-      .select('*')
-      .eq('email', email)
-      .single();
+    // Optional: insert user into applicants table with authData.user.id
+    const userId = authData.user.id;
 
-    if (scholar) {
-      return res.json({
-        role: 'scholar',
-        user: scholar
-      });
-    }
-
-    // 3️⃣ CHECK APPLICANTS BY EMAIL
-    const { data: applicant } = await supabase
+    const { data: applicant, error: insertError } = await supabase
       .from('applicants')
-      .select('*')
-      .eq('email', email)
-      .single();
+      .insert([{
+        id: userId,
+        first_name,
+        middle_name,
+        last_name,
+        address,
+        email
+      }]);
 
-    if (applicant) {
-      return res.json({
-        role: 'applicant',
-        user: applicant
-      });
+    if (insertError) {
+      console.error('Insert Error:', insertError);
+      return res.status(400).json({ error: insertError.message });
     }
 
-    // 4️⃣ NOT FOUND
-    return res.status(404).json({
-      error: 'No applicant or scholar profile found'
+    // ✅ Respond with success message
+    res.json({
+      message: `Signup successful! Confirmation email sent to ${email}.`,
+      applicant
     });
 
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Server error' });
+    console.error('Server Error:', err);
+    res.status(500).json({ error: 'Server error: ' + err.message });
   }
 });
 
-
-// ---------------- FORGOT PASSWORD ----------------
-app.post('/api/forgot-password', async (req, res) => {
-  const { email } = req.body;
-
-  try {
-    const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: 'http://localhost:5000/reset-password.html' // must match backend
-    });
-
-    if (error) throw error;
-
-    res.json({ success: true, message: 'Reset email sent' });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: err.message });
-  }
-});
 
 // ---------------- RESET PASSWORD (BACKEND) ----------------
 app.post('/api/reset-password', async (req, res) => {
@@ -315,46 +288,109 @@ Iskolar ng Realeno Team`
   }
 });
 
-// ---------------- LOAD PROFILE ----------------
 
-app.post('/api/profile/update', async (req, res) => {
+
+// ---------------- ADMIN DASHBOARD STATS (AKI)----------------
+
+app.get('/api/admin/dashboard-stats', async (req, res) => {
   try {
-    const { degree} = req.body; //{ degree, semester } later
-    const authHeader = req.headers.authorization;
-    
-    if (!authHeader) {
-      return res.status(401).json({ error: 'No token' });
-    }
+    // Helper function to get count safely
+    const getCount = async (status) => {
+      const query = supabase
+        .from('applicants') // <- your table name
+        .select('*', { count: 'exact', head: true });
+      if (status) query.eq('status', status);
 
-    const token = authHeader.replace('Bearer ', '');
+      const { count, error } = await query;
+      if (error) throw error;
+      return count ?? 0; // default to 0 if null
+    };
 
-    const { data: authData, error: authError } =
-      await supabasePublic.auth.getUser(token);
+    const total = await getCount();
+    const passed = await getCount('passed');
+    const failed = await getCount('failed');
+    const pending = await getCount('pending');
 
-    if (authError || !authData.user) {
-      return res.status(401).json({ error: 'Invalid token' });
-    }
+    const passRate = total === 0 ? 0 : ((passed / total) * 100).toFixed(1);
 
-    const updates = {};
-    if (degree) updates.degree = degree;
-    // if (semester) updates.semester = semester;
+    res.json({
+      totalParticipants: total,
+      passed,
+      failed,
+      pending,
+      passRate
+    });
 
-    const { error } = await supabaseAdmin
-      .from('profiles')
-      .update(updates)
-      .eq('id', authData.user.id);
-
-    if (error) throw error;
-
-    res.json({ message: 'Profile updated successfully' });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error('Dashboard stats error:', err);
+    res.status(500).json({ error: 'Failed to load dashboard stats' });
+  }
+});
+// ---------------- GET ALL APPLICATIONS (AKI)----------------
+app.get('/api/admin/applicants', async (req, res) => {
+  const { data, error } = await supabase
+    .from('applicants')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    return res.status(500).json({ error: error.message });
+  }
+
+  res.json(data);
+});
+
+// ---------------- APPROVE APPLICATION (AKI)----------------
+app.post('/api/admin/applicants/:id/approve', async (req, res) => {
+  const { id } = req.params;
+
+  const { error } = await supabase
+    .from('applicants')
+    .update({ status: 'passed' })
+    .eq('id', id);
+
+  if (error) {
+    return res.status(500).json({ error: error.message });
+  }
+
+  res.json({ success: true, message: 'Application approved' });
+});
+// ---------------- REJECT APPLICATION (AKI)----------------
+app.post('/api/admin/applicants/:id/reject', async (req, res) => {
+  const { id } = req.params;
+
+  const { error } = await supabase
+    .from('applicants')
+    .update({ status: 'failed' })
+    .eq('id', id);
+
+  if (error) {
+    return res.status(500).json({ error: error.message });
+  }
+
+  res.json({ success: true, message: 'Application rejected' });
+});
+
+
+// All scholars
+app.get('/api/admin/scholars', async (req, res) => {
+  try {
+    const { data, error } = await supabase.from('scholars').select('*').not('status', 'eq', 'pending');
+    if (error) return res.status(500).json({ error: error.message });
+
+    res.json(data.map(s => ({
+      scholar_id: s.scholar_id,
+      full_name: `${s.first_name} ${s.middle_name || ''} ${s.last_name}`,
+      email: s.email,
+      degree: s.degree,
+      status: s.status
+    })));
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
   }
 });
 
-app.listen(5000, () => {
-  console.log('Server running at http://localhost:5000');
-});
 
 // ---------------- ANNOUNCEMENTS ----------------
 app.post('/api/admin/announcement', async (req, res) => {
@@ -380,6 +416,4 @@ app.get('/api/announcements', async (req, res) => {
 
 // ---------------- SERVER ----------------
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () =>
-  console.log(`✅ Server running on http://localhost:${PORT}`)
-);
+app.listen(PORT, () => console.log(`✅ Server running on http://localhost:${PORT}`));

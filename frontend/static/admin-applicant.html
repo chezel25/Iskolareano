@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Admin Dashboard</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: "Segoe UI", Arial, sans-serif;
+  background: #eef4ff;
+  color: #111827;
+}
+
+.container {
+  max-width: 1100px;
+  margin: 30px auto;
+  padding: 20px;
+}
+
+/* HEADER */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 24px;
+}
+
+.header p {
+  margin: 4px 0 0;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.header-actions button {
+  background: white;
+  border: 1px solid #e5e7eb;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-left: 8px;
+}
+
+/* STATS */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 25px;
+}
+
+.stat-card {
+  background: white;
+  padding: 18px;
+  border-radius: 14px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+.stat-card small {
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.stat-card h2 {
+  margin: 10px 0 4px;
+  font-size: 28px;
+}
+
+/* CARD */
+.card {
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+.card p {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+/* TABLE */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th {
+  text-align: left;
+  font-size: 13px;
+  color: #6b7280;
+  padding-bottom: 10px;
+}
+
+td {
+  padding: 14px 0;
+  border-top: 1px solid #e5e7eb;
+  font-size: 14px;
+}
+
+/* BADGES */
+.badge {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.pending {
+  background: #fde68a;
+  color: #92400e;
+}
+
+.approved {
+  background: #bbf7d0;
+  color: #065f46;
+}
+
+.rejected {
+  background: #fecaca;
+  color: #7f1d1d;
+}
+
+/* ACTIONS */
+.actions button {
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.approve-btn {
+  background: #111827;
+  color: white;
+  margin-right: 6px;
+}
+
+.reject-btn {
+  background: #dc2626;
+  color: white;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div>
+      <h1>Admin Dashboard</h1>
+      <p>Manage scholarship applications</p>
+    </div>
+
+    <div class="header-actions">
+      <button onclick="location.href='admin-dashboard.html'">Admin</button>
+      <button onclick="location.href='login.html'">Logout</button>
+     
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats">
+    <div class="stat-card">
+      <small>Total Participants</small>
+      <h2 id="total">0</h2>
+    </div>
+    <div class="stat-card">
+      <small>Passed</small>
+      <h2 id="passed">0</h2>
+    </div>
+    <div class="stat-card">
+      <small>Failed</small>
+      <h2 id="failed">0</h2>
+    </div>
+    <div class="stat-card">
+      <small>Pending</small>
+      <h2 id="pending">0</h2>
+    </div>
+  </div>
+
+  <!-- APPLICATIONS -->
+  <div class="card">
+    <h3>Applications</h3>
+    <p>Review and manage scholarship applications</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Applicant</th>
+          <th>Email</th>
+          <th>Status</th>
+          <th>Requirements</th>
+          <th>Exam Grade</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="applicantsTable"></tbody>
+    </table>
+  </div>
+
+</div>
+
+<script>
+// ---------------- Helpers for Dashboard ----------------
+  function setTotal(val) { document.getElementById('total').innerText = val; }
+  function setPassed(val) { document.getElementById('passed').innerText = val; }
+  function setFailed(val) { document.getElementById('failed').innerText = val; }
+  function setPending(val) { document.getElementById('pending').innerText = val; }
+  function setPassRate(val) { document.getElementById('passRate').innerText = val + '%'; }
+  // ---------------- Applicants ----------------
+  async function loadApplicants() {
+    const res = await fetch('/api/admin/applications');
+    const data = await res.json();
+
+    let html = "<h3>Applicants</h3><table><tr><th>Full Name</th><th>Email</th><th>Degree</th><th>Status</th><th>Actions</th></tr>";
+
+    data.forEach(a => {
+      html += `<tr>
+        <td>${a.full_name || ''}</td>
+        <td>${a.email || ''}</td>
+        <td>${a.degree || '-'}</td>
+        <td>${a.status}</td>
+        <td>
+          <button onclick="approve('${a.id}')">Approve</button>
+          <button onclick="reject('${a.id}')">Reject</button>
+        </td>
+      </tr>`;
+    });
+
+    html += "</table>";
+    document.getElementById('content').innerHTML = html;
+  }
+
+  async function approve(id) {
+    await fetch(`/api/admin/applications/${id}/approve`, { method: 'POST' });
+    loadApplicants();
+    loadDashboardStats();
+  }
+
+  async function reject(id) {
+    await fetch(`/api/admin/applications/${id}/reject`, { method: 'POST' });
+    loadApplicants();
+    loadDashboardStats();
+  }
+ // ---------------- Dashboard Stats ----------------
+  async function loadDashboardStats() {
+  const res = await fetch('http://localhost:5000/api/admin/dashboard-stats');
+  const data = await res.json();
+  console.log("Dashboard stats fetched:", data); // <--- add this
+
+  document.getElementById('total').innerText = data.totalParticipants;
+  document.getElementById('passed').innerText = data.passed;
+  document.getElementById('failed').innerText = data.failed;
+  document.getElementById('pending').innerText = data.pending;
+  document.getElementById('passRate').innerText = data.passRate + '%';
+}
+
+  // ---------------- Load on page load ----------------
+  window.onload = () => {
+    loadDashboardStats();
+  };
+</script>
+
+</body>
+</html>
