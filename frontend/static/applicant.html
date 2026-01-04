@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Applicant Dashboard</title>
+  <link rel="stylesheet" href="/iskolarealeno/frontend/css/applicant.css">
+</head>
+<body>
+
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div>
+      <h1>Welcome, <span id="applicantName">Applicant</span>!</h1>
+      <p>Applicant Dashboard</p>
+  </div>
+    <button onclick="location.href='applicant-requirements.html'">requirements</button>
+    <button onclick="location.href='login.html'">Logout</button>
+  </div>
+
+  <!-- STATUS CARD -->
+  <div class="card">
+    <div class="status-header">
+      <h3>Application Status</h3>
+      <span id="statusBadge" class="badge">Pending Review</span>
+    </div>
+
+    <div class="progress-wrapper">
+      <div class="progress-label">
+        <span>Overall Progress</span>
+        <span id="progressPercent">0%</span>
+      </div>
+      <div class="progress-bar">
+        <div id="progressFill"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TRACKER -->
+  <div class="card">
+    <h3>Application Tracker</h3>
+    <p class="muted">Track your progress through each stage</p>
+
+    <ul class="tracker">
+      <li id="step-requirements">
+        <span class="dot"></span>
+        <div>
+          <strong>Requirements Review</strong>
+          <small>Waiting for admin review</small>
+        </div>
+      </li>
+
+      <li id="step-exam">
+        <span class="dot"></span>
+        <div>
+          <strong>Examination</strong>
+          <small>Complete requirements review first</small>
+        </div>
+      </li>
+
+      <li id="step-mswd">
+        <span class="dot"></span>
+        <div>
+          <strong>MSWD Evaluation</strong>
+          <small>Pass the exam first</small>
+        </div>
+      </li>
+
+      <li id="step-scholar">
+        <span class="dot"></span>
+        <div>
+          <strong>Scholar Status</strong>
+          <small>Complete all previous steps</small>
+        </div>
+      </li>
+    </ul>
+  </div>
+
+</div>
+
+<script>console.log("✅ admin.js loaded");
+
+// REQUIRED so HTML onclick works
+window.loadApplicants = async function () {
+  console.log("📄 Loading applicants...");
+
+  const res = await fetch('http://localhost:5000/api/admin/applicants');
+  const data = await res.json();
+
+  // Update stats
+  document.getElementById('total').innerText = data.stats.total;
+  document.getElementById('pending').innerText = data.stats.pending;
+  document.getElementById('approved').innerText = data.stats.approved;
+  document.getElementById('rejected').innerText = data.stats.rejected;
+
+  let html = `
+    <h2>Applicants</h2>
+    <table>
+      <tr>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+  `;
+
+  data.applicants.forEach(a => {
+    html += `
+      <tr>
+        <td>${a.first_name} ${a.last_name}</td>
+        <td>${a.email}</td>
+        <td>${a.status}</td>
+        <td>
+          <button class="approve" onclick="approveApplicant('${a.id}')">Approve</button>
+          <button class="reject" onclick="rejectApplicant('${a.id}')">Reject</button>
+        </td>
+      </tr>
+    `;
+  });
+
+  html += `</table>`;
+  document.getElementById('content').innerHTML = html;
+};
+
+window.approveApplicant = async function (id) {
+  await fetch(`http://localhost:5000/api/admin/applicant/${id}/approve`, {
+    method: 'POST'
+  });
+  loadApplicants();
+};
+
+window.rejectApplicant = async function (id) {
+  await fetch(`http://localhost:5000/api/admin/applicant/${id}/reject`, {
+    method: 'POST'
+  });
+  loadApplicants();
+};
+
+window.loadScholars = async function () {
+  const res = await fetch('http://localhost:5000/api/admin/scholars');
+  const data = await res.json();
+
+  let html = `<h2>Scholars</h2><table>
+    <tr><th>ID</th><th>Name</th><th>Email</th></tr>`;
+
+  data.forEach(s => {
+    html += `
+      <tr>
+        <td>${s.scholar_id}</td>
+        <td>${s.full_name}</td>
+        <td>${s.email}</td>
+      </tr>`;
+  });
+
+  html += `</table>`;
+  document.getElementById('content').innerHTML = html;
+};
+</script>
+
+</body>
+</html>
