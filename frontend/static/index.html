@@ -1,15 +1,132 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Iskolarealeno</title>
+  <title>Iskolar Realeño</title>
   <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* ROOT COLORS */
+    :root {
+      --navy: #002054;
+      --orange: #FF7700;
+      --light-gray: #f2f2f2;
+      --white: #ffffff;
+      --dark-blue: #1E3A8A;
+      --btn-hover: #e06200;
+    }
+
+    /* RESET & BASE */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: var(--light-gray);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    /* CONTAINER */
+    .container {
+      background: var(--white);
+      padding: 3rem 2.5rem;
+      border-radius: 20px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+      text-align: center;
+      max-width: 500px;
+      width: 90%;
+      transition: transform 0.3s ease;
+    }
+    .container:hover { transform: translateY(-5px); }
+
+    h1 {
+      font-size: 2.5rem;
+      color: var(--navy);
+      margin-bottom: 0.5rem;
+    }
+    h1 span { color: var(--orange); }
+
+    p {
+      font-size: 1.15rem;
+      margin-bottom: 2rem;
+      color: #444;
+    }
+
+    /* BUTTONS / LINKS */
+    .btn-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 12px 20px;
+      font-size: 1rem;
+      font-weight: 600;
+      text-decoration: none;
+      color: var(--white);
+      background: var(--dark-blue);
+      border-radius: 12px;
+      transition: 0.3s;
+    }
+
+    .btn:hover {
+      background: var(--orange);
+      color: var(--white);
+    }
+
+    /* Responsive */
+    @media (max-width: 480px) {
+      h1 { font-size: 2rem; }
+      p { font-size: 1rem; }
+      .btn { font-size: 0.95rem; padding: 10px 16px; }
+    }
+  </style>
 </head>
 <body>
-  <h1>Welcome to ISKOLAREALENO</h1>
-  <p>Empowering Scholars of Real, Quezon</p>
-  <a href="login.html">Login (Scholar)</a> |
-  <a href="register.html">Apply for Scholarship</a> |
-  <a href="admin-login.html">Admin Login</a>
+
+  <div class="container">
+    <h1>ISKOLA<span>REALEÑO</span></h1>
+    <p>Empowering Scholars of Real, Quezon</p>
+
+    <div class="btn-group">
+      <a href=homepage2.html" class="btn">Apply for Scholarship</a>
+      <a href="login.html" class="btn">Login (Scholar/Applicant)</a>
+      <a href="admin-login.html" class="btn">Admin Login</a>
+    </div>
+  </div>
+<script>
+(async () => {
+  const urlParams = new URLSearchParams(window.location.search);
+  const access_token = urlParams.get('access_token'); // Supabase sends this in the link
+
+  if (!access_token) {
+    console.log('No access token found. User probably just opened dashboard normally.');
+    return;
+  }
+
+  try {
+    // Send token to backend to verify email
+    const res = await fetch('http://localhost:5000/verify.html', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ access_token })
+    });
+
+    const data = await res.json();
+    if (data.success) {
+      alert('✅ Your email has been verified! You can now log in normally.');
+      // Optionally redirect to login page
+      window.location.href = 'login.html';
+    } else {
+      alert('❌ Verification failed: ' + (data.error || 'Unknown error'));
+    }
+  } catch (err) {
+    alert('❌ Network error: ' + err.message);
+  }
+})();
+</script>
+
 </body>
 </html>

@@ -3,46 +3,34 @@
 <head>
 <meta charset="UTF-8">
 <title>Email Verification</title>
-<style>
-body {
-  font-family: 'Segoe UI', sans-serif;
-  background:#f2f2f2;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  height:100vh;
-}
-.container {
-  background:white;
-  width:400px;
-  padding:2.5rem;
-  border-radius:20px;
-  box-shadow:0 6px 18px rgba(0,0,0,0.12);
-  text-align:center;
-}
-.message {
-  margin-top:1rem;
-  font-size:1rem;
-}
-a {
-  display:block;
-  margin-top:1.5rem;
-  text-decoration:none;
-  color:#FF7700;
-  font-weight:bold;
-}
-</style>
+<link rel="stylesheet" href="/css/forgot-password.css">
 </head>
 <body>
+  <div class="forgot-wrapper">
+    <div class="forgot-card">
 
-<div class="container">
-  <h2>Email Verification</h2>
-  <div class="message" id="message">Verifying your email...</div>
-<a href="http://localhost:5000/login.html" id="loginLink" style="display:none;">
-  Go to Login
-</a>
+      <!-- LOGO -->
+      <img src="/img/logo.png" class="portal-logo" alt="Logo">
 
-</div>
+      <!-- TITLE -->
+      <h1>Email Verification</h1>
+      <p class="description" id="message">
+        Verifying your email...
+      </p>
+
+      <!-- LOGIN LINK -->
+      <div class="footer-text">
+        <a
+          href="http://localhost:5000/login.html"
+          id="loginLink"
+          style="display:none;"
+        >
+          Go to Login
+        </a>
+      </div>
+
+    </div>
+  </div>
 
 <script>
 (async () => {

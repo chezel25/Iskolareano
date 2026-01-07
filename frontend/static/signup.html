@@ -3,31 +3,67 @@
 <head>
 <meta charset="UTF-8">
 <title>Scholar Signup</title>
-<style>
-body { font-family:'Segoe UI',sans-serif; background:#f2f2f2; display:flex; justify-content:center; align-items:center; height:100vh; }
-.container { background:white; width:380px; padding:2.5rem; border-radius:20px; box-shadow:0 6px 18px rgba(0,0,0,0.12); text-align:center; }
-input { width:100%; padding:1rem; margin-top:1rem; border-radius:12px; border:1.5px solid #bcbcbc; }
-button { width:100%; margin-top:1.5rem; padding:1rem; background:#FF7700; color:white; border:none; border-radius:20px; font-size:1.1rem; cursor:pointer; }
-a { display:block; margin-top:1rem; text-decoration:none; color:#002054; }
-</style>
+<link rel="stylesheet" href="/css/signup.css">
 </head>
 <body>
 
-<div class="container">
-<h2>Scholar Signup</h2>
+  <div class="bg-shape shape-orange"></div>
+  <div class="bg-shape shape-light"></div>
 
-<form id="signupForm">
-  <input id="fn" placeholder="First Name"><br>
-  <input id="mn" placeholder="Middle Name"><br>
-  <input id="ln" placeholder="Last Name"><br>
-  <input id="ad" placeholder="Address"><br>
-  <input id="em" type="email" placeholder="Email"><br>
-  <input id="pw" type="password" placeholder="Password"><br>
-  <button type="submit">Register</button>
-</form>
+  <div class="wave wave1"></div>
+  <div class="wave wave2"></div>
 
-<a href="login.html">← Already have an account? Login</a>
-</div>
+  <div class="register-wrapper"> 
+    <div class="sn-auth-card">
+      <img src="img/logo.png" alt="Iskolarealeno Logo" class="portal-logo">
+      <h1>ISKOLAREALEÑO</h1>
+      <p class="description">Fill out the form and provide only the necessary information.</p>
+
+      <form id="signupForm">
+        <div class="input-group">
+          <label>First Name</label>
+          <input id="fn" type="text" placeholder="Juan" required>
+        </div>
+
+        <div class="input-group">
+          <label>Middle Name</label>
+          <input id="mn" type="text" placeholder="Dela" required>
+        </div>
+
+        <div class="input-group">
+          <label>Last Name</label>
+          <input id="ln" type="text" placeholder="Cruz" required>
+        </div>
+
+        <div class="input-group">
+          <label>Address</label>
+          <input id="ad" type="text" placeholder="123 Main St, City" required>
+        </div>
+
+        <div class="input-group">
+          <label>Email</label>
+          <input id="em" type="email" placeholder="you@email.com" required>
+        </div>
+
+        <div class="input-group">
+          <label>Password</label>
+          <input id="pw" type="password" placeholder="••••••••" required>
+        </div>
+
+
+        <button class="btn" type="submit">Create Account</button>
+      </form>
+
+      <p class="footer-text"><br>
+        <p style="text-align: center;">Already have an account?
+          <a class="link" href="login.html">Login</a>
+        </p>
+      </p>
+    </div>
+  </div>
+
+
+
 
 <script>
 const form = document.getElementById('signupForm');

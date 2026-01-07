@@ -41,19 +41,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // ✅ SERVE STATIC FILES
-// Serve static files from the "frontend" folder
-app.use(express.static(path.join(__dirname, 'frontend')));
-
-// API routes
-app.post('/api/login', async (req, res) => {
-});
-app.get('/api/verify-email', async (req, res) => {
-});
-
-// Default landing
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'frontend/static/index.html'));
-});
+// Serve static frontend files
+app.use(express.static(path.join(__dirname, '..', 'frontend', 'static')));
 
 // Serve reset-password.html at /reset-password.html
 app.get('/reset-password.html', (req, res) => {
@@ -226,8 +215,87 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
+// ------------------ FORGOT PASSWORD (working) dont change this!!!!!!!------------------
+app.post('/api/forgot-password', async (req, res) => {
+  const { email } = req.body;
+  if (!email) return res.status(400).json({ error: 'Email required' });
 
-// ---------------- RESET PASSWORD (BACKEND) ----------------
+  try {
+    // 1️⃣ Find applicant
+    const { data: user, error: findError } = await supabase
+      .from('applicants')
+      .select('id,email,first_name')
+      .ilike('email', email.trim()) // case-insensitive
+      .single();
+
+    if (findError || !user) return res.status(404).json({ error: 'User not found' });
+
+    const userId = user.id;
+
+    // 2️⃣ Generate reset token
+    const token = Math.random().toString(36).substring(2, 15);
+
+    // 3️⃣ Save token in table
+    const { error: updateError } = await supabase
+      .from('applicants')
+      .update({ reset_token: token })
+      .eq('id', userId);
+
+    if (updateError) return res.status(500).json({ error: updateError.message });
+
+    // 4️⃣ Send email with reset link
+    const resetLink = `${process.env.FRONTEND_URL}/reset-password.html?token=${token}`;
+    await transporter.sendMail({
+      from: `"Iskolar ng Realeno" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: 'Reset your password',
+      html: `<p>Hello ${user.first_name},</p>
+             <p>Click the link below to reset your password:</p>
+             <a href="${resetLink}">${resetLink}</a>
+             <p>If you didn’t request this, ignore this email.</p>`
+    });
+
+    res.json({ message: '✅ Check your email for the reset link!' });
+
+  } catch (err) {
+    console.error('Forgot password error:', err);
+    res.status(500).json({ error: 'Server error: ' + err.message });
+  }
+});
+
+
+// --- Reset password using token ---
+app.post('/api/reset-password', async (req, res) => {
+  const { token, newPassword } = req.body;
+  if (!token || !newPassword) return res.status(400).json({ error: 'Missing token or new password' });
+
+  try {
+    // Find user by token
+    const { data: user, error } = await supabase
+      .from('applicants')
+      .select('id,email')
+      .eq('reset_token', token)
+      .single();
+
+    if (error || !user) return res.status(404).json({ error: 'Invalid token' });
+
+    // Update password in Supabase Auth using admin key
+    const { data: updatedUser, error: updateError } = await supabase.auth.admin.updateUserById(user.id, {
+      password: newPassword
+    });
+
+    if (updateError) throw updateError;
+
+    // Clear token
+    await supabase.from('applicants').update({ reset_token: null }).eq('id', user.id);
+
+    res.json({ success: true, message: 'Password updated successfully' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
+});
+// ---------------- RESET PASSWORD (working) dont change this!!!!!!!----------------
 app.post('/api/reset-password', async (req, res) => {
   const { access_token, newPassword } = req.body;
 
@@ -256,7 +324,6 @@ app.post('/api/reset-password', async (req, res) => {
   }
 });
 
-// ---------------- SERVE RESET PASSWORD HTML ----------------
 app.get('/reset-password.html', (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'frontend/static/reset-password.html'));
 });

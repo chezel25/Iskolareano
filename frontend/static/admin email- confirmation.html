@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Email Confirmed</title>
+<style>
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background: #f2f2f2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+.container {
+  background: white;
+  padding: 2rem;
+  border-radius: 15px;
+  text-align: center;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+}
+button {
+  margin-top: 1.5rem;
+  padding: 1rem 2rem;
+  background: #FF7700;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <h2>✅ Email Confirmed</h2>
+  <p>Your email has been successfully verified!</p>
+  <button onclick="goToLogin()">Go to Login</button>
+</div>
+
+<script>
+function goToLogin() {
+  window.location.href = 'admin-login.html'; // adjust if your login page is named differently
+}
+</script>
+</body>
+</html>

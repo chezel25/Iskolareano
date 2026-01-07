@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Upload Requirements</title>
+  <link rel="stylesheet" href="/iskolarealeno/frontend/css/applicant-requirements.css">
+</head>
+<body>
+
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div>
+      <h1>Scholarship Requirements</h1>
+      <p>Upload required documents</p>
+    </div>
+    <button onclick="goBack()">Back to Dashboard</button>
+  </div>
+
+  <!-- CARD -->
+  <div class="card">
+    <h3>Required Documents</h3>
+    <p class="muted">
+      Please upload clear and readable files (PDF / JPG / PNG).
+    </p>
+
+    <div class="upload-group">
+      <label>📄 Senior High School Grades</label>
+      <input type="file" id="grades" accept=".pdf,.jpg,.png">
+    </div>
+
+    <div class="upload-group">
+      <label>📄 Certificate of Indigency</label>
+      <input type="file" id="indigency" accept=".pdf,.jpg,.png">
+    </div>
+
+    <div class="upload-group">
+      <label>📄 Scholarship Application Form</label>
+      <input type="file" id="application_form" accept=".pdf,.jpg,.png">
+    </div>
+
+    <button id="submitBtn" onclick="submitRequirements()">
+      Submit Requirements
+    </button>
+
+    <p id="statusText" class="status"></p>
+  </div>
+
+</div>
+
+<script src="/iskolarealeno/frontend/js files/applicant-requirements.js"></script>
+</body>
+</html>

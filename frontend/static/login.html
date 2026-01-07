@@ -3,60 +3,50 @@
 <head>
 <meta charset="UTF-8">
 <title>Scholar Login</title>
-<style>
-body {
-  font-family:'Segoe UI',sans-serif;
-  background:#f2f2f2;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  height:100vh;
-}
-.container {
-  background:white;
-  width:380px;
-  padding:2.5rem;
-  border-radius:20px;
-  box-shadow:0 6px 18px rgba(0,0,0,0.12);
-  text-align:center;
-}
-input {
-  width:100%;
-  padding:1rem;
-  margin-top:1rem;
-  border-radius:12px;
-  border:1.5px solid #bcbcbc;
-}
-button {
-  width:100%;
-  margin-top:1.5rem;
-  padding:1rem;
-  background:#FF7700;
-  color:white;
-  border:none;
-  border-radius:20px;
-  font-size:1.1rem;
-  cursor:pointer;
-}
-a {
-  display:block;
-  margin-top:1rem;
-  text-decoration:none;
-  color:#002054;
-}
-</style>
+<link rel="stylesheet" href="/css/style.css">
+
 </head>
 <body>
 
-<div class="container">
-  <h2>Scholar Login</h2>
-  <input id="email" type="email" placeholder="Email">
-  <input id="password" type="password" placeholder="Password">
-  <button id="loginBtn">Login</button>
-  <a href="signup.html">← Don't have an account? Sign up</a>
-  <a href="reset-password.html">← Forgot password?</a>
-</div>
+  <!-- Background Shapes -->
+  <div class="bg-shape shape-orange"></div>
+  <div class="bg-shape shape-light"></div>
 
+  <!-- Login Wrapper -->
+  <div class="login-wrapper">
+
+    <!-- LEFT IMAGE -->
+    <div class="login-image">
+      <img src="img/DOCU9.jpg" alt="Real Quezon Scholarship">
+    </div>
+
+    <!-- RIGHT LOGIN CARD -->
+    <div class="auth-card">
+      <img src="img/logo.png" alt="Iskolarealeno Logo" class="portal-logo">
+      <h1>ISKOLAREALEÑO</h1>
+      <p class="subtitle">Sign in to your account.</p>
+
+      <div class="input-group">
+        <label for="email">Email</label>
+        <input id="email" type="email" placeholder="you@email.com" required>
+      </div>
+
+      <div class="input-group">
+        <label for="password">Password</label>
+        <input id="password" type="password" placeholder="••••••••" required>
+      </div>
+
+      <button id="loginBtn" class="btn">Login</button>
+
+      <p class="footer-text">
+        Don’t have an account? <a class="link" href="signup.html">Register Here</a>
+      </p>
+      <p class="footer-text">
+        <a class="link" href="forgot-password.html">Forgot password?</a>
+      </p>
+
+    </div>
+  </div>
 <!-- Supabase JS SDK -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 

@@ -189,9 +189,18 @@ a.nav-card {
 
   <!-- HEADER -->
   <div class="header">
-    <h1>Admin Dashboard</h1>
-    <button class="logout" onclick="location.href='login.html'">Logout</button>
+     <h1>Admin Dashboard</h1>
+
+  <div style="display:flex; gap:10px; align-items:center;">
+    <button onclick="loadPendingAdmins()">Pending Approvals</button>
+<div id="pendingList"></div>
+
+
+    <button class="logout" onclick="location.href='admin-login.html'">
+      Logout
+    </button>
   </div>
+</div>
 
   <div class="nav">
   <!-- Applicants redirect to another file -->
@@ -314,7 +323,34 @@ async function loadScholars() {
     alert("Failed to load scholars.");
   }
 }
+//-------------------------------FOR NOTIFICATION-----------------------//
+async function loadPendingAdmins() {
+  try {
+    const res = await fetch('http://localhost:5000/api/admin/pending-approvals');
+    if (!res.ok) throw new Error('Failed to load pending admins');
+    const pending = await res.json();
 
+    document.getElementById('pendingList').innerHTML = pending.length === 0
+      ? "<p>No pending approvals</p>"
+      : pending.map(a => `
+          <li>
+            ${a.first_name} ${a.last_name} (${a.role}) - ${a.email}
+            <button onclick="approveAdmin('${a.id}')">Approve</button>
+            <button onclick="rejectAdmin('${a.id}')">Reject</button>
+          </li>
+        `).join('');
+
+    // Update red badge
+    document.getElementById('notifCount').textContent = pending.length;
+
+  } catch (err) {
+    console.error(err);
+    alert('Failed to load pending admins');
+  }
+}
+
+
+//-------------------------------------------------------------
 async function showAnnouncements() {
   const res = await fetch('http://localhost:5000/api/announcements');
   const data = await res.json();
