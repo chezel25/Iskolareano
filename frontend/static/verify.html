@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Email Verification</title>
+<style>
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background:#f2f2f2;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+}
+.container {
+  background:white;
+  width:400px;
+  padding:2.5rem;
+  border-radius:20px;
+  box-shadow:0 6px 18px rgba(0,0,0,0.12);
+  text-align:center;
+}
+.message {
+  margin-top:1rem;
+  font-size:1rem;
+}
+a {
+  display:block;
+  margin-top:1.5rem;
+  text-decoration:none;
+  color:#FF7700;
+  font-weight:bold;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h2>Email Verification</h2>
+  <div class="message" id="message">Verifying your email...</div>
+<a href="http://localhost:5000/login.html" id="loginLink" style="display:none;">
+  Go to Login
+</a>
+
+</div>
+
+<script>
+(async () => {
+  const urlParams = new URLSearchParams(window.location.search);
+  const token = urlParams.get('token');
+
+  const messageDiv = document.getElementById('message');
+  const loginLink = document.getElementById('loginLink');
+
+  if (!token) {
+    messageDiv.textContent = '❌ Invalid verification link.';
+    return;
+  }
+
+  try {
+    const res = await fetch(`http://localhost:5000/api/verify-email?token=${token}`);
+    const text = await res.text();
+
+    if (res.ok) {
+      messageDiv.textContent = '✅ Your email has been verified successfully!';
+      loginLink.style.display = 'block';
+    } else {
+      messageDiv.textContent = '❌ Verification failed: ' + text;
+    }
+  } catch (err) {
+    console.error(err);
+    messageDiv.textContent = '❌ Server error during verification.';
+  }
+})();
+</script>
+
+</body>
+</html>

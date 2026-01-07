@@ -2,95 +2,59 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Scholar Sign Up</title>
+<title>Scholar Signup</title>
 <style>
-body {
-  font-family: 'Segoe UI', sans-serif;
-  background:#f2f2f2;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  height:100vh;
-}
-.container {
-  background:white;
-  width:380px;
-  padding:2.5rem;
-  border-radius:20px;
-  box-shadow:0 6px 18px rgba(0,0,0,0.12);
-  text-align:center;
-}
-input {
-  width:100%;
-  padding:1rem;
-  margin-top:1rem;
-  border-radius:12px;
-  border:1.5px solid #bcbcbc;
-}
-button {
-  width:100%;
-  margin-top:1.5rem;
-  padding:1rem;
-  background:#FF7700;
-  color:white;
-  border:none;
-  border-radius:20px;
-  font-size:1.1rem;
-  cursor:pointer;
-}
+body { font-family:'Segoe UI',sans-serif; background:#f2f2f2; display:flex; justify-content:center; align-items:center; height:100vh; }
+.container { background:white; width:380px; padding:2.5rem; border-radius:20px; box-shadow:0 6px 18px rgba(0,0,0,0.12); text-align:center; }
+input { width:100%; padding:1rem; margin-top:1rem; border-radius:12px; border:1.5px solid #bcbcbc; }
+button { width:100%; margin-top:1.5rem; padding:1rem; background:#FF7700; color:white; border:none; border-radius:20px; font-size:1.1rem; cursor:pointer; }
+a { display:block; margin-top:1rem; text-decoration:none; color:#002054; }
 </style>
 </head>
 <body>
 
 <div class="container">
-  <h2>Scholar Sign Up</h2>
+<h2>Scholar Signup</h2>
 
-<input id="first_name" placeholder="First Name"><br><br>
-<input id="middle_name" placeholder="Middle Name"><br><br>
-<input id="last_name" placeholder="Last Name"><br><br>
-<input id="address" placeholder="Address"><br><br>
-<input id="email" type="email" placeholder="Email"><br><br>
-<input id="password" type="password" placeholder="Password"><br><br>
+<form id="signupForm">
+  <input id="fn" placeholder="First Name"><br>
+  <input id="mn" placeholder="Middle Name"><br>
+  <input id="ln" placeholder="Last Name"><br>
+  <input id="ad" placeholder="Address"><br>
+  <input id="em" type="email" placeholder="Email"><br>
+  <input id="pw" type="password" placeholder="Password"><br>
+  <button type="submit">Register</button>
+</form>
 
-<button onclick="signup()">Sign Up</button>
+<a href="login.html">← Already have an account? Login</a>
+</div>
+
 <script>
-async function signup() {
-  const data = {
-    first_name: document.getElementById('first_name').value,
-    middle_name: document.getElementById('middle_name').value,
-    last_name: document.getElementById('last_name').value,
-    address: document.getElementById('address').value,
-    email: document.getElementById('email').value,
-    password: document.getElementById('password').value
-  };
+const form = document.getElementById('signupForm');
+form.onsubmit = async e => {
+  e.preventDefault();
+  const first_name = document.getElementById('fn').value.trim();
+  const middle_name = document.getElementById('mn').value.trim();
+  const last_name = document.getElementById('ln').value.trim();
+  const address = document.getElementById('ad').value.trim();
+  const email = document.getElementById('em').value.trim();
+  const password = document.getElementById('pw').value.trim();
 
-  console.log("📤 Sending data:", data);
+  if(!first_name||!last_name||!email||!password){ alert('Fill all required fields'); return; }
 
   try {
-    const res = await fetch('http://localhost:5000/api/signup', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
+    const res = await fetch('http://localhost:5000/api/signup',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({first_name,middle_name,last_name,address,email,password})
     });
-
-    const result = await res.json();
-    console.log("📥 Response:", result);
-
-    if (res.ok) {
-      alert("✅ Signup successful!");
-      window.location.href = "login.html";
-    } else {
-      alert("❌ ERROR: " + result.error);
-    }
-
-  } catch (err) {
-    console.error("🔥 FETCH ERROR:", err);
-    alert("Server not reachable");
-  }
-}
+    const data = await res.json();
+    if(!res.ok){ alert("❌ "+(data.error||"Signup failed")); return; }
+    alert("✅ "+data.message);
+    window.location.href = "login.html";
+  } catch(err){ console.error(err); alert("❌ Server error"); }
+};
 </script>
-
 
 </body>
 </html>
-

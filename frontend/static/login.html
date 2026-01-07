@@ -1,167 +1,120 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
+<meta charset="UTF-8">
 <title>Scholar Login</title>
- 
-
 <style>
-  :root {
-    --orange: #FF7700;
-    --navy: #002054;
-    --light-gray: #F2F2F2;
-    --white: #ffffff;
-  }
-
-  body {
-    margin: 0;
-    background-color: var(--light-gray);
-    font-family: 'Segoe UI', Arial, sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-  }
-
-  .container {
-    width: 380px;
-    background: var(--white);
-    padding: 2.5rem 2.2rem;
-    border-radius: 22px;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.12);
-    text-align: center;
-  }
-
-  .title {
-    font-size: 1.9rem;
-    font-weight: 900;
-    color: var(--navy);
-  }
-
-  .title span {
-    color: var(--orange);
-  }
-
-  .subtitle {
-    margin-top: 4px;
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: var(--navy);
-  }
-
-  /* ⭐ Input styling matching your sample */
-  .input-box {
-    width: 100%;
-    padding: 1rem;
-    margin-top: 1.2rem;
-    border-radius: 16px;
-    border: 1.5px solid #bcbcbc;
-    font-size: 1rem;
-    background: #f7f7f7;
-    text-align: left;
-    box-sizing: border-box;
-  }
-
-  .input-box::placeholder {
-    color: #888;
-  }
-
-  .input-box:focus {
-    outline: none;
-    border-color: var(--orange);
-    box-shadow: 0 0 0 3px rgba(255,119,0,0.25);
-  }
-
-  button {
-    width: 100%;
-    margin-top: 1.8rem;
-    padding: 1rem;
-    background: var(--orange);
-    color: var(--white);
-    font-size: 1.15rem;
-    border: none;
-    border-radius: 22px;
-    cursor: pointer;
-    font-weight: 700;
-    transition: 0.3s;
-  }
-
-  button:hover {
-    background: #e06200;
-  }
-
-  .back {
-    display: block;
-    margin-top: 1rem;
-    font-size: 0.95rem;
-    color: var(--navy);
-    text-decoration: none;
-  }
-
-  .back:hover {
-    text-decoration: underline;
-  }
+body {
+  font-family:'Segoe UI',sans-serif;
+  background:#f2f2f2;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+}
+.container {
+  background:white;
+  width:380px;
+  padding:2.5rem;
+  border-radius:20px;
+  box-shadow:0 6px 18px rgba(0,0,0,0.12);
+  text-align:center;
+}
+input {
+  width:100%;
+  padding:1rem;
+  margin-top:1rem;
+  border-radius:12px;
+  border:1.5px solid #bcbcbc;
+}
+button {
+  width:100%;
+  margin-top:1.5rem;
+  padding:1rem;
+  background:#FF7700;
+  color:white;
+  border:none;
+  border-radius:20px;
+  font-size:1.1rem;
+  cursor:pointer;
+}
+a {
+  display:block;
+  margin-top:1rem;
+  text-decoration:none;
+  color:#002054;
+}
 </style>
 </head>
-
 <body>
 
 <div class="container">
-  <div class="title">ISKOLA<span>REALEÑO</span></div>
-  <div class="subtitle">Scholar Login</div>
-
-  <input id="email" type="email" class="input-box" placeholder="Email">
-  <input id="password" type="password" class="input-box" placeholder="Password">
-<button type="button" id="loginBtn">Login</button>
-
-  <a href="signup.html" class="back">← Sign up</a>
-  <a href="forgot-password.html" class="back">← forgot password?</a>
+  <h2>Scholar Login</h2>
+  <input id="email" type="email" placeholder="Email">
+  <input id="password" type="password" placeholder="Password">
+  <button id="loginBtn">Login</button>
+  <a href="signup.html">← Don't have an account? Sign up</a>
+  <a href="reset-password.html">← Forgot password?</a>
 </div>
 
-<!-- Load Supabase JS -->
+<!-- Supabase JS SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <script>
-document.addEventListener("DOMContentLoaded", () => {
-  const btn = document.getElementById("loginBtn");
+const supabaseClient = supabase.createClient(
+  'https://wwzufquuogpshrlrofiv.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind3enVmcXV1b2dwc2hybHJvZml2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwNTgxMzcsImV4cCI6MjA4MTYzNDEzN30.JXJgJEpX0BEKYHGbWH1zUq6lVv1jetg0AmEsM-HvZQs'
+);
 
-  btn.addEventListener("click", async () => {
-    alert("Login button clicked"); // ✅ TEST — YOU MUST SEE THIS
+document.getElementById('loginBtn').addEventListener('click', async () => {
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value.trim();
 
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
+  if (!email || !password) {
+    alert('❌ Enter email and password');
+    return;
+  }
 
-    try {
-      const res = await fetch("http://localhost:5000/api/login", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ email, password })
-});
+  try {
+    // 1️⃣ Login via Supabase Auth
+    const { data, error } = await supabaseClient.auth.signInWithPassword({
+      email,
+      password
+    });
 
-const data = await res.json();
-
-// 👇 ADD THESE
-
-
-      if (!res.ok) {
-        alert("❌ " + data.error);
-        return;
-      }
-
-      localStorage.setItem("user", JSON.stringify(data.user));
-      localStorage.setItem("role", data.role);
-
-      if (data.role === "applicant") {
-        window.location.href = "applicant-dashboard.html";
-      } else if (data.role === "scholar") {
-        window.location.href = "homepage2.html";
-      }
-
-    } catch (err) {
-      alert("FETCH ERROR: " + err.message);
+    if (error) {
+      alert('❌ ' + error.message);
+      return;
     }
-  });
+
+    // 2️⃣ Check backend for email_verified
+    const res = await fetch('http://localhost:5000/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }) // send email+password again
+    });
+
+    const result = await res.json();
+
+    if (!res.ok) {
+      alert('❌ ' + (result.error || 'Login blocked'));
+      await supabaseClient.auth.signOut(); // logout if blocked
+      return;
+    }
+
+    // ✅ Login success
+    localStorage.setItem('user', JSON.stringify(result.user));
+    localStorage.setItem('access_token', result.session.access_token);
+
+    alert('✅ Login successful');
+    window.location.href = 'applicant.html';
+
+  } catch (err) {
+    console.error(err);
+    alert('❌ Server error');
+  }
 });
 </script>
-
 
 </body>
 </html>

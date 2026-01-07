@@ -5,6 +5,8 @@ import { createClient } from '@supabase/supabase-js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
+import fetch from 'node-fetch';
+
 dotenv.config();
 
 // Setup email transporter
@@ -38,8 +40,15 @@ app.use(express.json());
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Serve static frontend files
-app.use(express.static(path.join(__dirname, '..', 'frontend', 'static')));
+// ✅ SERVE STATIC FILES
+// Serve static files from the "frontend" folder
+app.use(express.static(path.join(__dirname, 'frontend')));
+
+// API routes
+app.post('/api/login', async (req, res) => {
+});
+app.get('/api/verify-email', async (req, res) => {
+});
 
 // Default landing
 app.get('/', (req, res) => {
@@ -51,10 +60,28 @@ app.get('/reset-password.html', (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'frontend/static/reset-password.html'));
 });
 // ---------------- SUPABASE ----------------
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
-);
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY) {
+  console.error("❌ SUPABASE_URL or SUPABASE_SERVICE_KEY missing in .env");
+  process.exit(1);
+}
+
+export const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
+
+// Test DB connection
+async function testDB() {
+  const { data, error } = await supabase.from('scholars').select('*').limit(1);
+  if (error) {
+    console.error("❌ Postgres connection failed:", error.message);
+  } else {
+    console.log("✅ Postgres connected, test query success");
+  }
+}
+testDB();
+
+
 // Test DB connection
 (async () => {
   const { data, error } = await supabase.from('scholars').select('*').limit(1);
@@ -65,118 +92,136 @@ const supabase = createClient(
   }
 })();
 
-// ---------------- LOGIN (APPLICANT OR SCHOLAR) ----------------
-app.post('/api/login', async (req, res) => {
-  const { email, password } = req.body;
-
-  if (!email || !password) {
-    return res.status(400).json({ error: 'Email and password required' });
-  }
-
-  const supabaseAuth = createClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_ANON_KEY
-  );
-
-  try {
-    const { data, error } = await supabaseAuth.auth.signInWithPassword({
-      email,
-      password
-    });
-
-    if (error) {
-      return res.status(401).json({ error: error.message });
-    }
-
-    const user = data.user;
-
-    // CHECK SCHOLARS
-    const { data: scholar } = await supabase
-      .from('scholars')
-      .select('*')
-      .eq('id', user.id)
-      .single();
-
-    if (scholar) {
-      return res.json({
-        role: "scholar",
-        user: scholar
-      });
-    }
-
-    // CHECK APPLICANTS
-    const { data: applicant } = await supabase
-      .from('applicants')
-      .select('*')
-      .eq('id', user.id)
-      .single();
-
-    if (applicant) {
-      return res.json({
-        role: "applicant",
-        user: applicant
-      });
-    }
-
-    return res.status(404).json({ error: "Profile not found" });
-
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Server error" });
-  }
-});
-
-
-// ---------------- SIGN-UP SCHOLAR APPLICANT ----------------
+// ------------------- SIGNUP FOR APPLICANT (working) dont change this!!!!!!! -------------------
 app.post('/api/signup', async (req, res) => {
   const { first_name, middle_name, last_name, address, email, password } = req.body;
-
-  if (!first_name || !last_name || !email || !password) {
-    return res.status(400).json({ error: 'Missing required fields' });
-  }
+  if (!first_name || !last_name || !email || !password)
+    return res.status(400).json({ error: 'Please fill all required fields' });
 
   try {
-    // 1️⃣ Sign up user in Supabase Auth (email confirmation enabled)
-    const { data: authData, error: authError } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: { first_name, middle_name, last_name, address }
-      }
+    // 1️⃣ Create user sa Supabase Auth (Admin API)
+    const response = await fetch(`${process.env.SUPABASE_URL}/auth/v1/admin/users`, {
+      method: 'POST',
+      headers: {
+        'apikey': process.env.SUPABASE_SERVICE_ROLE_KEY,
+        'Authorization': `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        email,
+        password,
+        email_confirm: true, // Option B: custom verification
+        user_metadata: { first_name, middle_name, last_name, address }
+      })
     });
+    const data = await response.json();
+    if (!response.ok) return res.status(400).json({ error: data?.message || JSON.stringify(data) });
 
-    if (authError) {
-      console.error('Auth Error:', authError);
-      return res.status(400).json({ error: authError.message });
-    }
+    const userId = data.id;
 
-    // Optional: insert user into applicants table with authData.user.id
-    const userId = authData.user.id;
-
-    const { data: applicant, error: insertError } = await supabase
+    // 2️⃣ Insert sa applicants table
+    const { error: insertError } = await supabase
       .from('applicants')
-      .insert([{
+      .insert({
         id: userId,
         first_name,
         middle_name,
         last_name,
         address,
-        email
-      }]);
+        email,
+        email_verified: false
+      });
+    if (insertError) return res.status(500).json({ error: insertError.message });
 
-    if (insertError) {
-      console.error('Insert Error:', insertError);
-      return res.status(400).json({ error: insertError.message });
-    }
+    // 3️⃣ Generate verification token
+    const token = Math.random().toString(36).substring(2, 15);
+    await supabase.from('applicants').update({ verify_token: token }).eq('id', userId);
 
-    // ✅ Respond with success message
+    // 4️⃣ Send verification email
+    const verifyLink = `${process.env.FRONTEND_URL}/verify.html?token=${token}`;
+    await transporter.sendMail({
+      from: `"Iskolar ng Realeno" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: 'Verify your email',
+      html: `<p>Hello ${first_name},</p>
+             <p>Click below to verify your email:</p>
+             <a href="${verifyLink}">${verifyLink}</a>
+             <p>Thank you!</p>`
+    });
+
+    res.json({ message: 'Signup successful! Check your email to verify your account.' });
+
+  } catch (err) {
+    console.error('Signup server error:', err);
+    res.status(500).json({ error: 'Server error: ' + err.message });
+  }
+});
+
+// ------------------- VERIFY EMAIL(working) dont change this!!!!!!!  -------------------
+app.get('/api/verify-email', async (req, res) => {
+  const { token } = req.query;
+  if (!token) return res.status(400).send('Invalid token');
+
+  try {
+    // Hanapin applicant gamit token
+    const { data: applicant, error } = await supabase
+      .from('applicants')
+      .select('*')
+      .eq('verify_token', token)
+      .single();
+
+    if (error || !applicant) return res.status(400).send('❌ Verification failed: Token not found');
+
+    // Update table
+    await supabase.from('applicants')
+      .update({ email_verified: true, verify_token: null })
+      .eq('id', applicant.id);
+
+    res.send('✅ Email verified! You can now login using the same password you set at signup.');
+
+  } catch (err) {
+    console.error('Verify email server error:', err);
+    res.status(500).send('Server error');
+  }
+});
+
+// ------------------- LOGIN (working) dont change this!!!!!!!  -------------------
+// Backend login endpoint
+app.post('/api/login', async (req, res) => {
+  const { email, password } = req.body;
+  if (!email || !password) return res.status(400).json({ error: 'Email and password required' });
+
+  try {
+    // 1️⃣ Login via Supabase Auth
+    const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+      email,
+      password
+    });
+
+    if (authError) return res.status(401).json({ error: authError.message });
+
+    const userId = authData.user.id;
+
+    // 2️⃣ Check applicants table for email_verified
+    const { data: applicant, error: applicantError } = await supabase
+      .from('applicants')
+      .select('email_verified')
+      .eq('id', userId)
+      .single();
+
+    if (applicantError || !applicant) return res.status(404).json({ error: 'User not found in applicants table' });
+
+    if (!applicant.email_verified) return res.status(403).json({ error: '❌ Please verify your email first' });
+
+    // ✅ Success
     res.json({
-      message: `Signup successful! Confirmation email sent to ${email}.`,
-      applicant
+      message: '✅ Login successful',
+      user: authData.user,
+      session: authData.session
     });
 
   } catch (err) {
-    console.error('Server Error:', err);
+    console.error('Login server error:', err);
     res.status(500).json({ error: 'Server error: ' + err.message });
   }
 });
