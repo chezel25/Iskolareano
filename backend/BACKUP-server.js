@@ -175,45 +175,70 @@ app.get('/api/verify-email', async (req, res) => {
 });
 
 // ------------------- LOGIN (working) dont change this!!!!!!!  -------------------
-// Backend login endpoint
 app.post('/api/login', async (req, res) => {
   const { email, password } = req.body;
-  if (!email || !password) return res.status(400).json({ error: 'Email and password required' });
+  if (!email || !password) {
+    return res.status(400).json({ error: 'Email and password required' });
+  }
 
   try {
-    // 1️⃣ Login via Supabase Auth
-    const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-      email,
-      password
-    });
+    // 1️⃣ Supabase Auth login
+    const { data: authData, error: authError } =
+      await supabase.auth.signInWithPassword({ email, password });
 
-    if (authError) return res.status(401).json({ error: authError.message });
+    if (authError) {
+      return res.status(401).json({ error: authError.message });
+    }
 
     const userId = authData.user.id;
 
-    // 2️⃣ Check applicants table for email_verified
-    const { data: applicant, error: applicantError } = await supabase
+    // 2️⃣ Check APPLICANTS table
+    const { data: applicant } = await supabase
       .from('applicants')
       .select('email_verified')
       .eq('id', userId)
-      .single();
+      .maybeSingle();
 
-    if (applicantError || !applicant) return res.status(404).json({ error: 'User not found in applicants table' });
+    if (applicant) {
+      if (!applicant.email_verified) {
+        return res.status(403).json({ error: '❌ Please verify your email first' });
+      }
 
-    if (!applicant.email_verified) return res.status(403).json({ error: '❌ Please verify your email first' });
+      return res.json({
+        message: '✅ Login successful',
+        role: 'applicant',
+        redirect: 'applicant.html',
+        user: authData.user,
+        session: authData.session
+      });
+    }
 
-    // ✅ Success
-    res.json({
-      message: '✅ Login successful',
-      user: authData.user,
-      session: authData.session
-    });
+    // 3️⃣ Check SCHOLARS table
+    const { data: scholar } = await supabase
+      .from('scholars')
+      .select('id')
+      .eq('id', userId)
+      .maybeSingle();
+
+    if (scholar) {
+      return res.json({
+        message: '✅ Login successful',
+        role: 'scholar',
+        redirect: 'homepage2.html',
+        user: authData.user,
+        session: authData.session
+      });
+    }
+
+    // 4️⃣ Not found in any table
+    return res.status(404).json({ error: 'User role not found' });
 
   } catch (err) {
     console.error('Login server error:', err);
     res.status(500).json({ error: 'Server error: ' + err.message });
   }
 });
+
 
 // ------------------ FORGOT PASSWORD (working) dont change this!!!!!!!------------------
 app.post('/api/forgot-password', async (req, res) => {
@@ -333,7 +358,7 @@ function generateTempPassword() {
   return 'ISK' + Math.floor(100000 + Math.random() * 900000);
 }
 
-// ---------------- CREATE SCHOLAR ----------------
+// ---------------- CREATE SCHOLAR (working) dont change this!!!!!!!----------------
 app.post('/api/admin/create-scholar', async (req, res) => {
   const { first_name, middle_name, last_name, address, email, degree } = req.body;
   const tempPassword = generateTempPassword();

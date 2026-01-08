@@ -56,54 +56,56 @@ const supabaseClient = supabase.createClient(
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind3enVmcXV1b2dwc2hybHJvZml2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwNTgxMzcsImV4cCI6MjA4MTYzNDEzN30.JXJgJEpX0BEKYHGbWH1zUq6lVv1jetg0AmEsM-HvZQs'
 );
 
-document.getElementById('loginBtn').addEventListener('click', async () => {
-  const email = document.getElementById('email').value.trim();
-  const password = document.getElementById('password').value.trim();
 
-  if (!email || !password) {
-    alert('❌ Enter email and password');
-    return;
-  }
+    document.getElementById('loginBtn').addEventListener('click', async () => {
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value.trim();
 
-  try {
-    // 1️⃣ Login via Supabase Auth
-    const { data, error } = await supabaseClient.auth.signInWithPassword({
-      email,
-      password
+      if (!email || !password) {
+        alert('❌ Enter email and password');
+        return;
+      }
+
+      try {
+        // 1️⃣ Login with Supabase Auth
+        const { data, error } = await supabaseClient.auth.signInWithPassword({
+          email,
+          password
+        });
+
+        if (error) {
+          alert('❌ ' + error.message);
+          return;
+        }
+
+        // 2️⃣ Ask backend which page to route
+        const res = await fetch('http://localhost:5000/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+
+        const result = await res.json();
+
+        if (!res.ok) {
+          alert('❌ ' + (result.error || 'Login blocked'));
+          await supabaseClient.auth.signOut();
+          return;
+        }
+
+        // 3️⃣ Save session + role
+        localStorage.setItem('user', JSON.stringify(result.user));
+        localStorage.setItem('access_token', result.session.access_token);
+        localStorage.setItem('role', result.role);
+
+        // 4️⃣ Redirect based on backend decision
+        window.location.href = result.redirect;
+
+      } catch (err) {
+        console.error(err);
+        alert('❌ Server error');
+      }
     });
-
-    if (error) {
-      alert('❌ ' + error.message);
-      return;
-    }
-
-    // 2️⃣ Check backend for email_verified
-    const res = await fetch('http://localhost:5000/api/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }) // send email+password again
-    });
-
-    const result = await res.json();
-
-    if (!res.ok) {
-      alert('❌ ' + (result.error || 'Login blocked'));
-      await supabaseClient.auth.signOut(); // logout if blocked
-      return;
-    }
-
-    // ✅ Login success
-    localStorage.setItem('user', JSON.stringify(result.user));
-    localStorage.setItem('access_token', result.session.access_token);
-
-    alert('✅ Login successful');
-    window.location.href = 'applicant.html';
-
-  } catch (err) {
-    console.error(err);
-    alert('❌ Server error');
-  }
-});
 </script>
 
 </body>
