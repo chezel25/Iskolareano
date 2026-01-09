@@ -175,6 +175,51 @@ app.get('/api/verify-email', async (req, res) => {
 });
 
 // ------------------- LOGIN (working) dont change this!!!!!!!  -------------------
+
+// ------------------- ADMIN LOGIN -------------------
+app.post('/api/admin/login', async (req, res) => {
+  const { email, password } = req.body;
+  if (!email || !password) {
+    return res.status(400).json({ error: 'Email and password required' });
+  }
+
+  try {
+    // 1️⃣ Supabase Auth login
+    const { data: authData, error: authError } =
+      await supabase.auth.signInWithPassword({ email, password });
+
+    if (authError) {
+      return res.status(401).json({ error: authError.message });
+    }
+
+    const userId = authData.user.id;
+
+    // 2️⃣ Check ADMINS table using auth_id (CORRECT)
+    const { data: admin, error: adminError } = await supabase
+      .from('admins')
+      .select('role')
+      .eq('auth_id', userId)
+      .single();
+
+    if (adminError || !admin) {
+      return res.status(403).json({ error: 'Not an admin account' });
+    }
+
+    return res.json({
+      message: '✅ Admin login successful',
+      role: admin.role,
+      redirect: 'admin-dashboard.html',
+      user: authData.user,
+      session: authData.session
+    });
+
+  } catch (err) {
+    console.error('Admin login error:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+
 app.post('/api/login', async (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) {
@@ -230,6 +275,9 @@ app.post('/api/login', async (req, res) => {
       });
     }
 
+
+
+    
     // 4️⃣ Not found in any table
     return res.status(404).json({ error: 'User role not found' });
 
@@ -241,6 +289,41 @@ app.post('/api/login', async (req, res) => {
 
 
 // ------------------ FORGOT PASSWORD (working) dont change this!!!!!!!------------------
+
+// ------------------- ADMIN FORGOT PASSWORD -------------------
+app.post('/api/admin/forgot-password', async (req, res) => {
+  const { email } = req.body;
+  if (!email) return res.status(400).json({ error: 'Email required' });
+
+  try {
+    // 1️⃣ Check if email belongs to admin
+    const { data: admin, error } = await supabase
+      .from('admins')
+      .select('auth_id')
+      .eq('email', email)
+      .single();
+
+    if (error || !admin) {
+      return res.status(404).json({ error: 'Admin not found' });
+    }
+
+    // 2️⃣ Send reset email via Supabase
+    const { error: resetError } =
+      await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${process.env.FRONTEND_URL}/admin-reset-password.html`
+      });
+
+    if (resetError) throw resetError;
+
+    res.json({ message: 'Password reset email sent' });
+
+  } catch (err) {
+    console.error('Admin forgot password error:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+
 app.post('/api/forgot-password', async (req, res) => {
   const { email } = req.body;
   if (!email) return res.status(400).json({ error: 'Email required' });
@@ -321,6 +404,38 @@ app.post('/api/reset-password', async (req, res) => {
   }
 });
 // ---------------- RESET PASSWORD (working) dont change this!!!!!!!----------------
+
+// ------------------- ADMIN RESET PASSWORD -------------------
+app.post('/api/admin/reset-password', async (req, res) => {
+  const { access_token, newPassword } = req.body;
+
+  if (!access_token || !newPassword) {
+    return res.status(400).json({ error: 'Missing token or password' });
+  }
+
+  try {
+    // 1️⃣ Validate token
+    const { data: userData, error: tokenError } =
+      await supabase.auth.getUser(access_token);
+
+    if (tokenError) throw tokenError;
+
+    // 2️⃣ Update password
+    const { error } =
+      await supabase.auth.admin.updateUserById(userData.user.id, {
+        password: newPassword
+      });
+
+    if (error) throw error;
+
+    res.json({ success: true, message: 'Password updated' });
+
+  } catch (err) {
+    console.error('Admin reset password error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 app.post('/api/reset-password', async (req, res) => {
   const { access_token, newPassword } = req.body;
 
