@@ -1,28 +1,167 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Applicant Dashboard</title>
- <style>body { margin:0; font-family:"Segoe UI",Arial,sans-serif; background:#eef4ff; }
-.container { max-width:900px; margin:30px auto; padding:20px; }
-.header { display:flex; justify-content:space-between; align-items:center; }
-.header button { padding:8px 10px; border:1px solid #ddd; background:white; border-radius:8px; cursor:pointer; }
-.card { background:white; border-radius:16px; padding:20px; margin-top:20px; }
-.status-header { display:flex; justify-content:space-between; align-items:center; }
-.badge { background:#fde68a; color:#92400e; padding:6px 12px; border-radius:999px; font-size:12px; font-weight:600; }
-.progress-wrapper { margin-top:15px; }
-.progress-label { display:flex; justify-content:space-between; font-size:14px; margin-bottom:6px; }
-.progress-bar { height:8px; background:#e5e7eb; border-radius:999px; overflow:hidden; }
-#progressFill { height:100%; width:0%; background:#111827; transition:width 0.4s ease; }
-.tracker { list-style:none; padding:0; }
-.tracker li { display:flex; gap:12px; margin-bottom:18px; opacity:0.4; }
-.tracker li.active { opacity:1; }
-.dot { width:14px; height:14px; border-radius:50%; border:2px solid #9ca3af; margin-top:4px; }
-.active .dot { background:#111827; border-color:#111827; }
-.muted { color:#6b7280; font-size:14px; }
+<meta charset="UTF-8">
+<title>Applicant Dashboard</title>
 
+<style>
+body {
+  margin:0;
+  font-family:"Segoe UI",Arial,sans-serif;
+  background:#eef4ff;
+}
+
+.container {
+  max-width:900px;
+  margin:30px auto;
+  padding:20px;
+}
+
+.header {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.header button {
+  padding:8px 12px;
+  border:1px solid #ddd;
+  background:white;
+  border-radius:8px;
+  cursor:pointer;
+}
+
+.card {
+  background:white;
+  border-radius:16px;
+  padding:20px;
+  margin-top:20px;
+}
+
+.status-header {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.badge {
+  background:#fde68a;
+  color:#92400e;
+  padding:6px 12px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:600;
+}
+
+.progress-wrapper {
+  margin-top:15px;
+}
+
+.progress-label {
+  display:flex;
+  justify-content:space-between;
+  font-size:14px;
+  margin-bottom:6px;
+}
+
+.progress-bar {
+  height:8px;
+  background:#e5e7eb;
+  border-radius:999px;
+  overflow:hidden;
+}
+
+#progressFill {
+  height:100%;
+  width:0%;
+  background:#111827;
+  transition:width 0.4s ease;
+}
+
+/* TRACKER */
+.tracker {
+  list-style:none;
+  padding:0;
+}
+
+.tracker li {
+  display:flex;
+  gap:12px;
+  margin-bottom:18px;
+  opacity:0.35;
+  transition:0.3s;
+}
+
+.tracker li.active {
+  opacity:1;
+}
+
+.dot {
+  width:16px;
+  height:16px;
+  border-radius:50%;
+  border:2px solid #9ca3af;
+  margin-top:4px;
+}
+
+.active .dot {
+  background:#111827;
+  border-color:#111827;
+}
+
+.muted {
+  color:#6b7280;
+  font-size:14px;
+}
+
+/* REQUIREMENTS */
+#requirementsSection {
+  display:none;
+}
+
+.req-item {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:12px;
+  border:1px solid #e5e7eb;
+  border-radius:10px;
+  margin-bottom:10px;
+}
+
+.req-item.done {
+  background:#ecfdf5;
+  border-color:#10b981;
+}
+
+.req-item.done strong {
+  color:#065f46;
+}
+
+/* POPUP */
+#popup {
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.6);
+  display:none;
+  align-items:center;
+  justify-content:center;
+}
+
+.popup-card {
+  background:white;
+  padding:30px;
+  border-radius:16px;
+  text-align:center;
+  max-width:400px;
+}
+
+.popup-card h2 {
+  margin-bottom:10px;
+}
 </style>
 </head>
+
 <body>
 
 <div class="container">
@@ -30,18 +169,20 @@
   <!-- HEADER -->
   <div class="header">
     <div>
-      <h1>Welcome, <span id="applicantName">Applicant</span>!</h1>
+      <h1>Welcome, Applicant!</h1>
       <p>Applicant Dashboard</p>
-  </div>
-    <button onclick="location.href='applicant-requirements.html'">requirements</button>
-    <button onclick="location.href='login.html'">Logout</button>
+    </div>
+    <div>
+      <button onclick="toggleRequirements()">Requirements</button>
+      <button onclick="location.href='login.html'">Logout</button>
+    </div>
   </div>
 
-  <!-- STATUS CARD -->
+  <!-- STATUS -->
   <div class="card">
     <div class="status-header">
       <h3>Application Status</h3>
-      <span id="statusBadge" class="badge">Pending Review</span>
+      <span id="statusBadge" class="badge">Requirements Review</span>
     </div>
 
     <div class="progress-wrapper">
@@ -56,16 +197,16 @@
   </div>
 
   <!-- TRACKER -->
-  <div class="card">
+  <div class="card" id="trackerSection">
     <h3>Application Tracker</h3>
-    <p class="muted">Track your progress through each stage</p>
+    <p class="muted">Track your progress</p>
 
     <ul class="tracker">
-      <li id="step-requirements">
+      <li id="step-requirements" class="active">
         <span class="dot"></span>
         <div>
           <strong>Requirements Review</strong>
-          <small>Waiting for admin review</small>
+          <small>Upload required documents</small>
         </div>
       </li>
 
@@ -73,7 +214,7 @@
         <span class="dot"></span>
         <div>
           <strong>Examination</strong>
-          <small>Complete requirements review first</small>
+          <small>Pending</small>
         </div>
       </li>
 
@@ -81,7 +222,7 @@
         <span class="dot"></span>
         <div>
           <strong>MSWD Evaluation</strong>
-          <small>Pass the exam first</small>
+          <small>Pending</small>
         </div>
       </li>
 
@@ -89,92 +230,321 @@
         <span class="dot"></span>
         <div>
           <strong>Scholar Status</strong>
-          <small>Complete all previous steps</small>
+          <small>Pending</small>
         </div>
       </li>
     </ul>
   </div>
 
+  <!-- REQUIREMENTS -->
+  <!-- REQUIREMENTS -->
+<div class="card" id="requirementsSection">
+  <h3>Upload Requirements</h3>
+
+  <div class="req-item">
+    <strong>Barangay Clearance</strong>
+    <input type="file" onchange="uploadReq(this,'Barangay Clearance')">
+    <div class="req-buttons"></div>
+  </div>
+
+  <div class="req-item">
+    <strong>Certificate of Indigency</strong>
+    <input type="file" onchange="uploadReq(this,'Certificate of Indigency')">
+    <div class="req-buttons"></div>
+  </div>
+
+  <div class="req-item">
+    <strong>Report Card</strong>
+    <input type="file" onchange="uploadReq(this,'Report Card')">
+    <div class="req-buttons"></div>
+  </div>
+
+  <div class="req-item">
+    <strong>Birth Certificate</strong>
+    <input type="file" onchange="uploadReq(this,'Birth Certificate')">
+    <div class="req-buttons"></div>
+  </div>
+
+  <button id="submitBtn" onclick="submitAll()" disabled>
+    Submit All Requirements
+  </button>
 </div>
 
-<script>console.log("✅ admin.js loaded");
 
-// REQUIRED so HTML onclick works
-window.loadApplicants = async function () {
-  console.log("📄 Loading applicants...");
+<!-- POPUP -->
+<div id="popup">
+  <div class="popup-card">
+    <h2>🎉 Congratulations!</h2>
+    <p>You are now part of <strong>Iskolarealeño</strong>.</p>
+    <button onclick="closePopup()">Continue</button>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<script>
+// ==============================
+// CONFIG & STATE
+// ==============================
 
-  const res = await fetch('http://localhost:5000/api/admin/applicants');
+const supabaseUrl = "https://wwzufquuogpshrlrofiv.supabase.co";
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind3enVmcXV1b2dwc2hybHJvZml2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwNTgxMzcsImV4cCI6MjA4MTYzNDEzN30.JXJgJEpX0BEKYHGbWH1zUq6lVv1jetg0AmEsM-HvZQs";
+// Use a new variable name
+const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+
+const TOTAL_REQ = 4;
+const requirementsList = [
+  "Barangay Clearance",
+  "Certificate of Indigency",
+  "Report Card",
+  "Birth Certificate"
+];
+
+// Store uploaded file URLs locally
+let requirements = {
+  "Barangay Clearance": null,
+  "Certificate of Indigency": null,
+  "Report Card": null,
+  "Birth Certificate": null
+};
+
+// ==============================
+// TOGGLE REQUIREMENTS SECTION
+// ==============================
+function toggleRequirements() {
+  const tracker = document.getElementById('trackerSection');
+  const req = document.getElementById('requirementsSection');
+  if (req.style.display === 'none' || req.style.display === '') {
+    req.style.display = 'block';
+    tracker.style.display = 'none';
+  } else {
+    req.style.display = 'none';
+    tracker.style.display = 'block';
+  }
+}
+
+// ==============================
+// UPLOAD FILE
+// ==============================
+async function uploadReq(input, type) {
+  const file = input.files[0];
+  if (!file) return; // exit if no file selected
+
+  // ✅ 1. Get the current Supabase session
+  const { data: { session } } = await supabaseClient.auth.getSession();
+
+  // Check if user is logged in
+  if (!session) return alert("You must be logged in to upload files");
+
+  // ✅ 2. Extract the access token
+  const token = session.access_token;
+
+  // 3. Prepare FormData for the file upload
+  const form = new FormData();
+  form.append('file', file);
+  form.append('requirement_type', type);
+
+  try {
+    // ✅ 4. Send fetch request to your server with Authorization header
+    const res = await fetch("/api/requirements/upload", {
+      method: "POST",
+      body: form,
+      headers: {
+        'Authorization': `Bearer ${token}` // <-- this is the part you asked about
+      }
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      // ✅ 5. Update local state and UI
+      requirements[type] = data.file_url;
+      input.disabled = true;
+      input.parentElement.classList.add("done");
+      renderRequirementButtons();
+      updateProgress();
+    } else {
+      alert("Upload failed: " + data.error);
+    }
+
+  } catch (err) {
+    alert("Upload error: " + err.message);
+  }
+}
+
+// ==============================
+// VIEW FILE
+// ==============================
+function viewFile(type) {
+  const url = requirements[type]; // <-- this is already the full public URL
+  if (!url) {
+    alert("No file uploaded yet!");
+    return;
+  }
+  window.open(url, "_blank");
+}
+
+// ==============================
+// DELETE FILE
+// ==============================
+async function deleteFile(type) {
+  const token = localStorage.getItem("access_token");
+  if (!token) return alert("You are not logged in");
+
+  const res = await fetch(`/api/requirements/${encodeURIComponent(type)}`, {
+    method: "DELETE",
+    headers: {
+      "Authorization": "Bearer " + token
+    }
+  });
+
   const data = await res.json();
+  if (data.success) {
+    requirements[type] = null;
+    const item = Array.from(document.querySelectorAll(".req-item"))
+      .find(i => i.querySelector("strong").innerText === type);
+    if (item) {
+      item.classList.remove("done");
+      const input = item.querySelector("input");
+      input.disabled = false;
+      input.value = "";
+    }
+    renderRequirementButtons();
+    updateProgress();
+  } else {
+    alert("Delete failed: " + data.error);
+  }
+}
 
-  // Update stats
-  document.getElementById('total').innerText = data.stats.total;
-  document.getElementById('pending').innerText = data.stats.pending;
-  document.getElementById('approved').innerText = data.stats.approved;
-  document.getElementById('rejected').innerText = data.stats.rejected;
+// ==============================
+// SUBMIT ALL REQUIREMENTS
+// ==============================
+async function submitAll() {
+  try {
+    const token = localStorage.getItem("access_token");
+    if (!token) return alert("You must be logged in to submit requirements");
 
-  let html = `
-    <h2>Applicants</h2>
-    <table>
-      <tr>
-        <th>Name</th>
-        <th>Email</th>
-        <th>Status</th>
-        <th>Actions</th>
-      </tr>
-  `;
+    const res = await fetch("/api/requirements/submit", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + token // ✅ send token here
+      },
+      body: JSON.stringify({ /* optional payload if needed */ })
+    });
 
-  data.applicants.forEach(a => {
-    html += `
-      <tr>
-        <td>${a.first_name} ${a.last_name}</td>
-        <td>${a.email}</td>
-        <td>${a.status}</td>
-        <td>
-          <button class="approve" onclick="approveApplicant('${a.id}')">Approve</button>
-          <button class="reject" onclick="rejectApplicant('${a.id}')">Reject</button>
-        </td>
-      </tr>
-    `;
+    const data = await res.json();
+
+    if (data.success) {
+      alert("🎉 Requirements submitted. Awaiting review.");
+      updateProgress();
+    } else {
+      alert("Submit failed: " + (data.error || data.message));
+    }
+
+  } catch (err) {
+    alert("Submit error: " + err.message);
+  }
+}
+
+// ==============================
+// RENDER VIEW/DELETE BUTTONS
+// ==============================
+function renderRequirementButtons() {
+  const items = document.querySelectorAll(".req-item");
+  items.forEach(item => {
+    const type = item.querySelector("strong").innerText;
+    let container = item.querySelector(".req-buttons");
+    if (!container) {
+      container = document.createElement("div");
+      container.classList.add("req-buttons");
+      container.style.marginTop = "5px";
+      item.appendChild(container);
+    }
+    container.innerHTML = "";
+    if (requirements[type]) {
+      const viewBtn = document.createElement("button");
+      viewBtn.innerText = "View";
+      viewBtn.onclick = () => viewFile(type);
+      const delBtn = document.createElement("button");
+      delBtn.innerText = "Delete";
+      delBtn.onclick = () => deleteFile(type);
+      container.appendChild(viewBtn);
+      container.appendChild(delBtn);
+    }
   });
+}
 
-  html += `</table>`;
-  document.getElementById('content').innerHTML = html;
-};
+// ==============================
+// UPDATE PROGRESS BAR
+// ==============================
+function updateProgress() {
+  const uploadedCount = Object.values(requirements).filter(v => v !== null).length;
+  const progressPercent = Math.round((uploadedCount / TOTAL_REQ) * 100);
 
-window.approveApplicant = async function (id) {
-  await fetch(`http://localhost:5000/api/admin/applicant/${id}/approve`, {
-    method: 'POST'
-  });
-  loadApplicants();
-};
+  document.getElementById("progressFill").style.width = progressPercent + "%";
+  document.getElementById("progressPercent").innerText = progressPercent + "%";
 
-window.rejectApplicant = async function (id) {
-  await fetch(`http://localhost:5000/api/admin/applicant/${id}/reject`, {
-    method: 'POST'
-  });
-  loadApplicants();
-};
+  // Enable submit button only when all files uploaded
+  document.getElementById("submitBtn").disabled = uploadedCount !== TOTAL_REQ;
 
-window.loadScholars = async function () {
-  const res = await fetch('http://localhost:5000/api/admin/scholars');
-  const data = await res.json();
+  // Tracker steps
+  const steps = ["step-requirements", "step-exam", "step-mswd", "step-scholar"];
+  steps.forEach(s => document.getElementById(s).classList.remove("active"));
 
-  let html = `<h2>Scholars</h2><table>
-    <tr><th>ID</th><th>Name</th><th>Email</th></tr>`;
+  // 25% per step for simplicity
+  if (uploadedCount >= 1) document.getElementById("step-requirements").classList.add("active");
+  if (uploadedCount >= 2) document.getElementById("step-exam").classList.add("active");
+  if (uploadedCount >= 3) document.getElementById("step-mswd").classList.add("active");
+  if (uploadedCount === 4) document.getElementById("step-scholar").classList.add("active");
+}
 
-  data.forEach(s => {
-    html += `
-      <tr>
-        <td>${s.scholar_id}</td>
-        <td>${s.full_name}</td>
-        <td>${s.email}</td>
-      </tr>`;
-  });
 
-  html += `</table>`;
-  document.getElementById('content').innerHTML = html;
-};
+// ==============================
+// LOAD EXISTING REQUIREMENTS ON PAGE LOAD
+// ==============================
+async function loadRequirements() {
+  try {
+    const res = await fetch("/api/requirements", {
+      method: "GET",
+      credentials: "include"
+    });
+    const data = await res.json();
+    if (data.success) {
+      data.files.forEach(f => {
+        requirements[f.requirement_type] = f.file_url;
+      });
+
+      // Mark uploaded items as done
+      Object.entries(requirements).forEach(([type, url]) => {
+        if (url) {
+          const item = Array.from(document.querySelectorAll(".req-item"))
+            .find(i => i.querySelector("strong").innerText === type);
+          if (item) {
+            item.classList.add("done");
+            item.querySelector("input").disabled = true;
+          }
+        }
+      });
+
+      renderRequirementButtons();
+      updateProgress();
+    }
+  } catch (err) {
+    console.error("Failed to load requirements:", err);
+  }
+}
+
+// ==============================
+// INITIALIZE
+// ==============================
+window.addEventListener("DOMContentLoaded", async () => {
+  const firstName = localStorage.getItem("first_name");
+  if (firstName) document.getElementById("welcomeText").innerText = `Welcome, ${firstName}!`;
+
+  await loadRequirements(); // existing function to load uploaded files
+});
+
 </script>
+
 
 </body>
 </html>

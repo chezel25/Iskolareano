@@ -57,55 +57,56 @@ const supabaseClient = supabase.createClient(
 );
 
 
-    document.getElementById('loginBtn').addEventListener('click', async () => {
-      const email = document.getElementById('email').value.trim();
-      const password = document.getElementById('password').value.trim();
+   
+document.getElementById('loginBtn').addEventListener('click', async () => {
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value.trim();
 
-      if (!email || !password) {
-        alert('❌ Enter email and password');
-        return;
-      }
+  if (!email || !password) {
+    alert('❌ Enter email and password');
+    return;
+  }
 
-      try {
-        // 1️⃣ Login with Supabase Auth
-        const { data, error } = await supabaseClient.auth.signInWithPassword({
-          email,
-          password
-        });
-
-        if (error) {
-          alert('❌ ' + error.message);
-          return;
-        }
-
-        // 2️⃣ Ask backend which page to route
-        const res = await fetch('http://localhost:5000/api/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, password })
-        });
-
-        const result = await res.json();
-
-        if (!res.ok) {
-          alert('❌ ' + (result.error || 'Login blocked'));
-          await supabaseClient.auth.signOut();
-          return;
-        }
-
-        // 3️⃣ Save session + role
-        localStorage.setItem('user', JSON.stringify(result.user));
-        localStorage.setItem('access_token', result.session.access_token);
-        localStorage.setItem('role', result.role);
-
-        // 4️⃣ Redirect based on backend decision
-        window.location.href = result.redirect;
-
-      } catch (err) {
-        console.error(err);
-        alert('❌ Server error');
-      }
+  try {
+    // 1️⃣ Login with Supabase Auth
+    const { data: authData, error } = await supabaseClient.auth.signInWithPassword({
+      email,
+      password
     });
+
+    if (error) {
+      alert('❌ ' + error.message);
+      return;
+    }
+
+    // 2️⃣ Call backend to get role & redirect
+    const res = await fetch('http://localhost:5000/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+
+    const result = await res.json();
+
+    if (!res.ok) {
+      alert('❌ ' + (result.error || 'Login blocked'));
+      await supabaseClient.auth.signOut();
+      return;
+    }
+
+    // 3️⃣ Save session token for protected requests
+    localStorage.setItem('user', JSON.stringify(result.user));
+    localStorage.setItem('access_token', authData.session.access_token); // ✅ important
+    localStorage.setItem('role', result.role);
+
+    // 4️⃣ Redirect to the correct page
+    window.location.href = result.redirect;
+
+  } catch (err) {
+    console.error(err);
+    alert('❌ Server error');
+  }
+});
 </script>
 
 </body>

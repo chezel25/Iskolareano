@@ -6,7 +6,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 import fetch from 'node-fetch';
-
+import multer from 'multer';
 dotenv.config();
 
 // Setup email transporter
@@ -51,13 +51,22 @@ app.get('/reset-password.html', (req, res) => {
 // ---------------- SUPABASE ----------------
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+export const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
 
 if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY) {
   console.error("❌ SUPABASE_URL or SUPABASE_SERVICE_KEY missing in .env");
   process.exit(1);
 }
+export async function authMiddleware(req, res, next) {
+  const token = req.headers.authorization?.split(' ')[1];
+  if (!token) return res.status(401).json({ error: "No token provided" });
 
-export const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
+  const { data: { user }, error } = await supabase.auth.getUser(token);
+  if (error || !user) return res.status(401).json({ error: "Unauthorized" });
+
+  req.user = user; // attach user to request
+  next();
+}
 
 // Test DB connection
 async function testDB() {
@@ -424,8 +433,406 @@ Iskolar ng Realeno Team`
     res.status(500).json({ error: 'Server error' });
   }
 });
+// ---------------- APPROVE REQUIREMENTS (TASK 2) JIA CHECKING----------------
+// Sets requirements_approved = true so they appear in exam admin
+app.post('/api/admin/applicants/:id/approve-requirements', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const { error } = await supabase
+      .from('applicants')
+      .update({ requirements_approved: true })
+      .eq('id', id);
+
+    if (error) throw error;
+
+    res.json({ success: true, message: 'Requirements approved. Applicant can now take the exam.' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to approve requirements' });
+  }
+});
 
 
+// All scholars
+app.get('/api/admin/scholars', async (req, res) => {
+  try {
+    const { data, error } = await supabase.from('scholars').select('*');
+    if (error) return res.status(500).json({ error: error.message });
+
+    // Return empty array if no data, otherwise map the data
+    const scholars = (data || []).map(s => ({
+      scholar_id: s.scholar_id || s.id,
+      full_name: `${s.first_name || ''} ${s.middle_name || ''} ${s.last_name || ''}`.trim(),
+      email: s.email,
+      degree: s.degree,
+      status: s.status
+    }));
+    
+    res.json(scholars);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+// ---------------- EXAM GRADES (TASK 2) JIA (CHECKING)----------------
+
+// Get applicants ready for exam (requirements_approved = true)
+app.get('/api/admin/exam-applicants', async (req, res) => {
+  try {
+    // Get applicants with approved requirements who can take exam
+    const { data, error } = await supabase
+      .from('applicants')
+      .select('*')
+      .eq('requirements_approved', true)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    
+    // Filter out those who already have exam scores (unless you want to allow re-grading)
+    const examReady = (data || []).filter(a => 
+      a.exam_score === null || a.exam_score === undefined
+    );
+    
+    res.json(data || []); // Return all approved applicants, frontend will handle display
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to fetch exam applicants' });
+  }
+});
+
+// Submit exam grade for an applicant
+app.post('/api/admin/grades', async (req, res) => {
+  const { applicant_id, exam_grade } = req.body;
+
+  if (!applicant_id || exam_grade === undefined) {
+    return res.status(400).json({ error: 'applicant_id and exam_grade required' });
+  }
+
+  const grade = parseFloat(exam_grade);
+  if (isNaN(grade) || grade < 0 || grade > 100) {
+    return res.status(400).json({ error: 'Grade must be between 0 and 100' });
+  }
+
+  try {
+    // Determine if passed based on grade (>=85% passes)
+    const examPassed = grade >= 85;
+    const newStatus = examPassed ? 'passed' : 'failed';
+
+    // Update applicant with exam_score and exam_passed in applicants table
+    const { error: updateError } = await supabase
+      .from('applicants')
+      .update({ 
+        exam_score: grade,
+        exam_passed: examPassed,
+        status: newStatus
+      })
+      .eq('id', applicant_id);
+
+    if (updateError) {
+      console.error('Applicant update error:', updateError);
+      throw updateError;
+    }
+
+    res.json({
+      success: true,
+      message: `Grade ${grade}% submitted. Status: ${newStatus}`,
+      exam_status: newStatus,
+      exam_passed: examPassed
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to submit grade' });
+  }
+});
+
+// Get grades for display - returns applicants with their exam scores
+app.get('/api/admin/grades', async (req, res) => {
+  try {
+    // Get all applicants who have exam scores
+    const { data, error } = await supabase
+      .from('applicants')
+      .select('id, first_name, last_name, email, exam_score, exam_passed')
+      .not('exam_score', 'is', null)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    
+    // Transform to match expected format
+    const grades = (data || []).map(a => ({
+      applicant_id: a.id,
+      grade: a.exam_score,
+      score: a.exam_score,
+      status: a.exam_passed ? 'passed' : 'failed',
+      result: a.exam_passed ? 'passed' : 'failed'
+    }));
+    
+    res.json(grades);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to fetch grades' });
+  }
+});
+
+// Get applicant progress/status
+app.get('/api/applicant/:id/progress', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    // Get applicant data (all columns including exam_score, exam_passed)
+    const { data: applicant, error: appError } = await supabase
+      .from('applicants')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (appError) throw appError;
+    if (!applicant) return res.status(404).json({ error: 'Applicant not found' });
+
+    // Use exam_score and exam_passed from applicants table directly
+    const examGrade = applicant.exam_score;
+    const examPassed = applicant.exam_passed;
+
+    // Calculate progress percentage based on actual columns
+    let progress = 0;
+    let currentStep = 'requirements';
+
+    // Step 1: Requirements
+    if (applicant.requirements_approved) {
+      progress = 25;
+      currentStep = 'exam';
+    }
+    
+    // Step 2: Exam
+    if (examGrade !== null && examPassed === true) {
+      progress = 50;
+      currentStep = 'mswd';
+    }
+    
+    // Step 3: Scholar status
+    if (applicant.status === 'scholar') {
+      progress = 100;
+      currentStep = 'complete';
+    }
+    
+    // Failed state
+    if (applicant.status === 'failed' || examPassed === false) {
+      currentStep = 'failed';
+    }
+
+    res.json({
+      applicant: applicant,
+      progress,
+      currentStep,
+      steps: {
+        requirements: applicant.requirements_approved ? 'approved' : 'pending',
+        exam: examPassed === true ? 'passed' : (examPassed === false ? 'failed' : 'pending'),
+        exam_grade: examGrade,
+        mswd: applicant.status === 'passed' || applicant.status === 'scholar' ? 'approved' : 'pending',
+        scholar: applicant.status === 'scholar' ? 'approved' : 'pending'
+      }
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to fetch progress' });
+  }
+});
+
+/**
+ * Create application (call after signup)
+ */
+// Multer setup for file uploads
+
+
+// ---------------- Upload a requirement ----------------
+
+
+// ================================
+// Helper to get applicant_id from JWT
+// ================================
+export async function getApplicantIdFromToken(req) {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) return null;
+
+    const token = authHeader.split(" ")[1];
+    if (!token) return null;
+
+    const { data: { user }, error } = await supabase.auth.getUser(token);
+    if (error || !user) return null;
+
+    return user.id; // this is the applicant's Supabase auth ID
+  } catch (err) {
+    console.error("Token verification error:", err);
+    return null;
+  }
+}
+
+// ================================
+// Upload requirement
+// ================================
+const upload = multer({ storage: multer.memoryStorage() });
+
+// =====================
+// Upload requirement
+// =====================
+app.post("/api/requirements/upload", upload.single("file"), async (req, res) => {
+  try {
+    // 1️⃣ Get the applicant ID from token
+    const applicant_id = await getApplicantIdFromToken(req);
+    if (!applicant_id) 
+      return res.status(401).json({ success: false, error: "Unauthorized" });
+
+    // 2️⃣ Validate input
+    const { requirement_type } = req.body;
+    const file = req.file;
+    if (!requirement_type || !file) 
+      return res.status(400).json({ success: false, error: "Missing fields" });
+
+    // 3️⃣ Build file path in bucket
+    const bucketName = "applicantsreq";
+    const fileName = `${applicant_id}/${Date.now()}-${file.originalname}`;
+
+// Upload
+const { data: storageData, error: storageError } = await supabase.storage
+  .from(bucketName)
+  .upload(fileName, file.buffer, { contentType: file.mimetype });
+
+if (storageError) return res.status(500).json({ success: false, error: storageError.message });
+
+// ✅ Correct public URL
+const { data: publicUrlData } = supabase.storage
+  .from(bucketName)
+  .getPublicUrl(fileName);  // ONLY the path: applicant_id/timestamp-name.png
+
+const fileUrl = publicUrlData.publicUrl;
+    // 6️⃣ Insert into DB
+    const { data: dbData, error: dbError } = await supabase
+      .from("applicant_requirements")
+      .insert([{
+        applicant_id,
+        requirement_type,
+        file_name: file.originalname,  // original filename
+        file_path: fileName,           // path in bucket
+        file_url: fileUrl               // public URL
+      }]);
+    if (dbError) return res.status(500).json({ success: false, error: dbError.message });
+
+    // 7️⃣ Return success with file URL
+    res.json({ success: true, file_url: fileUrl, dbData });
+
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+
+// ================================
+// Get uploaded requirements
+// ================================
+app.get("/api/requirements", async (req, res) => {
+  try {
+    const applicant_id = await getApplicantIdFromToken(req);
+    if (!applicant_id) return res.status(401).json({ success: false, error: "Unauthorized" });
+
+    const { data, error } = await supabase
+      .from("applicant_requirements")
+      .select("*")
+      .eq("applicant_id", applicant_id);
+
+    if (error) return res.status(500).json({ success: false, error: error.message });
+
+    res.json({ success: true, files: data });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+
+// ================================
+// Delete a requirement
+// ================================
+
+app.delete("/api/requirements/:type", async (req, res) => {
+  try {
+    const applicant_id = await getApplicantIdFromToken(req);
+    if (!applicant_id) return res.status(401).json({ success: false, error: "Unauthorized" });
+
+    const type = req.params.type;
+
+    // 1️⃣ Get the DB row for this file
+    const { data: fileRow, error: selectError } = await supabase
+      .from("applicant_requirements")
+      .select("*")
+      .eq("applicant_id", applicant_id)
+      .eq("requirement_type", type)
+      .order('uploaded_at', { ascending: false })
+      .limit(1)
+      .single(); // pick the most recent if duplicates exist
+
+    if (selectError || !fileRow) return res.status(404).json({ success: false, error: "File not found in DB" });
+
+    const filePath = fileRow.file_path;
+
+    // 2️⃣ Delete from Supabase Storage
+    const { error: storageError } = await supabase.storage
+      .from("applicantsreq")
+      .remove([filePath]);
+
+    if (storageError) return res.status(500).json({ success: false, error: storageError.message });
+
+    // 3️⃣ Delete DB entry
+    const { error: deleteError } = await supabase
+      .from("applicant_requirements")
+      .delete()
+      .eq("id", fileRow.id);
+
+    if (deleteError) return res.status(500).json({ success: false, error: deleteError.message });
+
+    res.json({ success: true });
+
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+
+// ================================
+// Get applicant progress
+// ================================
+app.get("/api/application", async (req, res) => {
+  try {
+    const applicant_id = await getApplicantIdFromToken(req);
+    if (!applicant_id) return res.status(401).json({ success: false, error: "Unauthorized" });
+
+    const { data: applicant, error: applicantError } = await supabase
+      .from("applicants")
+      .select("*")
+      .eq("id", applicant_id)
+      .single();
+
+    if (applicantError || !applicant) return res.status(404).json({ success: false, message: "Applicant not found" });
+
+    const { data: files } = await supabase
+      .from("applicant_requirements")
+      .select("*")
+      .eq("applicant_id", applicant_id);
+
+    let progress = 0;
+    switch (applicant.status) {
+      case "requirements_review": progress = 25; break;
+      case "exam_pending": progress = 50; break;
+      case "mswd_pending": progress = 75; break;
+      case "scholar": progress = 100; break;
+    }
+
+    res.json({ success: true, first_name: applicant.first_name, progress, status: applicant.status, files });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
 
 // ---------------- ADMIN DASHBOARD STATS (AKI)----------------
 

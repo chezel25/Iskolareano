@@ -1,158 +1,701 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>ISKOLAREALENO Scholarship Portal</title>
-<style>
-  /* Color Palette & Reset */
-  :root {
-    --orange: #FF6600;
-    --navy: #001F4D;
-    --light-gray: #F5F5F7;
-    --dark-gray: #333;
-    --white: #fff;
-  }
-  *, *::before, *::after { box-sizing: border-box; }
-  body { margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--light-gray); color: var(--dark-gray); line-height: 1.6; }
-  a { color: var(--orange); text-decoration: none; }
-  a:hover, button:hover { text-decoration: underline; }
-  button { cursor: pointer; border: none; border-radius: 24px; padding: 0.6rem 1.3rem; font-weight: 700; font-size: 1rem; transition: background-color 0.3s ease; }
-  button:focus { outline: 3px solid var(--orange); }
-
-  /* Container */
-  .container { width: 90%; max-width: 1200px; margin: 0 auto; }
-
-  /* Header */
-  header { background-color: var(--white); padding: 1rem 0; display: flex; justify-content: space-between; align-items: center; }
-  .logo { display: flex; align-items: center; gap: 0.5rem; }
-  .logo img { height: 48px; border-radius: 8px; }
-  .logo-text { font-size: 1.6rem; font-weight: 900; color: var(--navy); letter-spacing: 1px; }
-  nav ul { list-style: none; display: flex; gap: 1.8rem; margin:0; padding:0; }
-  nav li a { font-weight: 600; color: var(--dark-gray); cursor:pointer; }
-  nav li a:hover { color: var(--orange); }
-
-  /* Main with Profile Panel */
-  #main { display: flex; transition: all 0.3s; }
-  #homepage-content { flex:1; padding:20px; }
-  #profile-panel {
-    width: 0; overflow: hidden; background: #f1f1f1; border-left: 1px solid #ccc; transition: width 0.3s; padding: 20px;
-  }
-  #profile-panel.active { width: 300px; }
-
-  /* Hero Section */
-  .hero { background-color: var(--white); display: flex; flex-wrap: wrap; padding: 3rem 0; border-radius: 0 0 60px 60px; }
-  .hero-left { flex:1 1 480px; padding-right:2rem; }
-  .hero-left small { color: var(--orange); font-weight:600; letter-spacing:0.15em; text-transform:uppercase; }
-  .hero-left h1 { margin:0.4rem 0 1rem; color: var(--navy); font-size:2.8rem; font-weight:900; line-height:1.1; }
-  .hero-left h1 .orange-text { color: var(--orange); }
-  .hero-left .tags { display:flex; flex-wrap:wrap; gap:0.8rem 1rem; margin-bottom:1.2rem; }
-  .hero-left .tags span { background-color: var(--light-gray); padding:0.4rem 1rem; border-radius:14px; font-size:0.9rem; font-weight:600; color: var(--navy); user-select:none; }
-  .hero-left p { max-width:380px; color: var(--dark-gray); font-size:1rem; }
-  .hero-right { flex:1 1 420px; position:relative; min-width:280px; }
-  .hero-right img { width:100%; border-radius:28px; object-fit:cover; box-shadow:10px 10px 30px rgba(0,31,77,0.1); }
-  .hero-stats { position:absolute; top:20%; right:-12%; background-color: var(--orange); color: var(--white); border-radius:20px; box-shadow:0 8px 16px rgba(255,102,0,0.25); padding:1rem 1.5rem; max-width:160px; font-weight:700; font-size:1.05rem; line-height:1.3; }
-  .hero-stats div { margin-bottom:0.85rem; border-bottom:1.5px solid rgba(255 255 255 / 0.4); padding-bottom:0.4rem; }
-  .hero-stats div:last-child { border-bottom:none; }
-  .hero-stats span { font-weight:900; font-size:1.25rem; display:block; }
-
-  /* Add more sections styles as needed... */
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Applicant Dashboard - Scholarship Tracker</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        :root {
+            --primary-blue: #0c112c;
+            --accent-orange: #f7a446;
+            --secondary-orange: #ff8c1a;
+            --light-orange: #ffecd1;
+            --white: #ffffff;
+            --light-gray: #f8f9fa;
+            --medium-gray: #e9ecef;
+            --dark-gray: #343a40;
+            --success: #28a745;
+            --warning: #ffc107;
+            --progress: #17a2b8;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            color: var(--dark-gray);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* Header Styles */
+        .header {
+            background: linear-gradient(to right, var(--primary-blue), #1a2250);
+            color: white;
+            padding: 25px 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(12, 17, 44, 0.15);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 200px;
+            height: 100%;
+            background: linear-gradient(to left, rgba(247, 164, 70, 0.2), transparent);
+        }
+        
+        .welcome-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .welcome-text h1 {
+            font-size: 2.2rem;
+            margin-bottom: 5px;
+            font-weight: 700;
+        }
+        
+        .welcome-text p {
+            font-size: 1.3rem;
+            color: var(--accent-orange);
+            font-weight: 500;
+        }
+        
+        .user-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .requirement-btn, .logout-btn {
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+            font-size: 0.95rem;
+        }
+        
+        .requirement-btn {
+            background-color: var(--accent-orange);
+            color: var(--primary-blue);
+        }
+        
+        .requirement-btn:hover {
+            background-color: var(--secondary-orange);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(247, 164, 70, 0.2);
+        }
+        
+        .logout-btn {
+            background-color: rgba(255, 255, 255, 0.15);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .logout-btn:hover {
+            background-color: rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px);
+        }
+        
+        /* Progress Section */
+        .progress-section {
+            margin-bottom: 40px;
+        }
+        
+        .section-title {
+            font-size: 1.8rem;
+            color: var(--primary-blue);
+            margin-bottom: 25px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .section-title i {
+            color: var(--accent-orange);
+        }
+        
+        /* Progress Tracker */
+        .progress-tracker {
+            background-color: var(--white);
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .progress-tracker::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--accent-orange), var(--secondary-orange));
+        }
+        
+        .progress-steps {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        
+        .progress-step {
+            flex: 1;
+            min-width: 200px;
+            background-color: var(--light-gray);
+            border-radius: 10px;
+            padding: 20px;
+            position: relative;
+            transition: all 0.3s;
+            border-left: 4px solid var(--medium-gray);
+        }
+        
+        .progress-step:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            background-color: var(--white);
+        }
+        
+        .progress-step.completed {
+            border-left-color: var(--success);
+        }
+        
+        .progress-step.in-progress {
+            border-left-color: var(--accent-orange);
+        }
+        
+        .progress-step.pending {
+            border-left-color: var(--warning);
+        }
+        
+        .step-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: white;
+        }
+        
+        .step-icon.completed {
+            background: linear-gradient(135deg, var(--success), #20c997);
+        }
+        
+        .step-icon.in-progress {
+            background: linear-gradient(135deg, var(--accent-orange), var(--secondary-orange));
+        }
+        
+        .step-icon.pending {
+            background: linear-gradient(135deg, var(--warning), #fd7e14);
+        }
+        
+        .step-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--primary-blue);
+            margin-bottom: 8px;
+        }
+        
+        .step-status {
+            font-size: 0.9rem;
+            font-weight: 500;
+            padding: 4px 12px;
+            border-radius: 20px;
+            display: inline-block;
+        }
+        
+        .step-status.completed {
+            background-color: rgba(40, 167, 69, 0.15);
+            color: var(--success);
+        }
+        
+        .step-status.in-progress {
+            background-color: rgba(247, 164, 70, 0.15);
+            color: var(--accent-orange);
+        }
+        
+        .step-status.pending {
+            background-color: rgba(255, 193, 7, 0.15);
+            color: var(--warning);
+        }
+        
+        .step-date {
+            font-size: 0.9rem;
+            color: var(--dark-gray);
+            margin-top: 10px;
+        }
+        
+        /* Navigation Buttons */
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        
+        .nav-btn {
+            padding: 14px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .prev-btn {
+            background-color: var(--medium-gray);
+            color: var(--dark-gray);
+        }
+        
+        .prev-btn:hover {
+            background-color: #d6d8db;
+            transform: translateY(-2px);
+        }
+        
+        .next-btn {
+            background: linear-gradient(to right, var(--primary-blue), #1a2250);
+            color: white;
+        }
+        
+        .next-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(12, 17, 44, 0.2);
+        }
+        
+        /* Document Upload Section */
+        .upload-section {
+            background-color: var(--white);
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            margin-bottom: 30px;
+        }
+        
+        .upload-section h3 {
+            font-size: 1.5rem;
+            color: var(--primary-blue);
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        
+        .upload-area {
+            border: 2px dashed var(--medium-gray);
+            border-radius: 10px;
+            padding: 50px 20px;
+            text-align: center;
+            background-color: var(--light-gray);
+            margin-bottom: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .upload-area:hover {
+            border-color: var(--accent-orange);
+            background-color: rgba(247, 164, 70, 0.05);
+        }
+        
+        .upload-area.drag-over {
+            border-color: var(--accent-orange);
+            background-color: rgba(247, 164, 70, 0.1);
+        }
+        
+        .upload-icon {
+            font-size: 3.5rem;
+            color: var(--accent-orange);
+            margin-bottom: 20px;
+        }
+        
+        .upload-text {
+            font-size: 1.2rem;
+            color: var(--primary-blue);
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+        
+        .upload-formats {
+            font-size: 0.95rem;
+            color: var(--dark-gray);
+            margin-bottom: 5px;
+        }
+        
+        .upload-note {
+            font-size: 0.85rem;
+            color: #6c757d;
+            font-style: italic;
+        }
+        
+        .submit-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(to right, var(--accent-orange), var(--secondary-orange));
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(247, 164, 70, 0.3);
+        }
+        
+        /* Footer */
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            color: #6c757d;
+            font-size: 0.9rem;
+            padding: 20px;
+            border-top: 1px solid var(--medium-gray);
+        }
+        
+        /* Responsive */
+        @media (max-width: 992px) {
+            .welcome-section {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 20px;
+            }
+            
+            .user-controls {
+                width: 100%;
+                justify-content: flex-end;
+            }
+            
+            .progress-step {
+                min-width: calc(50% - 20px);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .progress-step {
+                min-width: 100%;
+            }
+            
+            .navigation-buttons {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .nav-btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .user-controls {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            .requirement-btn, .logout-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+        
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .progress-step {
+            animation: fadeInUp 0.5s ease-out forwards;
+        }
+        
+        .progress-step:nth-child(1) { animation-delay: 0.1s; }
+        .progress-step:nth-child(2) { animation-delay: 0.2s; }
+        .progress-step:nth-child(3) { animation-delay: 0.3s; }
+        .progress-step:nth-child(4) { animation-delay: 0.4s; }
+        .progress-step:nth-child(5) { animation-delay: 0.5s; }
+    </style>
 </head>
 <body>
-
-<header class="container">
-  <div class="logo">
-    <img src="logo.jpg" alt="Iskolarealeno Logo" />
-    <span class="logo-text">ISKOLAREALEÑO</span>
-  </div>
-  <nav>
-    <ul>
-      <li><a href="#home">Home</a></li>
-      <li><a href="#about">About Us</a></li>
-      <li><a href="#services">Our Services</a></li>
-      <li><a href="#news">News</a></li>
-      <li><a onclick="toggleProfile()">Profile</a></li>
-    </ul>
-  </nav>
-</header>
-
-<div id="main">
-  <div id="homepage-content">
-    <!-- Hero Section -->
-    <section class="hero" id="home">
-      <div class="hero-left">
-        <small>Award-Winning Scholarship Excellence</small>
-        <h1>Where Innovation Drives <br /><span class="orange-text">Education Excellence</span></h1>
-        <div class="tags">
-          <span>Scholarships</span>
-          <span>Community Support</span>
-          <span>Student Programs</span>
-          <span>Educational Events</span>
-          <span>Live Sessions</span>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="welcome-section">
+                <div class="welcome-text">
+                    <h1>Welcome, Applicant!</h1>
+                    <p>Applicant Dashboard</p>
+                </div>
+                
+                <div class="user-controls">
+                    <button class="requirement-btn" id="requirementBtn">
+                        <i class="fas fa-clipboard-check"></i>
+                        Requirement
+                    </button>
+                    
+                    <button class="logout-btn" id="logoutBtn">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Logout
+                    </button>
+                </div>
+            </div>
         </div>
-        <p>
-          ISKOLAREALEÑO empowers student scholars from Real, Quezon to succeed.
-          Join us for scholarships, community programs, and events to help unlock your potential.
-        </p>
-      </div>
-      <div class="hero-right">
-        <img src="DOCU1.jpg" alt="Scholars in discussion with advisor" />
-        <div class="hero-stats">
-          <div><span>147+</span> Batch 1 Scholars</div>
-          <div><span>259+</span> Batch 2 Scholars</div>
-          <div><span>350+</span> Batch 3 Scholars</div>
+        
+        <!-- Progress Section -->
+        <div class="progress-section">
+            <h2 class="section-title">
+                <i class="fas fa-chart-line"></i>
+                Application Progress Tracker
+            </h2>
+            
+            <div class="progress-tracker">
+                <div class="progress-steps">
+                    <!-- Step 1 -->
+                    <div class="progress-step completed">
+                        <div class="step-icon completed">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                        <h3 class="step-title">Requirements Review</h3>
+                        <span class="step-status completed">Completed</span>
+                        <div class="step-date">Jan 15, 2023</div>
+                    </div>
+                    
+                    <!-- Step 2 -->
+                    <div class="progress-step completed">
+                        <div class="step-icon completed">
+                            <i class="fas fa-edit"></i>
+                        </div>
+                        <h3 class="step-title">Examination</h3>
+                        <span class="step-status completed">Completed</span>
+                        <div class="step-date">Feb 02, 2023</div>
+                    </div>
+                    
+                    <!-- Step 3 -->
+                    <div class="progress-step in-progress">
+                        <div class="step-icon in-progress">
+                            <i class="fas fa-clipboard-check"></i>
+                        </div>
+                        <h3 class="step-title">MSWD Evaluation</h3>
+                        <span class="step-status in-progress">In Progress</span>
+                    </div>
+                    
+                    <!-- Step 4 -->
+                    <div class="progress-step pending">
+                        <div class="step-icon pending">
+                            <i class="fas fa-graduation-cap"></i>
+                        </div>
+                        <h3 class="step-title">Scholar Status</h3>
+                        <span class="step-status pending">Pending</span>
+                    </div>
+                    
+                    <!-- Step 5 -->
+                    <div class="progress-step pending">
+                        <div class="step-icon pending">
+                            <i class="fas fa-flag-checkered"></i>
+                        </div>
+                        <h3 class="step-title">Final Decision</h3>
+                        <span class="step-status pending">Pending</span>
+                    </div>
+                </div>
+                
+                <!-- Navigation Buttons -->
+                <div class="navigation-buttons">
+                    <button class="nav-btn prev-btn" id="prevBtn">
+                        <i class="fas fa-arrow-left"></i>
+                        Previous Step
+                    </button>
+                    
+                    <button class="nav-btn next-btn" id="nextBtn">
+                        Next Steps
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
         </div>
-      </div>
-    </section>
+        
+        <!-- Document Upload Section -->
+        <div class="upload-section">
+            <h3>Submit Additional Documents</h3>
+            
+            <div class="upload-area" id="uploadArea">
+                <div class="upload-icon">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                </div>
+                <div class="upload-text">Drag & drop files here or click to browse</div>
+                <div class="upload-formats">Supported formats: PDF, DOC, DOCX, JPG, PNG (Max: 5MB each)</div>
+                <div class="upload-note">Please ensure all documents are clear and legible</div>
+            </div>
+            
+            <button class="submit-btn" id="submitBtn">
+                <i class="fas fa-paper-plane"></i>
+                Submit Application
+            </button>
+        </div>
+        
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Scholarship Application Portal • Track your application progress in real-time</p>
+            <p>For assistance, please contact the scholarship office</p>
+        </footer>
+    </div>
 
-    <!-- Add other sections here -->
-  </div>
+    <script>
+        // Initialize the dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add event listeners
+            document.getElementById('logoutBtn').addEventListener('click', logoutUser);
+            document.getElementById('requirementBtn').addEventListener('click', showRequirements);
+            document.getElementById('prevBtn').addEventListener('click', previousStep);
+            document.getElementById('nextBtn').addEventListener('click', nextSteps);
+            document.getElementById('submitBtn').addEventListener('click', submitApplication);
+            
+            // File upload functionality
+            const uploadArea = document.getElementById('uploadArea');
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.multiple = true;
+            fileInput.style.display = 'none';
+            document.body.appendChild(fileInput);
+            
+            uploadArea.addEventListener('click', function() {
+                fileInput.click();
+            });
+            
+            fileInput.addEventListener('change', function(e) {
+                if (e.target.files.length > 0) {
+                    handleFiles(e.target.files);
+                }
+            });
+            
+            // Drag and drop functionality
+            uploadArea.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                uploadArea.classList.add('drag-over');
+            });
+            
+            uploadArea.addEventListener('dragleave', function() {
+                uploadArea.classList.remove('drag-over');
+            });
+            
+            uploadArea.addEventListener('drop', function(e) {
+                e.preventDefault();
+                uploadArea.classList.remove('drag-over');
+                
+                if (e.dataTransfer.files.length > 0) {
+                    handleFiles(e.dataTransfer.files);
+                }
+            });
+        });
 
-  <!-- Profile Panel -->
-  <div id="profile-panel">
-    <h2>Update Profile</h2>
-    <input id="degree" placeholder="Degree Program"><br><br>
-    <button onclick="updateProfile()">Update</button>
-    <p id="profile-msg" style="color:green;"></p>
-  </div>
-</div>
+        // Handle uploaded files
+        function handleFiles(files) {
+            let fileList = "";
+            for (let i = 0; i < files.length; i++) {
+                fileList += `<li>${files[i].name} (${formatFileSize(files[i].size)})</li>`;
+            }
+            
+            const uploadArea = document.getElementById('uploadArea');
+            uploadArea.innerHTML = `
+                <div class="upload-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="upload-text">${files.length} file(s) selected</div>
+                <ul style="text-align: left; margin-top: 15px; color: var(--dark-gray);">
+                    ${fileList}
+                </ul>
+                <div class="upload-note" style="margin-top: 15px;">Click to upload different files</div>
+            `;
+            
+            // Re-add click event
+            uploadArea.addEventListener('click', function() {
+                document.querySelector('input[type="file"]').click();
+            });
+        }
 
-<footer>
-  &copy; 2024 ISKOLAREALEÑO | Real, Quezon, Philippines | Contact: info@iskolarealeno.ph
-</footer>
+        // Format file size
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
 
-<script>
-  function toggleProfile() {
-    const panel = document.getElementById('profile-panel');
-    panel.classList.toggle('active');
-    if(panel.classList.contains('active')) loadProfile();
-  }
+        // Logout user
+        function logoutUser() {
+            if (confirm('Are you sure you want to logout?')) {
+                alert('You have been logged out successfully.');
+                // In a real app, you would redirect to login page
+                // window.location.href = 'login.html';
+            }
+        }
 
-  function loadProfile() {
-    const scholar = JSON.parse(localStorage.getItem('scholar') || '{}');
-    if(!scholar.scholar_id) {
-      document.getElementById('profile-panel').innerHTML = '<p>Please login first. <a href="login.html">Login</a></p>';
-      return;
-    }
-    document.getElementById('degree').value = scholar.degree || '';
-  }
+        // Show requirements
+        function showRequirements() {
+            alert('Requirements:\n\n1. Completed application form\n2. Academic transcripts\n3. Proof of income\n4. Recommendation letters\n5. Valid ID\n\nPlease ensure all documents are submitted before the deadline.');
+        }
 
-  async function updateProfile() {
-    const scholar = JSON.parse(localStorage.getItem('scholar') || '{}');
-    if(!scholar.scholar_id) return alert("Please login first.");
-    const res = await fetch('http://localhost:5000/api/profile', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({
-        scholar_id: scholar.scholar_id,
-        degree: document.getElementById('degree').value
-      })
-    });
-    const msg = await res.text();
-    document.getElementById('profile-msg').innerText = msg;
-  }
-</script>
+        // Previous step
+        function previousStep() {
+            alert('Navigating to previous step...');
+        }
 
+        // Next steps
+        function nextSteps() {
+            alert('Next Steps:\n\n1. Complete MSWD evaluation\n2. Await final decision\n3. If approved, attend orientation\n4. Sign scholarship agreement');
+        }
+
+        // Submit application
+        function submitApplication() {
+            if (confirm('Are you sure you want to submit your application? This action cannot be undone.')) {
+                alert('Your application has been submitted successfully! You will receive a confirmation email shortly.');
+                // In a real app, you would submit the form data
+            }
+        }
+    </script>
 </body>
 </html>

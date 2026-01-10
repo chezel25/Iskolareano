@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Exam Admin Dashboard</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+
+<style>
+:root {
+  --orange: #FF6600;
+  --navy: #001F4D;
+  --light-gray: #F5F5F7;
+  --dark-gray: #333;
+  --white: #fff;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Segoe UI", Arial, sans-serif;
+  background-color: var(--light-gray);
+  min-height: 100vh;
+  color: var(--dark-gray);
+}
+
+/* TOP HEADER */
+.top-header {
+  background: linear-gradient(135deg, var(--navy) 0%, #003366 100%);
+  padding: 20px 0;
+  text-align: center;
+  color: var(--white);
+}
+
+.top-header .logo-text {
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: var(--white);
+}
+
+.top-header .logo-text span {
+  color: var(--orange);
+}
+
+.top-header .subtitle {
+  font-size: 0.95rem;
+  color: var(--orange);
+  font-weight: 500;
+  margin-top: 5px;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 30px 20px;
+}
+
+/* PAGE HEADER */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  background: var(--white);
+  padding: 20px 30px;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  border: 1px solid #e5e7eb;
+}
+
+.page-header h1 {
+  font-size: 1.5rem;
+  color: var(--navy);
+  margin-bottom: 4px;
+}
+
+.page-header h1 i {
+  color: var(--orange);
+  margin-right: 10px;
+}
+
+.page-header p {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.header-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.btn {
+  padding: 12px 24px;
+  border-radius: 24px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-primary {
+  background: var(--navy);
+  color: var(--white);
+}
+
+.btn-primary:hover {
+  background: #003366;
+}
+
+.btn-outline {
+  background: var(--white);
+  border: 2px solid #e5e7eb;
+  color: var(--dark-gray);
+}
+
+.btn-outline:hover {
+  border-color: var(--orange);
+  color: var(--orange);
+}
+
+/* INFO CARD */
+.info-card {
+  background: linear-gradient(135deg, var(--orange) 0%, #e55a00 100%);
+  padding: 20px 25px;
+  border-radius: 14px;
+  margin-bottom: 25px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  color: #78350f;
+}
+
+.info-card i {
+  font-size: 24px;
+}
+
+.info-card p {
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.info-card strong {
+  color: #451a03;
+}
+
+/* MAIN CARD */
+.card {
+  background: white;
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #f3f4f6;
+}
+
+.card-header h2 {
+  font-size: 20px;
+  color: #1f2937;
+}
+
+.card-header p {
+  font-size: 14px;
+  color: #6b7280;
+  margin-top: 4px;
+}
+
+/* TABLE */
+.table-wrapper {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th {
+  text-align: left;
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 12px 16px;
+  background: #f9fafb;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+td {
+  padding: 16px;
+  border-bottom: 1px solid #f3f4f6;
+  font-size: 14px;
+  vertical-align: middle;
+}
+
+tr:hover {
+  background: #fafaff;
+}
+
+/* APPLICANT INFO */
+.applicant-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.applicant-name {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.applicant-email {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+/* BADGES */
+.badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  display: inline-block;
+}
+
+.badge-pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.badge-passed {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.badge-failed {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+/* GRADE INPUT */
+.grade-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.grade-input {
+  width: 80px;
+  padding: 10px 12px;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.grade-input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.grade-input:disabled {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.grade-display {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.grade-display.passed {
+  color: #059669;
+}
+
+.grade-display.failed {
+  color: #dc2626;
+}
+
+/* ACTION BUTTONS */
+.btn-submit {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 13px;
+  transition: all 0.2s ease;
+}
+
+.btn-submit:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+}
+
+.btn-submit:disabled {
+  background: #d1d5db;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* EMPTY STATE */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #6b7280;
+}
+
+.empty-state i {
+  font-size: 48px;
+  color: #d1d5db;
+  margin-bottom: 16px;
+}
+
+.empty-state h3 {
+  font-size: 18px;
+  color: #374151;
+  margin-bottom: 8px;
+}
+
+/* LOADING */
+.loading {
+  text-align: center;
+  padding: 40px;
+  color: #6b7280;
+}
+
+.loading i {
+  font-size: 32px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* TOAST NOTIFICATION */
+.toast {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  padding: 16px 24px;
+  border-radius: 12px;
+  color: white;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transform: translateY(100px);
+  opacity: 0;
+  transition: all 0.3s ease;
+  z-index: 1000;
+}
+
+.toast.show {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.toast.success {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+.toast.error {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+  }
+  
+  .card {
+    padding: 20px;
+  }
+  
+  th, td {
+    padding: 12px 8px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<!-- TOP HEADER -->
+<header class="top-header">
+  <div class="logo-text">Iskolar<span>Realeño</span></div>
+  <div class="subtitle">Scholarship Management System</div>
+</header>
+
+<div class="container">
+
+  <!-- PAGE HEADER -->
+  <div class="page-header">
+    <div>
+      <h1><i class="fas fa-clipboard-check"></i> Exam Admin Dashboard</h1>
+      <p>Add grades and mark exam results</p>
+    </div>
+    <div class="header-actions">
+      <a href="admin-dashboard.html" class="btn btn-outline">
+        <i class="fas fa-arrow-left"></i> Back to Admin
+      </a>
+      <a href="login.html" class="btn btn-outline" onclick="localStorage.clear();">
+        <i class="fas fa-sign-out-alt"></i> Logout
+      </a>
+    </div>
+  </div>
+
+  <!-- INFO CARD -->
+  <div class="info-card">
+    <i class="fas fa-info-circle"></i>
+    <p>
+      <strong>Passing Criteria:</strong> Applicants need a grade of <strong>85% or higher</strong> to pass the exam and proceed to MSWD evaluation.
+      <br>
+      <strong>Auto-Status Update:</strong> Once a grade is submitted, the applicant's status will automatically update based on whether they passed (≥85%) or failed (&lt;85%).
+    </p>
+  </div>
+
+  <!-- MAIN CARD -->
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <h2>Applications Ready for Exam</h2>
+        <p>Add grades for applicants who passed requirements review</p>
+      </div>
+      <button class="btn btn-primary" onclick="loadExamApplicants()">
+        <i class="fas fa-sync-alt"></i> Refresh
+      </button>
+    </div>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Applicant</th>
+            <th>Email</th>
+            <th>Education</th>
+            <th>Exam Grade</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="applicantsTable">
+          <tr>
+            <td colspan="6">
+              <div class="loading">
+                <i class="fas fa-spinner"></i>
+                <p>Loading applicants...</p>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<!-- TOAST -->
+<div id="toast" class="toast">
+  <i class="fas fa-check-circle"></i>
+  <span id="toastMessage">Success!</span>
+</div>
+
+<script>
+const API_BASE = 'http://localhost:5000';
+
+// Store grades data
+let gradesMap = {};
+
+// Load applicants on page load
+window.onload = loadExamApplicants;
+
+async function loadExamApplicants() {
+  const tbody = document.getElementById('applicantsTable');
+  tbody.innerHTML = `
+    <tr>
+      <td colspan="6">
+        <div class="loading">
+          <i class="fas fa-spinner"></i>
+          <p>Loading applicants...</p>
+        </div>
+      </td>
+    </tr>
+  `;
+
+  try {
+    // Fetch applicants and grades in parallel
+    const [applicantsRes, gradesRes] = await Promise.all([
+      fetch(`${API_BASE}/api/admin/exam-applicants`),
+      fetch(`${API_BASE}/api/admin/grades`)
+    ]);
+    
+    const applicants = await applicantsRes.json();
+    const grades = await gradesRes.json();
+    
+    // Build grades map by applicant_id
+    gradesMap = {};
+    if (Array.isArray(grades)) {
+      grades.forEach(g => {
+        gradesMap[g.applicant_id] = g;
+      });
+    }
+
+    if (!Array.isArray(applicants) || applicants.length === 0) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="6">
+            <div class="empty-state">
+              <i class="fas fa-inbox"></i>
+              <h3>No applicants ready for exam</h3>
+              <p>Applicants will appear here once they pass requirements review</p>
+            </div>
+          </td>
+        </tr>
+      `;
+      return;
+    }
+
+    tbody.innerHTML = applicants.map(a => {
+      const initials = getInitials(a.first_name, a.last_name);
+      const fullName = `${a.first_name || ''} ${a.middle_name || ''} ${a.last_name || ''}`.trim();
+      
+      // Use exam_score and exam_passed directly from applicants table
+      const examGrade = a.exam_score;
+      const examPassed = a.exam_passed;
+      
+      const hasGrade = examGrade !== null && examGrade !== undefined;
+      const gradeClass = hasGrade ? (examGrade >= 85 ? 'passed' : 'failed') : '';
+      const statusBadge = getStatusBadge(examPassed, examGrade);
+
+      return `
+        <tr id="row-${a.id}">
+          <td>
+            <div class="applicant-info">
+              <div class="avatar">${initials}</div>
+              <div>
+                <div class="applicant-name">${fullName}</div>
+              </div>
+            </div>
+          </td>
+          <td class="applicant-email">${a.email || '-'}</td>
+          <td>${a.degree || a.education || '-'}</td>
+          <td>
+            ${hasGrade 
+              ? `<span class="grade-display ${gradeClass}">${examGrade}%</span>`
+              : `<div class="grade-input-wrapper">
+                  <input type="number" 
+                         id="grade-${a.id}" 
+                         class="grade-input" 
+                         placeholder="0-100" 
+                         min="0" 
+                         max="100"
+                         onkeypress="handleEnter(event, '${a.id}')">
+                </div>`
+            }
+          </td>
+          <td>${statusBadge}</td>
+          <td>
+            ${hasGrade 
+              ? `<span style="color: #6b7280; font-size: 13px;">Graded</span>`
+              : `<button class="btn-submit" onclick="submitGrade('${a.id}')">
+                  <i class="fas fa-check"></i> Add Grade
+                </button>`
+            }
+          </td>
+        </tr>
+      `;
+    }).join('');
+
+  } catch (err) {
+    console.error(err);
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="6">
+          <div class="empty-state">
+            <i class="fas fa-exclamation-triangle"></i>
+            <h3>Failed to load applicants</h3>
+            <p>Please check your connection and try again</p>
+          </div>
+        </td>
+      </tr>
+    `;
+  }
+}
+
+function getInitials(firstName, lastName) {
+  const f = firstName ? firstName.charAt(0).toUpperCase() : '';
+  const l = lastName ? lastName.charAt(0).toUpperCase() : '';
+  return f + l || '?';
+}
+
+function getStatusBadge(examPassed, grade) {
+  if (examPassed === null || examPassed === undefined) {
+    return `<span class="badge badge-pending">Awaiting Grade</span>`;
+  }
+  if (examPassed === true) {
+    return `<span class="badge badge-passed">Passed (${grade}%)</span>`;
+  }
+  if (examPassed === false) {
+    return `<span class="badge badge-failed">Failed (${grade}%)</span>`;
+  }
+  return `<span class="badge badge-pending">Awaiting Grade</span>`;
+}
+
+function handleEnter(event, applicantId) {
+  if (event.key === 'Enter') {
+    submitGrade(applicantId);
+  }
+}
+
+async function submitGrade(applicantId) {
+  const input = document.getElementById(`grade-${applicantId}`);
+  const grade = parseFloat(input.value);
+
+  if (isNaN(grade) || grade < 0 || grade > 100) {
+    showToast('Please enter a valid grade (0-100)', 'error');
+    input.focus();
+    return;
+  }
+
+  // Disable button while submitting
+  const btn = input.closest('tr').querySelector('.btn-submit');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/grades`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        applicant_id: applicantId,
+        exam_grade: grade
+      })
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      showToast(data.message || 'Grade submitted successfully!', 'success');
+      // Reload to show updated status
+      setTimeout(loadExamApplicants, 500);
+    } else {
+      showToast(data.error || 'Failed to submit grade', 'error');
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-check"></i> Add Grade';
+    }
+
+  } catch (err) {
+    console.error(err);
+    showToast('Network error. Please try again.', 'error');
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-check"></i> Add Grade';
+  }
+}
+
+function showToast(message, type = 'success') {
+  const toast = document.getElementById('toast');
+  const toastMessage = document.getElementById('toastMessage');
+  
+  toast.className = `toast ${type}`;
+  toastMessage.textContent = message;
+  toast.querySelector('i').className = type === 'success' 
+    ? 'fas fa-check-circle' 
+    : 'fas fa-exclamation-circle';
+  
+  toast.classList.add('show');
+  
+  setTimeout(() => {
+    toast.classList.remove('show');
+  }, 3000);
+}
+</script>
+
+</body>
+</html>
