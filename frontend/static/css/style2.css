@@ -1,0 +1,241 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Segoe UI", Tahoma, sans-serif;
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow-y: auto;
+  background: linear-gradient(120deg, #daeff7, #fc8135, #12468a, #daeff7);
+  background-size: 400% 400%;
+  animation: oceanWave 18s ease-in-out infinite;
+  padding: 40px 20px; /* More vertical breathing room */
+}
+
+@keyframes oceanWave {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* 1. Main Container (Login Page) - Made Bigger */
+.login-wrapper {
+  display: flex;
+  max-width: 1250px; /* Increased from 1100px for a "bigger" look */
+  width: 100%;
+  margin: auto; 
+  background: rgba(255, 255, 255, 0.18); /* Increased visibility */
+  backdrop-filter: blur(35px);
+  -webkit-backdrop-filter: blur(35px);
+  border-radius: 30px; /* More pronounced corner curves */
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.4); /* Brighter glass edge */
+  box-shadow: 0 40px 80px rgba(0, 0, 0, 0.25);
+  position: relative;
+  z-index: 1;
+}
+
+/* Left Side: Image - Adjusted for balance */
+.login-image {
+  width: 55%; /* Changed from 70% to balance the login form */
+  position: relative;
+  min-height: 600px;
+}
+
+.login-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Right Side: Login Form */
+.auth-card {
+  width: 50%;
+  padding: 97px; /* More internal space makes it look premium */
+  background: rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-left: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Styling for the main title */
+.auth-card h1 {
+  margin-bottom: 0px; /* Removes gap below the heading */
+  line-height: 0.1;    /* Optional: tightens the height of the text itself */
+}
+
+/* Styling for the new registration instruction text */
+.auth-card .subtitle {
+  margin-bottom: 25px;  /* Space before the form starts */
+  font-size: 0.95rem;
+  line-height: 4.5;
+  color: rgb(0, 0, 0); /* Slightly dimmer than the title */
+  text-align: center; 
+}
+
+/* 2. Sign Up Container - Matches Login Style */
+.register-wrapper {
+  max-width: 550px;
+  width: 100%;
+  margin: 40px auto;
+  background: rgba(255, 255, 255, 0.25); 
+  
+  /* Glassmorphism Effect */
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+  
+  /* MATCHING LOGIN CURVES (30px) */
+  border-radius: 30px; 
+  overflow: hidden; 
+  isolation: isolate; 
+  
+  /* 2026 FIX: Forces backdrop-filter to respect the 30px curve */
+  -webkit-mask-image: -webkit-radial-gradient(white, black);
+  
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.2);
+}
+
+/* Internal card adjustments */
+.sn-auth-card {
+  width: 100%; /* Changed from 50% to fill the wrapper */
+  padding: 60px 40px; 
+  background: transparent; /* Let the wrapper handle the glass effect */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border: none; /* Remove duplicate borders */
+}
+
+/* Styling for the main title */
+.sn-auth-card h1 {
+  margin-bottom: 0px; /* Removes gap below the heading */
+  line-height: 0.0;    /* Optional: tightens the height of the text itself */
+}
+
+/* Styling for the scholarship portal subtitle */
+.sn-auth-card .subtitle {
+  margin-top: 5px;      /* Small gap from the H1 */
+  margin-bottom: 15px;  /* Space before the new description text */
+  font-weight: 500;
+  opacity: 0.9;
+}
+
+/* Styling for the new registration instruction text */
+.sn-auth-card .description {
+  margin-bottom: 25px;  /* Space before the form starts */
+  font-size: 0.95rem;
+  line-height: 5.2;
+  color: rgb(0, 0, 0); /* Slightly dimmer than the title */
+    text-align: center; 
+}
+
+.portal-logo {
+  width: 75px;      /* Reduced from 80px to make it smaller */
+  height: auto;     /* Keeps the image proportional */
+  margin: 0 auto 25px auto; /* Keeps it centered with space below */
+  display: block;   /* Ensures margin: auto works for centering */
+
+  filter: drop-shadow(0 4px 3px rgba(0, 0, 0, 0.6)) drop-shadow(0 3px 2px rgba(0, 0, 0, 0.589));
+}
+
+
+/* Typography */
+h1 {
+  text-align: center;
+  font-size: 32px; /* Bigger titles */
+  font-weight: 800;
+  color: #111;
+  margin-bottom: 8px;
+}
+
+.subtitle {
+  text-align: center;
+  font-size: 15px;
+  color: #222;
+  margin-bottom: 30px;
+}
+
+/* Glass Inputs - Increased contrast */
+.input-group {
+  margin-bottom: 20px;
+}
+
+input, select {
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.3); /* Brighter background for readability */
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  color: #000;
+  outline: none;
+  font-size: 15px;
+}
+
+input::placeholder {
+  color: #444;
+}
+
+input:focus {
+  background: rgba(255, 255, 255, 0.5);
+  border-color: #ff8c1a;
+}
+
+/* Button */
+.btn {
+  width: 100%;
+  padding: 16px;
+  background: #ff8c1a;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-weight: bold;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: all 0.3s ease;
+}
+
+.btn:hover {
+  background: #e67e17;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(255, 140, 26, 0.4);
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 900px) {
+  .login-wrapper {
+    flex-direction: column;
+  }
+  .login-image {
+    display: none;
+  }
+  .auth-card, .register-wrapper {
+    width: 100%;
+    padding: 40px 20px;
+  }
+}
+
+/* New CSS for the two-column layout within the existing login-wrapper */
+.login-wrapper {
+  /* ... existing styles ... */
+  display: flex; 
+  /* ^ Ensures the sidebar and main content sit side-by-side */
+}
+
+
+/* Container for the side-by-side buttons */
+.button-group {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px; /* Space between buttons */
+  margin-top: 30px;
+}
+
