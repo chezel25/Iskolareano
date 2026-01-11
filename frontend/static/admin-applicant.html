@@ -13,7 +13,7 @@ body {
 }
 
 .container {
-  max-width: 1100px;
+  max-width: 1200px;
   margin: 30px auto;
   padding: 20px;
 }
@@ -95,10 +95,11 @@ th {
   font-size: 13px;
   color: #6b7280;
   padding-bottom: 10px;
+  font-weight: 600;
 }
 
 td {
-  padding: 14px 0;
+  padding: 14px 8px;
   border-top: 1px solid #e5e7eb;
   font-size: 14px;
 }
@@ -109,41 +110,176 @@ td {
   border-radius: 999px;
   font-size: 12px;
   font-weight: 600;
+  display: inline-block;
 }
 
-.pending {
-  background: #fde68a;
+.requirements_pending {
+  background: #fef3c7;
   color: #92400e;
 }
 
-.approved {
+.requirements_review {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.requirements_approved {
   background: #bbf7d0;
   color: #065f46;
 }
 
-.rejected {
-  background: #fecaca;
-  color: #7f1d1d;
+.exam_pending {
+  background: #e0e7ff;
+  color: #3730a3;
+}
+
+.mswd_pending {
+  background: #fce7f3;
+  color: #831843;
+}
+
+.scholar {
+  background: #d1fae5;
+  color: #065f46;
 }
 
 /* ACTIONS */
+.actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
 .actions button {
   border: none;
   padding: 6px 12px;
   border-radius: 6px;
   cursor: pointer;
   font-size: 13px;
+  white-space: nowrap;
+}
+
+.view-files-btn {
+  background: #3b82f6;
+  color: white;
 }
 
 .approve-btn {
-  background: #111827;
+  background: #10b981;
   color: white;
-  margin-right: 6px;
 }
 
 .reject-btn {
   background: #dc2626;
   color: white;
+}
+
+.delete-btn {
+  background: #dc2626;
+  color: white;
+}
+
+.create-scholar-btn {
+  background: #8b5cf6;
+  color: white;
+}
+
+/* MODAL */
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal.active {
+  display: flex;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 16px;
+  padding: 30px;
+  max-width: 600px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #6b7280;
+}
+
+.file-list {
+  list-style: none;
+  padding: 0;
+}
+
+.file-item {
+  padding: 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.file-item strong {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.file-item small {
+  color: #6b7280;
+}
+
+.file-item a {
+  color: #3b82f6;
+  text-decoration: none;
+  font-size: 13px;
+  padding: 6px 12px;
+  background: #dbeafe;
+  border-radius: 6px;
+}
+
+.file-item a:hover {
+  background: #bfdbfe;
+}
+
+.no-files {
+  text-align: center;
+  padding: 30px;
+  color: #6b7280;
+}
+
+.req-count {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.req-complete {
+  color: #10b981;
+  font-weight: 600;
 }
 </style>
 </head>
@@ -160,29 +296,29 @@ td {
     </div>
 
     <div class="header-actions">
+      <button onclick="location.reload()">Refresh</button>
       <button onclick="location.href='admin-dashboard.html'">Admin</button>
       <button onclick="location.href='login.html'">Logout</button>
-     
     </div>
   </div>
 
   <!-- STATS -->
   <div class="stats">
     <div class="stat-card">
-      <small>Total Participants</small>
+      <small>Total Applicants</small>
       <h2 id="total">0</h2>
     </div>
     <div class="stat-card">
-      <small>Passed</small>
-      <h2 id="passed">0</h2>
+      <small>Under Review</small>
+      <h2 id="review">0</h2>
     </div>
     <div class="stat-card">
-      <small>Failed</small>
-      <h2 id="failed">0</h2>
+      <small>Approved</small>
+      <h2 id="approved">0</h2>
     </div>
     <div class="stat-card">
-      <small>Pending</small>
-      <h2 id="pending">0</h2>
+      <small>Scholars</small>
+      <h2 id="scholars">0</h2>
     </div>
   </div>
 
@@ -197,76 +333,338 @@ td {
           <th>Applicant</th>
           <th>Email</th>
           <th>Status</th>
-          <th>Requirements</th>
-          <th>Exam Grade</th>
+          <th>Files</th>
+          <th>Submitted</th>
           <th>Actions</th>
         </tr>
       </thead>
-      <tbody id="applicantsTable"></tbody>
+      <tbody id="applicantsTable">
+        <tr>
+          <td colspan="6" style="text-align: center; padding: 40px;">
+            Loading applicants...
+          </td>
+        </tr>
+      </tbody>
     </table>
   </div>
 
 </div>
 
+<!-- FILES MODAL -->
+<div id="filesModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2 id="modalTitle">Applicant Files</h2>
+      <button class="close-btn" onclick="closeModal()">&times;</button>
+    </div>
+    
+    <div id="modalBody">
+      <p style="text-align: center; color: #6b7280;">Loading files...</p>
+    </div>
+  </div>
+</div>
+
 <script>
-// ---------------- Helpers for Dashboard ----------------
-  function setTotal(val) { document.getElementById('total').innerText = val; }
-  function setPassed(val) { document.getElementById('passed').innerText = val; }
-  function setFailed(val) { document.getElementById('failed').innerText = val; }
-  function setPending(val) { document.getElementById('pending').innerText = val; }
-  function setPassRate(val) { document.getElementById('passRate').innerText = val + '%'; }
-  // ---------------- Applicants ----------------
+  const API_BASE = 'http://localhost:5000';
+
+  // ---------------- Load Applicants ----------------
   async function loadApplicants() {
-    const res = await fetch('/api/admin/applications');
-    const data = await res.json();
+    try {
+      const res = await fetch(`${API_BASE}/api/admin/applicants`);
+      const data = await res.json();
 
-    let html = "<h3>Applicants</h3><table><tr><th>Full Name</th><th>Email</th><th>Degree</th><th>Status</th><th>Actions</th></tr>";
+      if (!data.success) {
+        throw new Error(data.error || 'Failed to load applicants');
+      }
 
-    data.forEach(a => {
-      html += `<tr>
-        <td>${a.full_name || ''}</td>
-        <td>${a.email || ''}</td>
-        <td>${a.degree || '-'}</td>
-        <td>${a.status}</td>
-        <td>
-          <button onclick="approve('${a.id}')">Approve</button>
-          <button onclick="reject('${a.id}')">Reject</button>
-        </td>
-      </tr>`;
-    });
+      const applicants = data.applicants || [];
+      const table = document.getElementById('applicantsTable');
+      
+      if (applicants.length === 0) {
+        table.innerHTML = `
+          <tr>
+            <td colspan="6" style="text-align: center; padding: 40px; color: #6b7280;">
+              No applicants found
+            </td>
+          </tr>
+        `;
+        return;
+      }
 
-    html += "</table>";
-    document.getElementById('content').innerHTML = html;
+      table.innerHTML = '';
+
+      applicants.forEach(app => {
+        const fullName = `${app.first_name} ${app.middle_name || ''} ${app.last_name}`.trim();
+        const status = app.application_status || 'requirements_pending';
+        const statusLabel = formatStatus(status);
+        const filesCount = app.files_count || 0;
+        const submittedDate = app.submitted_at ? 
+          new Date(app.submitted_at).toLocaleDateString() : 'Not submitted';
+
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${fullName}</td>
+          <td>${app.email}</td>
+          <td>
+            <span class="badge ${status}">
+              ${statusLabel}
+            </span>
+          </td>
+          <td>
+            <span class="req-count ${filesCount === 4 ? 'req-complete' : ''}">
+              ${filesCount}/4 files
+            </span>
+          </td>
+          <td>${submittedDate}</td>
+          <td class="actions">
+            <button class="view-files-btn" onclick="viewFiles('${app.id}', '${fullName}')">
+              View Files
+            </button>
+            ${status === 'requirements_review' ? `
+              <button class="approve-btn" onclick="approveRequirements('${app.id}')">
+                Approve
+              </button>
+            ` : ''}
+            ${status === 'scholar' ? `
+              <button class="create-scholar-btn" onclick="createScholarAccount('${app.id}', '${fullName}')">
+                Create Scholar Account
+              </button>
+            ` : ''}
+            <button class="delete-btn" onclick="deleteApplicant('${app.id}', '${fullName}')">
+              Delete
+            </button>
+          </td>
+        `;
+        table.appendChild(row);
+      });
+
+    } catch (err) {
+      console.error('Error loading applicants:', err);
+      document.getElementById('applicantsTable').innerHTML = `
+        <tr>
+          <td colspan="6" style="text-align: center; padding: 40px; color: #dc2626;">
+            Error loading applicants: ${err.message}
+          </td>
+        </tr>
+      `;
+    }
   }
 
-  async function approve(id) {
-    await fetch(`/api/admin/applications/${id}/approve`, { method: 'POST' });
-    loadApplicants();
-    loadDashboardStats();
+  // ---------------- Format Status ----------------
+  function formatStatus(status) {
+    const labels = {
+      requirements_pending: 'Requirements Pending',
+      requirements_review: 'Under Review',
+      requirements_approved: 'Requirements Approved',
+      exam_pending: 'Exam Pending',
+      mswd_pending: 'MSWD Evaluation',
+      scholar: 'Scholar'
+    };
+    return labels[status] || status;
   }
 
-  async function reject(id) {
-    await fetch(`/api/admin/applications/${id}/reject`, { method: 'POST' });
-    loadApplicants();
-    loadDashboardStats();
+  // ---------------- View Files ----------------
+  async function viewFiles(applicantId, applicantName) {
+    const modal = document.getElementById('filesModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalBody = document.getElementById('modalBody');
+
+    // Show modal
+    modal.classList.add('active');
+    modalTitle.textContent = `Files - ${applicantName}`;
+    modalBody.innerHTML = '<p style="text-align: center; color: #6b7280;">Loading files...</p>';
+
+    try {
+      const res = await fetch(`${API_BASE}/api/admin/applicants/${applicantId}/files`);
+      const data = await res.json();
+
+      if (!data.success) {
+        throw new Error(data.error || 'Failed to load files');
+      }
+
+      const files = data.files || [];
+
+      if (files.length === 0) {
+        modalBody.innerHTML = `
+          <div class="no-files">
+            <p>No files uploaded yet</p>
+          </div>
+        `;
+        return;
+      }
+
+      const fileList = document.createElement('ul');
+      fileList.className = 'file-list';
+
+      files.forEach(file => {
+        const li = document.createElement('li');
+        li.className = 'file-item';
+        
+        const uploadDate = new Date(file.uploaded_at).toLocaleString();
+        
+        li.innerHTML = `
+          <div>
+            <strong>${file.requirement_type}</strong>
+            <small>Uploaded: ${uploadDate}</small><br>
+            <small style="color: #9ca3af;">${file.file_name}</small>
+          </div>
+          <a href="${file.file_url}" target="_blank">View</a>
+        `;
+        fileList.appendChild(li);
+      });
+
+      modalBody.innerHTML = '';
+      modalBody.appendChild(fileList);
+
+    } catch (err) {
+      console.error('Error loading files:', err);
+      modalBody.innerHTML = `
+        <div class="no-files">
+          <p style="color: #dc2626;">Error loading files: ${err.message}</p>
+        </div>
+      `;
+    }
   }
- // ---------------- Dashboard Stats ----------------
+
+  // ---------------- Close Modal ----------------
+  function closeModal() {
+    document.getElementById('filesModal').classList.remove('active');
+  }
+
+  // Close modal when clicking outside
+  document.getElementById('filesModal').addEventListener('click', (e) => {
+    if (e.target.id === 'filesModal') {
+      closeModal();
+    }
+  });
+
+  // ---------------- Approve Requirements ----------------
+  async function approveRequirements(applicantId) {
+    if (!confirm('Are you sure you want to approve these requirements?')) {
+      return;
+    }
+
+    try {
+      const res = await fetch(`${API_BASE}/api/admin/approve-requirements`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ applicant_id: applicantId })
+      });
+
+      const data = await res.json();
+
+      if (!data.success) {
+        throw new Error(data.error || 'Failed to approve requirements');
+      }
+
+      alert('Requirements approved successfully!');
+      loadApplicants();
+      loadDashboardStats();
+
+    } catch (err) {
+      console.error('Error approving requirements:', err);
+      alert('Error: ' + err.message);
+    }
+  }
+
+  // ---------------- Dashboard Stats ----------------
   async function loadDashboardStats() {
-  const res = await fetch('http://localhost:5000/api/admin/dashboard-stats');
-  const data = await res.json();
-  console.log("Dashboard stats fetched:", data); // <--- add this
+    try {
+      const res = await fetch(`${API_BASE}/api/admin/dashboard-stats`);
+      const data = await res.json();
 
-  document.getElementById('total').innerText = data.totalParticipants;
-  document.getElementById('passed').innerText = data.passed;
-  document.getElementById('failed').innerText = data.failed;
-  document.getElementById('pending').innerText = data.pending;
-  document.getElementById('passRate').innerText = data.passRate + '%';
-}
+      if (!data.success) {
+        throw new Error(data.error || 'Failed to load stats');
+      }
 
-  // ---------------- Load on page load ----------------
-  window.onload = () => {
+      document.getElementById('total').innerText = data.total || 0;
+      document.getElementById('review').innerText = data.requirements_review || 0;
+      document.getElementById('approved').innerText = data.requirements_approved || 0;
+      document.getElementById('scholars').innerText = data.scholar || 0;
+
+    } catch (err) {
+      console.error('Error loading stats:', err);
+    }
+  }
+
+  // ---------------- Delete Applicant ----------------
+  async function deleteApplicant(applicantId, applicantName) {
+    if (!confirm(`⚠️ WARNING: This will delete ${applicantName}'s application record.\n\n(Their auth account will be preserved)\n\nAre you sure?`)) {
+      return;
+    }
+
+    try {
+      const res = await fetch(`${API_BASE}/api/admin/delete-applicant`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ applicant_id: applicantId })
+      });
+
+      const data = await res.json();
+
+      if (!data.success) {
+        throw new Error(data.error || 'Failed to delete applicant');
+      }
+
+      alert('✅ Applicant deleted successfully');
+      loadApplicants();
+      loadDashboardStats();
+
+    } catch (err) {
+      console.error('Error deleting applicant:', err);
+      alert('❌ Error: ' + err.message);
+    }
+  }
+
+  // ---------------- Create Scholar Account ----------------
+  async function createScholarAccount(applicantId, applicantName) {
+    if (!confirm(`Create Scholar Account for ${applicantName}?\n\nThis will:\n- Copy data to scholars table\n- Generate new password\n- Send email with new credentials`)) {
+      return;
+    }
+
+    try {
+      const res = await fetch(`${API_BASE}/api/admin/convert-scholar`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ applicant_id: applicantId })
+      });
+
+      // Check if response is JSON
+      const contentType = res.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        const text = await res.text();
+        console.error('Non-JSON response:', text);
+        throw new Error('Server returned HTML instead of JSON. Check server logs.');
+      }
+
+      const data = await res.json();
+
+      if (!data.success) {
+        throw new Error(data.error || 'Failed to create scholar account');
+      }
+
+      alert(`✅ Scholar account created!\n\nScholar ID: ${data.scholar_id}\n\nNew password has been sent to ${applicantName}'s email.`);
+      loadApplicants();
+      loadDashboardStats();
+
+    } catch (err) {
+      console.error('Error creating scholar account:', err);
+      alert('❌ Error: ' + err.message);
+    }
+  }
+
+  // ---------------- Load on Page Load ----------------
+  window.addEventListener('DOMContentLoaded', () => {
     loadDashboardStats();
-  };
+    loadApplicants();
+  });
+
 </script>
 
 </body>

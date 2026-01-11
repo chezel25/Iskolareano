@@ -96,12 +96,31 @@ body {
   opacity:1;
 }
 
+.tracker li.current {
+  opacity:1;
+}
+
+.tracker li.completed {
+  opacity:1;
+}
+
+.tracker li.completed .dot {
+  background:#10b981;
+  border-color:#10b981;
+}
+
+.tracker li.current .dot {
+  background:#111827;
+  border-color:#111827;
+}
+
 .dot {
   width:16px;
   height:16px;
   border-radius:50%;
   border:2px solid #9ca3af;
   margin-top:4px;
+  flex-shrink:0;
 }
 
 .active .dot {
@@ -127,6 +146,7 @@ body {
   border:1px solid #e5e7eb;
   border-radius:10px;
   margin-bottom:10px;
+  flex-wrap:wrap;
 }
 
 .req-item.done {
@@ -136,6 +156,36 @@ body {
 
 .req-item.done strong {
   color:#065f46;
+}
+
+.req-buttons {
+  display:flex;
+  gap:8px;
+}
+
+.req-buttons button {
+  padding:6px 12px;
+  border:1px solid #ddd;
+  background:white;
+  border-radius:6px;
+  cursor:pointer;
+  font-size:12px;
+}
+
+#submitBtn {
+  margin-top:15px;
+  padding:10px 20px;
+  background:#111827;
+  color:white;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+  font-weight:600;
+}
+
+#submitBtn:disabled {
+  background:#9ca3af;
+  cursor:not-allowed;
 }
 
 /* POPUP */
@@ -159,6 +209,16 @@ body {
 .popup-card h2 {
   margin-bottom:10px;
 }
+
+.popup-card button {
+  margin-top:15px;
+  padding:10px 20px;
+  background:#111827;
+  color:white;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+}
 </style>
 </head>
 
@@ -169,7 +229,7 @@ body {
   <!-- HEADER -->
   <div class="header">
     <div>
-      <h1>Welcome, Applicant!</h1>
+      <h1 id="welcomeText">Welcome!</h1>
       <p>Applicant Dashboard</p>
     </div>
     <div>
@@ -182,7 +242,7 @@ body {
   <div class="card">
     <div class="status-header">
       <h3>Application Status</h3>
-      <span id="statusBadge" class="badge">Requirements Review</span>
+      <span id="statusBadge" class="badge">Upload required documents</span>
     </div>
 
     <div class="progress-wrapper">
@@ -202,80 +262,101 @@ body {
     <p class="muted">Track your progress</p>
 
     <ul class="tracker">
-      <li id="step-requirements" class="active">
+      <li id="tracker-requirements_pending">
         <span class="dot"></span>
         <div>
-          <strong>Requirements Review</strong>
-          <small>Upload required documents</small>
+          <strong>Requirements Pending</strong><br>
+          <small class="muted">Upload required documents</small>
         </div>
       </li>
 
-      <li id="step-exam">
+      <li id="tracker-requirements_review">
         <span class="dot"></span>
         <div>
-          <strong>Examination</strong>
-          <small>Pending</small>
+          <strong>Requirements Under Review</strong><br>
+          <small class="muted">Admin is reviewing your documents</small>
         </div>
       </li>
 
-      <li id="step-mswd">
+      <li id="tracker-requirements_approved">
         <span class="dot"></span>
         <div>
-          <strong>MSWD Evaluation</strong>
-          <small>Pending</small>
+          <strong>Requirements Approved</strong><br>
+          <small class="muted">Ready for examination</small>
         </div>
       </li>
 
-      <li id="step-scholar">
+      <li id="tracker-exam_pending">
         <span class="dot"></span>
         <div>
-          <strong>Scholar Status</strong>
-          <small>Pending</small>
+          <strong>Examination</strong><br>
+          <small class="muted">passed the exam</small>
+        </div>
+      </li>
+
+      <li id="tracker-mswd_pending">
+        <span class="dot"></span>
+        <div>
+          <strong>MSWD Evaluation</strong><br>
+          <small class="muted">Final evaluation</small>
+        </div>
+      </li>
+
+      <li id="tracker-scholar">
+        <span class="dot"></span>
+        <div>
+          <strong>Scholar Status</strong><br>
+          <small class="muted">Congratulations!</small>
         </div>
       </li>
     </ul>
   </div>
 
   <!-- REQUIREMENTS -->
-  <!-- REQUIREMENTS -->
-<div class="card" id="requirementsSection">
-  <h3>Upload Requirements</h3>
+  <div class="card" id="requirementsSection">
+    <h3>Upload Requirements</h3>
 
-  <div class="req-item">
-    <strong>Barangay Clearance</strong>
-    <input type="file" onchange="uploadReq(this,'Barangay Clearance')">
-    <div class="req-buttons"></div>
+    <div class="req-item">
+      <strong>Barangay Clearance</strong>
+      <input type="file" onchange="uploadReq(this,'Barangay Clearance')">
+      <div class="req-buttons"></div>
+    </div>
+
+    <div class="req-item">
+      <strong>Certificate of Indigency</strong>
+      <input type="file" onchange="uploadReq(this,'Certificate of Indigency')">
+      <div class="req-buttons"></div>
+    </div>
+
+    <div class="req-item">
+      <strong>Report Card</strong>
+      <input type="file" onchange="uploadReq(this,'Report Card')">
+      <div class="req-buttons"></div>
+    </div>
+
+    <div class="req-item">
+      <strong>Birth Certificate</strong>
+      <input type="file" onchange="uploadReq(this,'Birth Certificate')">
+      <div class="req-buttons"></div>
+    </div>
+
+    <button id="submitBtn" onclick="submitRequirements()" disabled>
+      Submit All Requirements
+    </button>
   </div>
 
-  <div class="req-item">
-    <strong>Certificate of Indigency</strong>
-    <input type="file" onchange="uploadReq(this,'Certificate of Indigency')">
-    <div class="req-buttons"></div>
-  </div>
-
-  <div class="req-item">
-    <strong>Report Card</strong>
-    <input type="file" onchange="uploadReq(this,'Report Card')">
-    <div class="req-buttons"></div>
-  </div>
-
-  <div class="req-item">
-    <strong>Birth Certificate</strong>
-    <input type="file" onchange="uploadReq(this,'Birth Certificate')">
-    <div class="req-buttons"></div>
-  </div>
-
-  <button id="submitBtn" onclick="submitAll()" disabled>
-    Submit All Requirements
-  </button>
 </div>
 
-
+<!-- POPUP -->
 <!-- POPUP -->
 <div id="popup">
   <div class="popup-card">
     <h2>🎉 Congratulations!</h2>
-    <p>You are now part of <strong>Iskolarealeño</strong>.</p>
+    <p>You are now part of<strong>Iskolarealeño</strong>!</p>
+    <p style="margin-top: 15px; font-size: 14px; color: #6b7280;">
+      Your scholar portal credentials have been sent to your email.<br>
+      Please check your inbox for login instructions.
+    </p>
     <button onclick="closePopup()">Continue</button>
   </div>
 </div>
@@ -287,16 +368,9 @@ body {
 
 const supabaseUrl = "https://wwzufquuogpshrlrofiv.supabase.co";
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind3enVmcXV1b2dwc2hybHJvZml2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwNTgxMzcsImV4cCI6MjA4MTYzNDEzN30.JXJgJEpX0BEKYHGbWH1zUq6lVv1jetg0AmEsM-HvZQs";
-// Use a new variable name
 const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
 const TOTAL_REQ = 4;
-const requirementsList = [
-  "Barangay Clearance",
-  "Certificate of Indigency",
-  "Report Card",
-  "Birth Certificate"
-];
 
 // Store uploaded file URLs locally
 let requirements = {
@@ -322,48 +396,154 @@ function toggleRequirements() {
 }
 
 // ==============================
+// STATUS BAR (FIRST BOX)
+// ==============================
+function applyStatusUI(status) {
+  const badge = document.getElementById("statusBadge");
+  const fill = document.getElementById("progressFill");
+  const percent = document.getElementById("progressPercent");
+
+  const steps = {
+    requirements_pending: 0,
+    requirements_review: 25,
+    requirements_approved: 40,
+    exam_pending: 60,
+    mswd_pending: 80,
+    scholar: 100
+  };
+
+  const labels = {
+    requirements_pending: "Upload Required Documents",
+    requirements_review: "Requirements Under Review",
+    requirements_approved: "✅ Requirements Approved",
+    exam_pending: "Examination Phase",
+    mswd_pending: "MSWD Evaluation",
+    scholar: "🎉 Scholar Accepted"
+  };
+
+  const progress = steps[status] ?? 0;
+  fill.style.width = progress + "%";
+  percent.innerText = progress + "%";
+  badge.innerText = labels[status] ?? labels.requirements_pending;
+}
+
+// ==============================
+// TRACKER UI (SECOND BOX)
+// ==============================
+// ==============================
+// TRACKER UI (SECOND BOX)
+// ==============================
+function updateTrackerUI(status) {
+  // Define steps in order
+  const steps = [
+    "requirements_pending",
+    "requirements_review",
+    "requirements_approved",
+    "exam_pending",
+    "mswd_pending",
+    "scholar"
+  ];
+
+  steps.forEach((step) => {
+    const stepElement = document.querySelector(`#tracker-${step}`);
+    if (!stepElement) return;
+
+    if (step === status) {
+      stepElement.classList.add("current");
+      stepElement.classList.remove("completed");
+    } else if (steps.indexOf(step) < steps.indexOf(status)) {
+      stepElement.classList.add("completed");
+      stepElement.classList.remove("current");
+    } else {
+      stepElement.classList.remove("completed", "current");
+    }
+  });
+
+  // 🎉 Show popup if scholar status
+  if (status === 'scholar') {
+    setTimeout(() => {
+      document.getElementById("popup").style.display = "flex";
+    }, 500);
+  }
+}
+
+// ==============================
+// STATUS BAR (FIRST BOX)
+// ==============================
+function applyStatusUI(status) {
+  const badge = document.getElementById("statusBadge");
+  const fill = document.getElementById("progressFill");
+  const percent = document.getElementById("progressPercent");
+
+  const steps = {
+    requirements_pending: 0,
+    requirements_review: 25,
+    requirements_approved: 40,
+    exam_pending: 60,
+    mswd_pending: 80,
+    scholar: 100
+  };
+
+  const labels = {
+    requirements_pending: "Upload Required Documents",
+    requirements_review: "Requirements Under Review",
+    requirements_approved: "✅ Requirements Approved",
+    exam_pending: "Examination Phase",
+    mswd_pending: "MSWD Evaluation",
+    scholar: "🎉 Scholar - Check your email for login credentials!"
+  };
+
+  const progress = steps[status] ?? 0;
+  fill.style.width = progress + "%";
+  percent.innerText = progress + "%";
+  badge.innerText = labels[status] ?? labels.requirements_pending;
+
+  // Change badge color for scholar status
+  if (status === 'scholar') {
+    badge.style.background = '#d1fae5';
+    badge.style.color = '#065f46';
+  }
+}
+
+// ==============================
 // UPLOAD FILE
 // ==============================
 async function uploadReq(input, type) {
+  if (!input || !input.files || !input.files[0]) return;
+
   const file = input.files[0];
-  if (!file) return; // exit if no file selected
-
-  // ✅ 1. Get the current Supabase session
   const { data: { session } } = await supabaseClient.auth.getSession();
+  if (!session) return alert("You must be logged in");
 
-  // Check if user is logged in
-  if (!session) return alert("You must be logged in to upload files");
-
-  // ✅ 2. Extract the access token
-  const token = session.access_token;
-
-  // 3. Prepare FormData for the file upload
   const form = new FormData();
-  form.append('file', file);
-  form.append('requirement_type', type);
+  form.append("file", file);
+  form.append("requirement_type", type);
 
   try {
-    // ✅ 4. Send fetch request to your server with Authorization header
     const res = await fetch("/api/requirements/upload", {
       method: "POST",
-      body: form,
       headers: {
-        'Authorization': `Bearer ${token}` // <-- this is the part you asked about
-      }
+        Authorization: "Bearer " + session.access_token
+      },
+      body: form
     });
 
     const data = await res.json();
-
-    if (data.success) {
-      // ✅ 5. Update local state and UI
-      requirements[type] = data.file_url;
-      input.disabled = true;
-      input.parentElement.classList.add("done");
-      renderRequirementButtons();
-      updateProgress();
-    } else {
+    if (!data.success) {
       alert("Upload failed: " + data.error);
+      return;
     }
+
+    requirements[type] = data.file_url;
+
+    const item = input.closest(".req-item");
+    if (item) {
+      item.classList.add("done");
+      input.disabled = true;
+    }
+
+    renderRequirementButtons();
+    updateSubmitButton();
 
   } catch (err) {
     alert("Upload error: " + err.message);
@@ -374,7 +554,7 @@ async function uploadReq(input, type) {
 // VIEW FILE
 // ==============================
 function viewFile(type) {
-  const url = requirements[type]; // <-- this is already the full public URL
+  const url = requirements[type];
   if (!url) {
     alert("No file uploaded yet!");
     return;
@@ -408,7 +588,7 @@ async function deleteFile(type) {
       input.value = "";
     }
     renderRequirementButtons();
-    updateProgress();
+    updateSubmitButton();
   } else {
     alert("Delete failed: " + data.error);
   }
@@ -417,28 +597,35 @@ async function deleteFile(type) {
 // ==============================
 // SUBMIT ALL REQUIREMENTS
 // ==============================
-async function submitAll() {
-  try {
-    const token = localStorage.getItem("access_token");
-    if (!token) return alert("You must be logged in to submit requirements");
+async function submitRequirements() {
+  const token = localStorage.getItem("access_token");
+  if (!token) return alert("You are not logged in");
 
+  try {
     const res = await fetch("/api/requirements/submit", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer " + token // ✅ send token here
-      },
-      body: JSON.stringify({ /* optional payload if needed */ })
+        "Authorization": "Bearer " + token,
+        "Content-Type": "application/json"
+      }
     });
 
     const data = await res.json();
 
-    if (data.success) {
-      alert("🎉 Requirements submitted. Awaiting review.");
-      updateProgress();
-    } else {
-      alert("Submit failed: " + (data.error || data.message));
+    if (!data.success) {
+      alert("Submit failed: " + data.error);
+      return;
     }
+
+    // Update UI immediately with new status
+    const newStatus = "requirements_review";
+    applyStatusUI(newStatus);
+    updateTrackerUI(newStatus);
+
+    alert("📄 Documents submitted and under review");
+
+    // Reload status from server to confirm
+    await loadApplicationStatus();
 
   } catch (err) {
     alert("Submit error: " + err.message);
@@ -446,27 +633,40 @@ async function submitAll() {
 }
 
 // ==============================
-// RENDER VIEW/DELETE BUTTONS
+// UPDATE SUBMIT BUTTON
+// ==============================
+function updateSubmitButton() {
+  const uploadedCount = Object.values(requirements).filter(v => v).length;
+  document.getElementById("submitBtn").disabled = uploadedCount !== TOTAL_REQ;
+}
+
+// ==============================
+// RENDER REQUIREMENT BUTTONS
 // ==============================
 function renderRequirementButtons() {
   const items = document.querySelectorAll(".req-item");
+
   items.forEach(item => {
     const type = item.querySelector("strong").innerText;
+
     let container = item.querySelector(".req-buttons");
     if (!container) {
       container = document.createElement("div");
-      container.classList.add("req-buttons");
-      container.style.marginTop = "5px";
+      container.className = "req-buttons";
       item.appendChild(container);
     }
+
     container.innerHTML = "";
+
     if (requirements[type]) {
       const viewBtn = document.createElement("button");
       viewBtn.innerText = "View";
       viewBtn.onclick = () => viewFile(type);
+
       const delBtn = document.createElement("button");
       delBtn.innerText = "Delete";
       delBtn.onclick = () => deleteFile(type);
+
       container.appendChild(viewBtn);
       container.appendChild(delBtn);
     }
@@ -474,77 +674,134 @@ function renderRequirementButtons() {
 }
 
 // ==============================
-// UPDATE PROGRESS BAR
+// LOAD APPLICATION STATUS
 // ==============================
-function updateProgress() {
-  const uploadedCount = Object.values(requirements).filter(v => v !== null).length;
-  const progressPercent = Math.round((uploadedCount / TOTAL_REQ) * 100);
+async function loadApplicationStatus() {
+  const token = localStorage.getItem("access_token");
+  if (!token) {
+    console.log("No token found, skipping status load");
+    return;
+  }
 
-  document.getElementById("progressFill").style.width = progressPercent + "%";
-  document.getElementById("progressPercent").innerText = progressPercent + "%";
+  try {
+    const res = await fetch("/api/application/status", {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
 
-  // Enable submit button only when all files uploaded
-  document.getElementById("submitBtn").disabled = uploadedCount !== TOTAL_REQ;
+    const data = await res.json();
 
-  // Tracker steps
-  const steps = ["step-requirements", "step-exam", "step-mswd", "step-scholar"];
-  steps.forEach(s => document.getElementById(s).classList.remove("active"));
-
-  // 25% per step for simplicity
-  if (uploadedCount >= 1) document.getElementById("step-requirements").classList.add("active");
-  if (uploadedCount >= 2) document.getElementById("step-exam").classList.add("active");
-  if (uploadedCount >= 3) document.getElementById("step-mswd").classList.add("active");
-  if (uploadedCount === 4) document.getElementById("step-scholar").classList.add("active");
+    if (data.success && data.application_status) {
+      console.log("Loaded status from database:", data.application_status);
+      
+      // Update both boxes with the saved status
+      applyStatusUI(data.application_status);
+      updateTrackerUI(data.application_status);
+    } else {
+      console.log("No application status found, using default");
+      // Default to requirements_pending if no status exists
+      applyStatusUI("requirements_pending");
+      updateTrackerUI("requirements_pending");
+    }
+  } catch (err) {
+    console.error("Failed to load application status:", err);
+    // On error, show default state
+    applyStatusUI("requirements_pending");
+    updateTrackerUI("requirements_pending");
+  }
 }
 
+// ==============================
+// LOAD WELCOME NAME
+// ==============================
+async function loadWelcomeName() {
+  const { data: { session } } = await supabaseClient.auth.getSession();
+  if (!session) return;
+
+  const res = await fetch("/api/applicant/profile", {
+    headers: {
+      Authorization: "Bearer " + session.access_token
+    }
+  });
+
+  const data = await res.json();
+
+  if (data.success && data.first_name) {
+    document.getElementById("welcomeText").innerText =
+      `Welcome, ${data.first_name}!`;
+  }
+}
 
 // ==============================
-// LOAD EXISTING REQUIREMENTS ON PAGE LOAD
+// LOAD EXISTING REQUIREMENTS
 // ==============================
 async function loadRequirements() {
+  const { data: { session } } = await supabaseClient.auth.getSession();
+  if (!session) return;
+
   try {
     const res = await fetch("/api/requirements", {
       method: "GET",
-      credentials: "include"
+      headers: {
+        Authorization: "Bearer " + session.access_token
+      }
     });
+
     const data = await res.json();
-    if (data.success) {
-      data.files.forEach(f => {
-        requirements[f.requirement_type] = f.file_url;
-      });
+    if (!data.success) return;
 
-      // Mark uploaded items as done
-      Object.entries(requirements).forEach(([type, url]) => {
-        if (url) {
-          const item = Array.from(document.querySelectorAll(".req-item"))
-            .find(i => i.querySelector("strong").innerText === type);
-          if (item) {
-            item.classList.add("done");
-            item.querySelector("input").disabled = true;
-          }
-        }
-      });
+    // Reset first
+    Object.keys(requirements).forEach(k => requirements[k] = null);
 
-      renderRequirementButtons();
-      updateProgress();
-    }
+    data.files.forEach(f => {
+      requirements[f.requirement_type] = f.file_url;
+    });
+
+    // Restore UI
+    document.querySelectorAll(".req-item").forEach(item => {
+      const type = item.querySelector("strong").innerText;
+      const input = item.querySelector("input");
+
+      if (requirements[type]) {
+        item.classList.add("done");
+        input.disabled = true;
+      } else {
+        item.classList.remove("done");
+        input.disabled = false;
+      }
+    });
+
+    renderRequirementButtons();
+    updateSubmitButton();
+
   } catch (err) {
     console.error("Failed to load requirements:", err);
   }
 }
 
 // ==============================
-// INITIALIZE
+// CLOSE POPUP
+// ==============================
+function closePopup() {
+  document.getElementById("popup").style.display = "none";
+}
+
+// ==============================
+// INITIALIZE ON PAGE LOAD
 // ==============================
 window.addEventListener("DOMContentLoaded", async () => {
-  const firstName = localStorage.getItem("first_name");
-  if (firstName) document.getElementById("welcomeText").innerText = `Welcome, ${firstName}!`;
-
-  await loadRequirements(); // existing function to load uploaded files
+  // Load welcome name
+  await loadWelcomeName();
+  
+  // Load requirements
+  await loadRequirements();
+  
+  // Load application status (this updates both boxes)
+  await loadApplicationStatus();
 });
 
 </script>
-
 
 </body>
 </html>

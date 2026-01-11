@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>MSWD Dashboard</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: "Segoe UI", Arial, sans-serif;
+  background: #eef4ff;
+  color: #111827;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 30px auto;
+  padding: 20px;
+}
+
+/* HEADER */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 24px;
+}
+
+.header p {
+  margin: 4px 0 0;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.header-actions button {
+  background: white;
+  border: 1px solid #e5e7eb;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-left: 8px;
+}
+
+/* STATS */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 25px;
+}
+
+.stat-card {
+  background: white;
+  padding: 18px;
+  border-radius: 14px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+.stat-card small {
+  color: #6b7280;
+  font-size: 13px;
+  display: block;
+}
+
+.stat-card h2 {
+  margin: 10px 0 4px;
+  font-size: 28px;
+}
+
+/* CARD */
+.card {
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  margin-bottom: 20px;
+}
+
+.card h3 {
+  margin-top: 0;
+}
+
+.card p {
+  font-size: 14px;
+  color: #6b7280;
+  margin-top: 0;
+}
+
+/* TABS */
+.tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.tab {
+  padding: 10px 20px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  color: #6b7280;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+}
+
+.tab.active {
+  color: #111827;
+  border-bottom-color: #111827;
+}
+
+/* TABLE */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th {
+  text-align: left;
+  font-size: 13px;
+  color: #6b7280;
+  padding: 12px 8px;
+  font-weight: 600;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+td {
+  padding: 14px 8px;
+  border-top: 1px solid #e5e7eb;
+  font-size: 14px;
+}
+
+/* BADGES */
+.badge {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  display: inline-block;
+}
+
+.exam_pending {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.mswd_pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.scholar {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.rejected {
+  background: #fecaca;
+  color: #7f1d1d;
+}
+
+/* ACTIONS */
+.actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.actions button {
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.view-btn {
+  background: #3b82f6;
+  color: white;
+}
+
+.approve-btn {
+  background: #10b981;
+  color: white;
+}
+
+.reject-btn {
+  background: #dc2626;
+  color: white;
+}
+
+.approve-btn:disabled,
+.reject-btn:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}
+
+/* MODAL */
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal.active {
+  display: flex;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 16px;
+  padding: 30px;
+  max-width: 700px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #6b7280;
+}
+
+.detail-grid {
+  display: grid;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.detail-item {
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 10px;
+}
+
+.detail-item label {
+  display: block;
+  font-size: 12px;
+  color: #6b7280;
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+
+.detail-item .value {
+  font-size: 14px;
+  color: #111827;
+}
+
+.reason-section {
+  background: #f9fafb;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.reason-section label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 8px;
+}
+
+.reason-section textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 80px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.modal-actions button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.file-list {
+  list-style: none;
+  padding: 0;
+}
+
+.file-item {
+  padding: 10px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.file-item a {
+  color: #3b82f6;
+  text-decoration: none;
+  font-size: 13px;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #6b7280;
+}
+
+.loading {
+  text-align: center;
+  padding: 40px;
+  color: #6b7280;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div>
+      <h1>MSWD Dashboard</h1>
+      <p>Final evaluation for scholarship candidates</p>
+    </div>
+
+    <div class="header-actions">
+      <button onclick="location.reload()">Refresh</button>
+      <button onclick="location.href='admin-dashboard.html'">Back to Dashboard</button>
+      <button onclick="location.href='login.html'">Logout</button>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats">
+    <div class="stat-card">
+      <small>Passed Exam (≥85%)</small>
+      <h2 id="totalApplicants">0</h2>
+    </div>
+    <div class="stat-card">
+      <small>Pending Evaluation</small>
+      <h2 id="pendingCount">0</h2>
+    </div>
+    <div class="stat-card">
+      <small>Approved Scholars</small>
+      <h2 id="scholarCount">0</h2>
+    </div>
+    <div class="stat-card">
+      <small>Rejected</small>
+      <h2 id="rejectedCount">0</h2>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('pending')">Pending Evaluation</button>
+    <button class="tab" onclick="switchTab('scholars')">Approved Scholars</button>
+    <button class="tab" onclick="switchTab('rejected')">Rejected</button>
+    <button class="tab" onclick="switchTab('all')">All</button>
+  </div>
+
+  <!-- PENDING SECTION -->
+  <div class="card" id="pendingSection">
+    <h3>Pending MSWD Evaluation</h3>
+    <p>Applicants who passed the exam (≥85%) awaiting final evaluation</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Applicant</th>
+          <th>Email</th>
+          <th>Exam Grade</th>
+          <th>Files</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="pendingTable">
+        <tr>
+          <td colspan="6" class="loading">Loading...</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- SCHOLARS SECTION -->
+  <div class="card" id="scholarsSection" style="display: none;">
+    <h3>Approved Scholars</h3>
+    <p>Applicants who have been approved as scholars</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Scholar</th>
+          <th>Email</th>
+          <th>Exam Grade</th>
+          <th>Approved Date</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="scholarsTable">
+        <tr>
+          <td colspan="5" class="loading">Loading...</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- REJECTED SECTION -->
+  <div class="card" id="rejectedSection" style="display: none;">
+    <h3>Rejected Applicants</h3>
+    <p>Applicants who were rejected during MSWD evaluation</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Applicant</th>
+          <th>Email</th>
+          <th>Exam Grade</th>
+          <th>Rejected Date</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="rejectedTable">
+        <tr>
+          <td colspan="5" class="loading">Loading...</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ALL SECTION -->
+  <div class="card" id="allSection" style="display: none;">
+    <h3>All Applicants</h3>
+    <p>All applicants who passed the exam</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Applicant</th>
+          <th>Email</th>
+          <th>Exam Grade</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="allTable">
+        <tr>
+          <td colspan="5" class="loading">Loading...</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<!-- EVALUATION MODAL -->
+<div id="evaluationModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2 id="modalTitle">Evaluate Applicant</h2>
+      <button class="close-btn" onclick="closeModal()">&times;</button>
+    </div>
+    
+    <div id="modalBody">
+      <div class="detail-grid">
+        <div class="detail-item">
+          <label>Full Name</label>
+          <div class="value" id="detailName">-</div>
+        </div>
+        <div class="detail-item">
+          <label>Email</label>
+          <div class="value" id="detailEmail">-</div>
+        </div>
+        <div class="detail-item">
+          <label>Address</label>
+          <div class="value" id="detailAddress">-</div>
+        </div>
+        <div class="detail-item">
+          <label>Exam Score</label>
+          <div class="value" id="detailExam">-</div>
+        </div>
+      </div>
+
+      <div class="detail-item">
+        <label>Submitted Files</label>
+        <ul class="file-list" id="filesList"></ul>
+      </div>
+
+      <div class="reason-section">
+        <label>Reason for Scholarship Request *</label>
+        <textarea 
+          id="scholarshipReason" 
+          placeholder="Enter the applicant's reason for requesting the scholarship..."
+          required
+        ></textarea>
+      </div>
+
+      <div class="modal-actions" id="modalActions">
+        <button class="approve-btn" onclick="approveApplicant()">
+          Approve as Scholar
+        </button>
+        <button class="reject-btn" onclick="rejectApplicant()">
+          Reject
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<script>
+  const API_BASE = 'http://localhost:5000';
+  
+  let allApplicants = [];
+  let currentTab = 'pending';
+  let selectedApplicant = null;
+
+  // ---------------- Switch Tabs ----------------
+  function switchTab(tab) {
+    currentTab = tab;
+    
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    event.target.classList.add('active');
+
+    document.getElementById('pendingSection').style.display = tab === 'pending' ? 'block' : 'none';
+    document.getElementById('scholarsSection').style.display = tab === 'scholars' ? 'block' : 'none';
+    document.getElementById('rejectedSection').style.display = tab === 'rejected' ? 'block' : 'none';
+    document.getElementById('allSection').style.display = tab === 'all' ? 'block' : 'none';
+
+    if (tab === 'scholars') {
+      loadScholars();
+    } else if (tab === 'rejected') {
+      loadRejected();
+    } else if (tab === 'all') {
+      loadAll();
+    }
+  }
+
+  // ---------------- Load Pending Applicants ----------------
+  async function loadPendingApplicants() {
+    try {
+      const res = await fetch(`${API_BASE}/api/admin/mswd-applicants`);
+      const data = await res.json();
+
+      if (!data.success) {
+        throw new Error(data.error || 'Failed to load applicants');
+      }
+
+      allApplicants = data.applicants || [];
+
+      // Filter for pending: exam_passed = true AND (mswd_pending OR exam_pending)
+      const pending = allApplicants.filter(a => 
+        a.exam_passed === true && 
+        (a.application_status === 'exam_pending' || a.application_status === 'mswd_pending')
+      );
+
+      const table = document.getElementById('pendingTable');
+
+      if (pending.length === 0) {
+        table.innerHTML = `
+          <tr>
+            <td colspan="6" class="empty-state">
+              <h3>No pending evaluations</h3>
+              <p>All eligible applicants have been evaluated</p>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      table.innerHTML = '';
+
+      pending.forEach(app => {
+        const fullName = `${app.first_name} ${app.middle_name || ''} ${app.last_name}`.trim();
+        const filesCount = app.files_count || 0;
+
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${fullName}</td>
+          <td>${app.email}</td>
+          <td><strong class="score-highlight">${app.exam_score}%</strong></td>
+          <td>${filesCount}/4 files</td>
+          <td>
+            <span class="badge ${app.application_status || 'exam_pending'}">
+              ${formatStatus(app.application_status)}
+            </span>
+          </td>
+          <td>
+            <div class="actions">
+              <button class="view-btn" onclick="viewApplicant('${app.id}')">
+                Evaluate
+              </button>
+            </div>
+          </td>
+        `;
+        table.appendChild(row);
+      });
+
+    } catch (err) {
+      console.error('Error loading pending applicants:', err);
+      document.getElementById('pendingTable').innerHTML = `
+        <tr>
+          <td colspan="6" style="text-align: center; color: #dc2626; padding: 40px;">
+            Error: ${err.message}
+          </td>
+        </tr>
+      `;
+    }
+  }
+
+  // ---------------- Load Scholars ----------------
+  async function loadScholars() {
+    try {
+      const res = await fetch(`${API_BASE}/api/admin/mswd-applicants`);
+      const data = await res.json();
+
+      const scholars = (data.applicants || []).filter(a => a.application_status === 'scholar');
+
+      const table = document.getElementById('scholarsTable');
+
+      if (scholars.length === 0) {
+        table.innerHTML = `
+          <tr>
+            <td colspan="5" class="empty-state">
+              <h3>No scholars yet</h3>
+              <p>Approve applicants to see them here</p>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      table.innerHTML = '';
+
+      scholars.forEach(app => {
+        const fullName = `${app.first_name} ${app.middle_name || ''} ${app.last_name}`.trim();
+        const approvedDate = app.scholar_approved_at ? 
+          new Date(app.scholar_approved_at).toLocaleDateString() : 'Recently';
+
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${fullName}</td>
+          <td>${app.email}</td>
+          <td><strong class="score-highlight">${app.exam_score}%</strong></td>
+          <td>${approvedDate}</td>
+          <td>
+            <button class="view-btn" onclick="viewApplicant('${app.id}')">
+              View Details
+            </button>
+          </td>
+        `;
+        table.appendChild(row);
+      });
+
+    } catch (err) {
+      console.error('Error loading scholars:', err);
+    }
+  }
+
+  // ---------------- Load Rejected ----------------
+  async function loadRejected() {
+    try {
+      const res = await fetch(`${API_BASE}/api/admin/mswd-applicants`);
+      const data = await res.json();
+
+      const rejected = (data.applicants || []).filter(a => a.application_status === 'rejected');
+
+      const table = document.getElementById('rejectedTable');
+
+      if (rejected.length === 0) {
+        table.innerHTML = `
+          <tr>
+            <td colspan="5" class="empty-state">
+              <h3>No rejected applicants</h3>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      table.innerHTML = '';
+
+      rejected.forEach(app => {
+        const fullName = `${app.first_name} ${app.middle_name || ''} ${app.last_name}`.trim();
+        const rejectedDate = app.rejected_at ? 
+          new Date(app.rejected_at).toLocaleDateString() : 'Recently';
+
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${fullName}</td>
+          <td>${app.email}</td>
+          <td><strong class="score-highlight failed">${app.exam_score}%</strong></td>
+          <td>${rejectedDate}</td>
+          <td>
+            <button class="view-btn" onclick="viewApplicant('${app.id}')">
+              View Details
+            </button>
+          </td>
+        `;
+        table.appendChild(row);
+      });
+
+    } catch (err) {
+      console.error('Error loading rejected applicants:', err);
+    }
+  }
+
+  // ---------------- Load All ----------------
+  async function loadAll() {
+    try {
+      const res = await fetch(`${API_BASE}/api/admin/mswd-applicants`);
+      const data = await res.json();
+
+      const table = document.getElementById('allTable');
+
+      if ((data.applicants || []).length === 0) {
+        table.innerHTML = `
+          <tr>
+            <td colspan="5" class="empty-state">
+              <h3>No applicants found</h3>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      table.innerHTML = '';
+
+      data.applicants.forEach(app => {
+        const fullName = `${app.first_name} ${app.middle_name || ''} ${app.last_name}`.trim();
+        const scoreClass = app.exam_passed ? 'score-highlight' : 'score-highlight failed';
+
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${fullName}</td>
+          <td>${app.email}</td>
+          <td><strong class="${scoreClass}">${app.exam_score || 'N/A'}%</strong></td>
+          <td>
+            <span class="badge ${app.application_status}">
+              ${formatStatus(app.application_status)}
+            </span>
+          </td>
+          <td>
+            <button class="view-btn" onclick="viewApplicant('${app.id}')">
+              View
+            </button>
+          </td>
+        `;
+        table.appendChild(row);
+      });
+
+    } catch (err) {
+      console.error('Error loading all applicants:', err);
+    }
+  }
+
+  // ---------------- Format Status ----------------
+  function formatStatus(status) {
+    const labels = {
+      exam_pending: 'Exam Passed',
+      mswd_pending: 'MSWD Pending',
+      scholar: 'Scholar',
+      rejected: 'Rejected'
+    };
+    return labels[status] || status;
+  }
+
+  // ---------------- View Applicant ----------------
+  async function viewApplicant(applicantId) {
+    try {
+      selectedApplicant = allApplicants.find(a => a.id === applicantId);
+      
+      if (!selectedApplicant) {
+        const res = await fetch(`${API_BASE}/api/admin/applicants/${applicantId}`);
+        const data = await res.json();
+        if (data.success) {
+          selectedApplicant = data.applicant;
+        }
+      }
+
+      if (!selectedApplicant) {
+        alert('Applicant not found');
+        return;
+      }
+
+      const fullName = `${selectedApplicant.first_name} ${selectedApplicant.middle_name || ''} ${selectedApplicant.last_name}`.trim();
+      
+      document.getElementById('modalTitle').textContent = `Evaluate - ${fullName}`;
+      document.getElementById('detailName').textContent = fullName;
+      document.getElementById('detailEmail').textContent = selectedApplicant.email;
+      document.getElementById('detailAddress').textContent = selectedApplicant.address || 'N/A';
+      
+      const examStatus = selectedApplicant.exam_passed ? 
+        `<strong class="score-highlight">${selectedApplicant.exam_score}% - PASSED</strong>` : 
+        `<strong class="score-highlight failed">${selectedApplicant.exam_score}% - FAILED</strong>`;
+      document.getElementById('detailExam').innerHTML = examStatus;
+      
+      // Load files
+      const filesRes = await fetch(`${API_BASE}/api/admin/applicants/${applicantId}/files`);
+      const filesData = await filesRes.json();
+      
+      const filesList = document.getElementById('filesList');
+      if (filesData.success && filesData.files.length > 0) {
+        filesList.innerHTML = '';
+        filesData.files.forEach(file => {
+          const li = document.createElement('li');
+          li.className = 'file-item';
+          li.innerHTML = `
+            <div>
+              <strong>${file.requirement_type}</strong><br>
+              <small>${file.file_name}</small>
+            </div>
+            <a href="${file.file_url}" target="_blank">View</a>
+          `;
+          filesList.appendChild(li);
+        });
+      } else {
+        filesList.innerHTML = '<li class="file-item">No files uploaded</li>';
+      }
+
+      // Load existing reason if any
+      document.getElementById('scholarshipReason').value = selectedApplicant.scholarship_reason || '';
+
+      // Show/hide action buttons based on status
+      const modalActions = document.getElementById('modalActions');
+      if (selectedApplicant.application_status === 'scholar' || selectedApplicant.application_status === 'rejected') {
+        modalActions.style.display = 'none';
+      } else {
+        modalActions.style.display = 'flex';
+      }
+
+      document.getElementById('evaluationModal').classList.add('active');
+
+    } catch (err) {
+      console.error('Error viewing applicant:', err);
+      alert('Error loading applicant details');
+    }
+  }
+
+  // ---------------- Close Modal ----------------
+  function closeModal() {
+    document.getElementById('evaluationModal').classList.remove('active');
+    selectedApplicant = null;
+  }
+
+  // ---------------- Approve Applicant ----------------
+  async function approveApplicant() {
+    if (!selectedApplicant) return;
+
+    const reason = document.getElementById('scholarshipReason').value.trim();
+    
+    if (!reason) {
+      alert('Please enter the reason for scholarship request');
+      return;
+    }
+
+    if (!confirm(`Approve ${selectedApplicant.first_name} as a scholar?`)) {
+      return;
+    }
+
+    try {
+      const res = await fetch(`${API_BASE}/api/admin/mswd-approve`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          applicant_id: selectedApplicant.id,
+          scholarship_reason: reason
+        })
+      });
+
+      const data = await res.json();
+
+      if (!data.success) {
+        throw new Error(data.error || 'Failed to approve');
+      }
+
+      alert('Applicant approved as scholar!');
+      closeModal();
+      await loadPendingApplicants();
+      await loadStats();
+
+    } catch (err) {
+      console.error('Error approving applicant:', err);
+      alert('Error: ' + err.message);
+    }
+  }
+
+  // ---------------- Reject Applicant ----------------
+  async function rejectApplicant() {
+    if (!selectedApplicant) return;
+
+    const reason = document.getElementById('scholarshipReason').value.trim();
+
+    if (!confirm(`Reject ${selectedApplicant.first_name}?`)) {
+      return;
+    }
+
+    try {
+      const res = await fetch(`${API_BASE}/api/admin/mswd-reject`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          applicant_id: selectedApplicant.id,
+          rejection_reason: reason || 'No reason provided'
+        })
+      });
+
+      const data = await res.json();
+
+      if (!data.success) {
+        throw new Error(data.error || 'Failed to reject');
+      }
+
+      alert('Applicant rejected');
+      closeModal();
+      await loadPendingApplicants();
+      await loadStats();
+
+    } catch (err) {
+      console.error('Error rejecting applicant:', err);
+      alert('Error: ' + err.message);
+    }
+  }
+
+  // ---------------- Load Stats ----------------
+  async function loadStats() {
+    try {
+      const res = await fetch(`${API_BASE}/api/admin/mswd-stats`);
+      const data = await res.json();
+
+      if (data.success) {
+        document.getElementById('totalApplicants').textContent = data.total || 0;
+        document.getElementById('pendingCount').textContent = (data.exam_pending || 0) + (data.mswd_pending || 0);
+        document.getElementById('scholarCount').textContent = data.scholar || 0;
+        document.getElementById('rejectedCount').textContent = data.rejected || 0;
+      }
+
+    } catch (err) {
+      console.error('Error loading stats:', err);
+    }
+  }
+
+  // ---------------- Initialize ----------------
+  window.addEventListener('DOMContentLoaded', () => {
+    loadStats();
+    loadPendingApplicants();
+  });
+
+  // Close modal when clicking outside
+  document.getElementById('evaluationModal').addEventListener('click', (e) => {
+    if (e.target.id === 'evaluationModal') {
+      closeModal();
+    }
+  });
+
+</script>
+
+</body>
+</html>

@@ -2,189 +2,127 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Exam Admin Dashboard</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
 
 <style>
-:root {
-  --orange: #FF6600;
-  --navy: #001F4D;
-  --light-gray: #F5F5F7;
-  --dark-gray: #333;
-  --white: #fff;
-}
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
 body {
+  margin: 0;
   font-family: "Segoe UI", Arial, sans-serif;
-  background-color: var(--light-gray);
-  min-height: 100vh;
-  color: var(--dark-gray);
-}
-
-/* TOP HEADER */
-.top-header {
-  background: linear-gradient(135deg, var(--navy) 0%, #003366 100%);
-  padding: 20px 0;
-  text-align: center;
-  color: var(--white);
-}
-
-.top-header .logo-text {
-  font-size: 1.8rem;
-  font-weight: 900;
-  color: var(--white);
-}
-
-.top-header .logo-text span {
-  color: var(--orange);
-}
-
-.top-header .subtitle {
-  font-size: 0.95rem;
-  color: var(--orange);
-  font-weight: 500;
-  margin-top: 5px;
+  background: #eef4ff;
+  color: #111827;
 }
 
 .container {
   max-width: 1200px;
-  margin: 0 auto;
-  padding: 30px 20px;
+  margin: 30px auto;
+  padding: 20px;
 }
 
-/* PAGE HEADER */
-.page-header {
+/* HEADER */
+.header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 25px;
-  background: var(--white);
-  padding: 20px 30px;
-  border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-  border: 1px solid #e5e7eb;
 }
 
-.page-header h1 {
-  font-size: 1.5rem;
-  color: var(--navy);
-  margin-bottom: 4px;
+.header h1 {
+  margin: 0;
+  font-size: 24px;
 }
 
-.page-header h1 i {
-  color: var(--orange);
-  margin-right: 10px;
-}
-
-.page-header p {
+.header p {
+  margin: 4px 0 0;
   font-size: 14px;
   color: #6b7280;
 }
 
-.header-actions {
-  display: flex;
-  gap: 10px;
-}
-
-.btn {
-  padding: 12px 24px;
-  border-radius: 24px;
-  border: none;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 14px;
-  transition: all 0.2s ease;
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.btn-primary {
-  background: var(--navy);
-  color: var(--white);
-}
-
-.btn-primary:hover {
-  background: #003366;
-}
-
-.btn-outline {
-  background: var(--white);
-  border: 2px solid #e5e7eb;
-  color: var(--dark-gray);
-}
-
-.btn-outline:hover {
-  border-color: var(--orange);
-  color: var(--orange);
-}
-
-/* INFO CARD */
-.info-card {
-  background: linear-gradient(135deg, var(--orange) 0%, #e55a00 100%);
-  padding: 20px 25px;
-  border-radius: 14px;
-  margin-bottom: 25px;
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  color: #78350f;
-}
-
-.info-card i {
-  font-size: 24px;
-}
-
-.info-card p {
-  font-size: 14px;
-  line-height: 1.5;
-}
-
-.info-card strong {
-  color: #451a03;
-}
-
-/* MAIN CARD */
-.card {
+.header-actions button {
   background: white;
-  border-radius: 20px;
-  padding: 30px;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+  border: 1px solid #e5e7eb;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-left: 8px;
 }
 
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+/* STATS */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
   margin-bottom: 25px;
-  padding-bottom: 20px;
-  border-bottom: 2px solid #f3f4f6;
 }
 
-.card-header h2 {
-  font-size: 20px;
-  color: #1f2937;
+.stat-card {
+  background: white;
+  padding: 18px;
+  border-radius: 14px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
 }
 
-.card-header p {
+.stat-card small {
+  color: #6b7280;
+  font-size: 13px;
+  display: block;
+}
+
+.stat-card h2 {
+  margin: 10px 0 4px;
+  font-size: 28px;
+}
+
+.stat-card .percentage {
   font-size: 14px;
   color: #6b7280;
   margin-top: 4px;
 }
 
-/* TABLE */
-.table-wrapper {
-  overflow-x: auto;
+/* CARD */
+.card {
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  margin-bottom: 20px;
 }
 
+.card h3 {
+  margin-top: 0;
+}
+
+.card p {
+  font-size: 14px;
+  color: #6b7280;
+  margin-top: 0;
+}
+
+/* TABS */
+.tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.tab {
+  padding: 10px 20px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  color: #6b7280;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+}
+
+.tab.active {
+  color: #111827;
+  border-bottom-color: #111827;
+}
+
+/* TABLE */
 table {
   width: 100%;
   border-collapse: collapse;
@@ -192,147 +130,104 @@ table {
 
 th {
   text-align: left;
-  font-size: 12px;
-  font-weight: 600;
+  font-size: 13px;
   color: #6b7280;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  padding: 12px 16px;
-  background: #f9fafb;
+  padding: 12px 8px;
+  font-weight: 600;
   border-bottom: 2px solid #e5e7eb;
 }
 
 td {
-  padding: 16px;
-  border-bottom: 1px solid #f3f4f6;
+  padding: 14px 8px;
+  border-top: 1px solid #e5e7eb;
   font-size: 14px;
-  vertical-align: middle;
-}
-
-tr:hover {
-  background: #fafaff;
-}
-
-/* APPLICANT INFO */
-.applicant-info {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-weight: 600;
-  font-size: 14px;
-}
-
-.applicant-name {
-  font-weight: 600;
-  color: #1f2937;
-}
-
-.applicant-email {
-  font-size: 13px;
-  color: #6b7280;
 }
 
 /* BADGES */
 .badge {
-  padding: 6px 12px;
-  border-radius: 20px;
+  padding: 4px 10px;
+  border-radius: 999px;
   font-size: 12px;
   font-weight: 600;
   display: inline-block;
 }
 
-.badge-pending {
-  background: #fef3c7;
-  color: #92400e;
+.requirements_approved {
+  background: #bbf7d0;
+  color: #065f46;
 }
 
-.badge-passed {
+.graded {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.passed {
   background: #d1fae5;
   color: #065f46;
 }
 
-.badge-failed {
-  background: #fee2e2;
-  color: #991b1b;
+.failed {
+  background: #fecaca;
+  color: #7f1d1d;
+}
+
+.pending {
+  background: #fef3c7;
+  color: #92400e;
 }
 
 /* GRADE INPUT */
-.grade-input-wrapper {
+.grade-input-group {
   display: flex;
-  align-items: center;
   gap: 8px;
+  align-items: center;
 }
 
-.grade-input {
-  width: 80px;
-  padding: 10px 12px;
-  border: 2px solid #e5e7eb;
-  border-radius: 10px;
+.grade-input-group input {
+  width: 70px;
+  padding: 6px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
   font-size: 14px;
-  font-weight: 600;
-  text-align: center;
-  transition: all 0.2s ease;
 }
 
-.grade-input:focus {
-  outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-}
-
-.grade-input:disabled {
-  background: #f3f4f6;
-  color: #6b7280;
-}
-
-.grade-display {
-  font-size: 18px;
-  font-weight: 700;
-  color: #1f2937;
-}
-
-.grade-display.passed {
-  color: #059669;
-}
-
-.grade-display.failed {
-  color: #dc2626;
-}
-
-/* ACTION BUTTONS */
-.btn-submit {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  color: white;
-  padding: 10px 16px;
+.grade-input-group button {
+  padding: 6px 14px;
   border: none;
-  border-radius: 10px;
+  border-radius: 6px;
   cursor: pointer;
-  font-weight: 600;
   font-size: 13px;
-  transition: all 0.2s ease;
+  font-weight: 600;
 }
 
-.btn-submit:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+.submit-grade-btn {
+  background: #10b981;
+  color: white;
 }
 
-.btn-submit:disabled {
-  background: #d1d5db;
+.submit-grade-btn:hover {
+  background: #059669;
+}
+
+.submit-grade-btn:disabled {
+  background: #9ca3af;
   cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
+}
+
+/* ACTIONS */
+.actions button {
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.view-btn {
+  background: #3b82f6;
+  color: white;
+  margin-right: 6px;
 }
 
 /* EMPTY STATE */
@@ -342,16 +237,9 @@ tr:hover {
   color: #6b7280;
 }
 
-.empty-state i {
-  font-size: 48px;
-  color: #d1d5db;
-  margin-bottom: 16px;
-}
-
 .empty-state h3 {
-  font-size: 18px;
+  margin: 10px 0;
   color: #374151;
-  margin-bottom: 8px;
 }
 
 /* LOADING */
@@ -360,357 +248,422 @@ tr:hover {
   padding: 40px;
   color: #6b7280;
 }
-
-.loading i {
-  font-size: 32px;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-/* TOAST NOTIFICATION */
-.toast {
-  position: fixed;
-  bottom: 30px;
-  right: 30px;
-  padding: 16px 24px;
-  border-radius: 12px;
-  color: white;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  transform: translateY(100px);
-  opacity: 0;
-  transition: all 0.3s ease;
-  z-index: 1000;
-}
-
-.toast.show {
-  transform: translateY(0);
-  opacity: 1;
-}
-
-.toast.success {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-}
-
-.toast.error {
-  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-}
-
-/* RESPONSIVE */
-@media (max-width: 768px) {
-  .header {
-    flex-direction: column;
-    gap: 15px;
-    text-align: center;
-  }
-  
-  .card {
-    padding: 20px;
-  }
-  
-  th, td {
-    padding: 12px 8px;
-  }
-}
 </style>
 </head>
 
 <body>
 
-<!-- TOP HEADER -->
-<header class="top-header">
-  <div class="logo-text">Iskolar<span>Realeño</span></div>
-  <div class="subtitle">Scholarship Management System</div>
-</header>
-
 <div class="container">
 
-  <!-- PAGE HEADER -->
-  <div class="page-header">
+  <!-- HEADER -->
+  <div class="header">
     <div>
-      <h1><i class="fas fa-clipboard-check"></i> Exam Admin Dashboard</h1>
-      <p>Add grades and mark exam results</p>
+      <h1>Exam Admin Dashboard</h1>
+      <p>Manage exams and grades</p>
     </div>
+
     <div class="header-actions">
-      <a href="admin-dashboard.html" class="btn btn-outline">
-        <i class="fas fa-arrow-left"></i> Back to Admin
-      </a>
-      <a href="login.html" class="btn btn-outline" onclick="localStorage.clear();">
-        <i class="fas fa-sign-out-alt"></i> Logout
-      </a>
+      <button onclick="location.reload()">Refresh</button>
+      <button onclick="location.href='admin-dashboard.html'">Back to Dashboard</button>
+      <button onclick="location.href='login.html'">Logout</button>
     </div>
   </div>
 
-  <!-- INFO CARD -->
-  <div class="info-card">
-    <i class="fas fa-info-circle"></i>
-    <p>
-      <strong>Passing Criteria:</strong> Applicants need a grade of <strong>85% or higher</strong> to pass the exam and proceed to MSWD evaluation.
-      <br>
-      <strong>Auto-Status Update:</strong> Once a grade is submitted, the applicant's status will automatically update based on whether they passed (≥85%) or failed (&lt;85%).
-    </p>
-  </div>
-
-  <!-- MAIN CARD -->
-  <div class="card">
-    <div class="card-header">
-      <div>
-        <h2>Applications Ready for Exam</h2>
-        <p>Add grades for applicants who passed requirements review</p>
-      </div>
-      <button class="btn btn-primary" onclick="loadExamApplicants()">
-        <i class="fas fa-sync-alt"></i> Refresh
-      </button>
+  <!-- STATS -->
+  <div class="stats">
+    <div class="stat-card">
+      <small>Total Applicants</small>
+      <h2 id="totalApplicants">0</h2>
+      <div class="percentage">Ready for exam</div>
     </div>
-
-    <div class="table-wrapper">
-      <table>
-        <thead>
-          <tr>
-            <th>Applicant</th>
-            <th>Email</th>
-            <th>Education</th>
-            <th>Exam Grade</th>
-            <th>Status</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="applicantsTable">
-          <tr>
-            <td colspan="6">
-              <div class="loading">
-                <i class="fas fa-spinner"></i>
-                <p>Loading applicants...</p>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+    <div class="stat-card">
+      <small>Graded</small>
+      <h2 id="gradedCount">0</h2>
+      <div class="percentage" id="gradedPercent">0%</div>
+    </div>
+    <div class="stat-card">
+      <small>Passed</small>
+      <h2 id="passedCount">0</h2>
+      <div class="percentage" id="passRate">0% pass rate</div>
+    </div>
+    <div class="stat-card">
+      <small>Failed</small>
+      <h2 id="failedCount">0</h2>
+      <div class="percentage" id="failRate">0% fail rate</div>
     </div>
   </div>
 
-</div>
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('pending')">Pending Grading</button>
+    <button class="tab" onclick="switchTab('graded')">Graded</button>
+    <button class="tab" onclick="switchTab('all')">All</button>
+  </div>
 
-<!-- TOAST -->
-<div id="toast" class="toast">
-  <i class="fas fa-check-circle"></i>
-  <span id="toastMessage">Success!</span>
+  <!-- PENDING GRADING -->
+  <div class="card" id="pendingSection">
+    <h3>Pending Grading</h3>
+    <p>Applicants with approved requirements awaiting exam grades</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Applicant</th>
+          <th>Email</th>
+          <th>Status</th>
+          <th>Submitted</th>
+          <th>Grade (0-100)</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="pendingTable">
+        <tr>
+          <td colspan="6" class="loading">Loading...</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- GRADED SECTION -->
+  <div class="card" id="gradedSection" style="display: none;">
+    <h3>Graded Applicants</h3>
+    <p>Applicants who have received their exam grades</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Applicant</th>
+          <th>Email</th>
+          <th>Grade</th>
+          <th>Result</th>
+          <th>Graded At</th>
+        </tr>
+      </thead>
+      <tbody id="gradedTable">
+        <tr>
+          <td colspan="5" class="loading">Loading...</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ALL SECTION -->
+  <div class="card" id="allSection" style="display: none;">
+    <h3>All Applicants</h3>
+    <p>All applicants with approved requirements</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Applicant</th>
+          <th>Email</th>
+          <th>Status</th>
+          <th>Grade</th>
+          <th>Result</th>
+        </tr>
+      </thead>
+      <tbody id="allTable">
+        <tr>
+          <td colspan="5" class="loading">Loading...</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
 </div>
 
 <script>
-const API_BASE = 'http://localhost:5000';
+  const API_BASE = 'http://localhost:5000';
 
-// Store grades data
-let gradesMap = {};
+  let allApplicants = [];
+  let currentTab = 'pending';
 
-// Load applicants on page load
-window.onload = loadExamApplicants;
-
-async function loadExamApplicants() {
-  const tbody = document.getElementById('applicantsTable');
-  tbody.innerHTML = `
-    <tr>
-      <td colspan="6">
-        <div class="loading">
-          <i class="fas fa-spinner"></i>
-          <p>Loading applicants...</p>
-        </div>
-      </td>
-    </tr>
-  `;
-
-  try {
-    // Fetch applicants and grades in parallel
-    const [applicantsRes, gradesRes] = await Promise.all([
-      fetch(`${API_BASE}/api/admin/exam-applicants`),
-      fetch(`${API_BASE}/api/admin/grades`)
-    ]);
+  // ---------------- Switch Tabs ----------------
+  function switchTab(tab) {
+    currentTab = tab;
     
-    const applicants = await applicantsRes.json();
-    const grades = await gradesRes.json();
-    
-    // Build grades map by applicant_id
-    gradesMap = {};
-    if (Array.isArray(grades)) {
-      grades.forEach(g => {
-        gradesMap[g.applicant_id] = g;
-      });
+    // Update tab buttons
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    event.target.classList.add('active');
+
+    // Show/hide sections
+    document.getElementById('pendingSection').style.display = tab === 'pending' ? 'block' : 'none';
+    document.getElementById('gradedSection').style.display = tab === 'graded' ? 'block' : 'none';
+    document.getElementById('allSection').style.display = tab === 'all' ? 'block' : 'none';
+
+    // Load data for the tab
+    if (tab === 'graded') {
+      loadGradedApplicants();
+    } else if (tab === 'all') {
+      loadAllApplicants();
     }
+  }
 
-    if (!Array.isArray(applicants) || applicants.length === 0) {
-      tbody.innerHTML = `
-        <tr>
-          <td colspan="6">
-            <div class="empty-state">
-              <i class="fas fa-inbox"></i>
-              <h3>No applicants ready for exam</h3>
-              <p>Applicants will appear here once they pass requirements review</p>
+  // ---------------- Load Pending Applicants ----------------
+  async function loadPendingApplicants() {
+    try {
+      const res = await fetch(`${API_BASE}/api/admin/exam-applicants`);
+      const data = await res.json();
+
+      allApplicants = data;
+
+      // Filter pending (no exam_score)
+      const pending = data.filter(a => 
+        a.application_status === 'requirements_approved' && 
+        (a.exam_score === null || a.exam_score === undefined)
+      );
+
+      const table = document.getElementById('pendingTable');
+
+      if (pending.length === 0) {
+        table.innerHTML = `
+          <tr>
+            <td colspan="6" class="empty-state">
+              <h3>No pending exams</h3>
+              <p>All applicants have been graded</p>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      table.innerHTML = '';
+
+      pending.forEach(app => {
+        const fullName = `${app.first_name} ${app.middle_name || ''} ${app.last_name}`.trim();
+        const submittedDate = app.submitted_at ? 
+          new Date(app.submitted_at).toLocaleDateString() : 'N/A';
+
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${fullName}</td>
+          <td>${app.email}</td>
+          <td>
+            <span class="badge requirements_approved">Ready for Exam</span>
+          </td>
+          <td>${submittedDate}</td>
+          <td>
+            <div class="grade-input-group">
+              <input 
+                type="number" 
+                id="grade-${app.id}" 
+                min="0" 
+                max="100" 
+                placeholder="0-100"
+                onkeypress="handleEnter(event, '${app.id}')"
+              >
             </div>
+          </td>
+          <td>
+            <button class="submit-grade-btn" onclick="submitGrade('${app.id}')">
+              Submit Grade
+            </button>
+          </td>
+        `;
+        table.appendChild(row);
+      });
+
+    } catch (err) {
+      console.error('Error loading pending applicants:', err);
+      document.getElementById('pendingTable').innerHTML = `
+        <tr>
+          <td colspan="6" style="text-align: center; color: #dc2626; padding: 40px;">
+            Error loading applicants: ${err.message}
           </td>
         </tr>
       `;
+    }
+  }
+
+  // ---------------- Handle Enter Key ----------------
+  function handleEnter(event, applicantId) {
+    if (event.key === 'Enter') {
+      submitGrade(applicantId);
+    }
+  }
+
+  // ---------------- Submit Grade ----------------
+  async function submitGrade(applicantId) {
+    const input = document.getElementById(`grade-${applicantId}`);
+    const grade = parseFloat(input.value);
+
+    if (isNaN(grade) || grade < 0 || grade > 100) {
+      alert('Please enter a valid grade between 0 and 100');
       return;
     }
 
-    tbody.innerHTML = applicants.map(a => {
-      const initials = getInitials(a.first_name, a.last_name);
-      const fullName = `${a.first_name || ''} ${a.middle_name || ''} ${a.last_name || ''}`.trim();
-      
-      // Use exam_score and exam_passed directly from applicants table
-      const examGrade = a.exam_score;
-      const examPassed = a.exam_passed;
-      
-      const hasGrade = examGrade !== null && examGrade !== undefined;
-      const gradeClass = hasGrade ? (examGrade >= 85 ? 'passed' : 'failed') : '';
-      const statusBadge = getStatusBadge(examPassed, examGrade);
-
-      return `
-        <tr id="row-${a.id}">
-          <td>
-            <div class="applicant-info">
-              <div class="avatar">${initials}</div>
-              <div>
-                <div class="applicant-name">${fullName}</div>
-              </div>
-            </div>
-          </td>
-          <td class="applicant-email">${a.email || '-'}</td>
-          <td>${a.degree || a.education || '-'}</td>
-          <td>
-            ${hasGrade 
-              ? `<span class="grade-display ${gradeClass}">${examGrade}%</span>`
-              : `<div class="grade-input-wrapper">
-                  <input type="number" 
-                         id="grade-${a.id}" 
-                         class="grade-input" 
-                         placeholder="0-100" 
-                         min="0" 
-                         max="100"
-                         onkeypress="handleEnter(event, '${a.id}')">
-                </div>`
-            }
-          </td>
-          <td>${statusBadge}</td>
-          <td>
-            ${hasGrade 
-              ? `<span style="color: #6b7280; font-size: 13px;">Graded</span>`
-              : `<button class="btn-submit" onclick="submitGrade('${a.id}')">
-                  <i class="fas fa-check"></i> Add Grade
-                </button>`
-            }
-          </td>
-        </tr>
-      `;
-    }).join('');
-
-  } catch (err) {
-    console.error(err);
-    tbody.innerHTML = `
-      <tr>
-        <td colspan="6">
-          <div class="empty-state">
-            <i class="fas fa-exclamation-triangle"></i>
-            <h3>Failed to load applicants</h3>
-            <p>Please check your connection and try again</p>
-          </div>
-        </td>
-      </tr>
-    `;
-  }
-}
-
-function getInitials(firstName, lastName) {
-  const f = firstName ? firstName.charAt(0).toUpperCase() : '';
-  const l = lastName ? lastName.charAt(0).toUpperCase() : '';
-  return f + l || '?';
-}
-
-function getStatusBadge(examPassed, grade) {
-  if (examPassed === null || examPassed === undefined) {
-    return `<span class="badge badge-pending">Awaiting Grade</span>`;
-  }
-  if (examPassed === true) {
-    return `<span class="badge badge-passed">Passed (${grade}%)</span>`;
-  }
-  if (examPassed === false) {
-    return `<span class="badge badge-failed">Failed (${grade}%)</span>`;
-  }
-  return `<span class="badge badge-pending">Awaiting Grade</span>`;
-}
-
-function handleEnter(event, applicantId) {
-  if (event.key === 'Enter') {
-    submitGrade(applicantId);
-  }
-}
-
-async function submitGrade(applicantId) {
-  const input = document.getElementById(`grade-${applicantId}`);
-  const grade = parseFloat(input.value);
-
-  if (isNaN(grade) || grade < 0 || grade > 100) {
-    showToast('Please enter a valid grade (0-100)', 'error');
-    input.focus();
-    return;
-  }
-
-  // Disable button while submitting
-  const btn = input.closest('tr').querySelector('.btn-submit');
-  btn.disabled = true;
-  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
-
-  try {
-    const res = await fetch(`${API_BASE}/api/admin/grades`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        applicant_id: applicantId,
-        exam_grade: grade
-      })
-    });
-
-    const data = await res.json();
-
-    if (res.ok) {
-      showToast(data.message || 'Grade submitted successfully!', 'success');
-      // Reload to show updated status
-      setTimeout(loadExamApplicants, 500);
-    } else {
-      showToast(data.error || 'Failed to submit grade', 'error');
-      btn.disabled = false;
-      btn.innerHTML = '<i class="fas fa-check"></i> Add Grade';
+    if (!confirm(`Submit grade of ${grade}% for this applicant?`)) {
+      return;
     }
 
-  } catch (err) {
-    console.error(err);
-    showToast('Network error. Please try again.', 'error');
-    btn.disabled = false;
-    btn.innerHTML = '<i class="fas fa-check"></i> Add Grade';
-  }
-}
+    try {
+      const res = await fetch(`${API_BASE}/api/admin/grades`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          applicant_id: applicantId,
+          exam_grade: grade
+        })
+      });
 
-function showToast(message, type = 'success') {
-  const toast = document.getElementById('toast');
-  const toastMessage = document.getElementById('toastMessage');
-  
-  toast.className = `toast ${type}`;
-  toastMessage.textContent = message;
-  toast.querySelector('i').className = type === 'success' 
-    ? 'fas fa-check-circle' 
-    : 'fas fa-exclamation-circle';
-  
-  toast.classList.add('show');
-  
-  setTimeout(() => {
-    toast.classList.remove('show');
-  }, 3000);
-}
+      const data = await res.json();
+
+      if (!data.success) {
+        throw new Error(data.error || 'Failed to submit grade');
+      }
+
+      const result = data.exam_passed ? 'PASSED' : 'FAILED';
+      alert(`Grade submitted: ${grade}% - ${result}`);
+
+      // Reload data
+      await loadPendingApplicants();
+      await loadStats();
+
+    } catch (err) {
+      console.error('Error submitting grade:', err);
+      alert('Error: ' + err.message);
+    }
+  }
+
+  // ---------------- Load Graded Applicants ----------------
+  async function loadGradedApplicants() {
+    try {
+      const res = await fetch(`${API_BASE}/api/admin/exam-applicants`);
+      const data = await res.json();
+
+      // Filter graded (has exam_score)
+      const graded = data.filter(a => 
+        a.exam_score !== null && a.exam_score !== undefined
+      );
+
+      const table = document.getElementById('gradedTable');
+
+      if (graded.length === 0) {
+        table.innerHTML = `
+          <tr>
+            <td colspan="5" class="empty-state">
+              <h3>No graded exams yet</h3>
+              <p>Submit grades to see them here</p>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      table.innerHTML = '';
+
+      graded.forEach(app => {
+        const fullName = `${app.first_name} ${app.middle_name || ''} ${app.last_name}`.trim();
+        const result = app.exam_passed ? 'Passed' : 'Failed';
+        const badgeClass = app.exam_passed ? 'passed' : 'failed';
+        const gradedDate = app.exam_graded_at ? 
+          new Date(app.exam_graded_at).toLocaleDateString() : 'Recently';
+
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${fullName}</td>
+          <td>${app.email}</td>
+          <td><strong>${app.exam_score}%</strong></td>
+          <td>
+            <span class="badge ${badgeClass}">${result}</span>
+          </td>
+          <td>${gradedDate}</td>
+        `;
+        table.appendChild(row);
+      });
+
+    } catch (err) {
+      console.error('Error loading graded applicants:', err);
+    }
+  }
+
+  // ---------------- Load All Applicants ----------------
+  async function loadAllApplicants() {
+    try {
+      const res = await fetch(`${API_BASE}/api/admin/exam-applicants`);
+      const data = await res.json();
+
+      const table = document.getElementById('allTable');
+
+      if (data.length === 0) {
+        table.innerHTML = `
+          <tr>
+            <td colspan="5" class="empty-state">
+              <h3>No applicants found</h3>
+              <p>No applicants with approved requirements</p>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      table.innerHTML = '';
+
+      data.forEach(app => {
+        const fullName = `${app.first_name} ${app.middle_name || ''} ${app.last_name}`.trim();
+        const hasGrade = app.exam_score !== null && app.exam_score !== undefined;
+        const status = hasGrade ? 
+          (app.exam_passed ? 'Passed' : 'Failed') : 
+          'Pending';
+        const badgeClass = hasGrade ? 
+          (app.exam_passed ? 'passed' : 'failed') : 
+          'pending';
+
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${fullName}</td>
+          <td>${app.email}</td>
+          <td>
+            <span class="badge ${badgeClass}">${status}</span>
+          </td>
+          <td>${hasGrade ? `${app.exam_score}%` : '-'}</td>
+          <td>${status}</td>
+        `;
+        table.appendChild(row);
+      });
+
+    } catch (err) {
+      console.error('Error loading all applicants:', err);
+    }
+  }
+
+  // ---------------- Load Stats ----------------
+  async function loadStats() {
+    try {
+      const res = await fetch(`${API_BASE}/api/admin/exam-applicants`);
+      const data = await res.json();
+
+      const total = data.length;
+      const graded = data.filter(a => a.exam_score !== null).length;
+      const passed = data.filter(a => a.exam_passed === true).length;
+      const failed = data.filter(a => a.exam_passed === false).length;
+
+      document.getElementById('totalApplicants').textContent = total;
+      document.getElementById('gradedCount').textContent = graded;
+      document.getElementById('passedCount').textContent = passed;
+      document.getElementById('failedCount').textContent = failed;
+
+      const gradedPercent = total > 0 ? Math.round((graded / total) * 100) : 0;
+      const passRate = graded > 0 ? Math.round((passed / graded) * 100) : 0;
+      const failRate = graded > 0 ? Math.round((failed / graded) * 100) : 0;
+
+      document.getElementById('gradedPercent').textContent = `${gradedPercent}% graded`;
+      document.getElementById('passRate').textContent = `${passRate}% pass rate`;
+      document.getElementById('failRate').textContent = `${failRate}% fail rate`;
+
+    } catch (err) {
+      console.error('Error loading stats:', err);
+    }
+  }
+
+  // ---------------- Initialize ----------------
+  window.addEventListener('DOMContentLoaded', () => {
+    loadStats();
+    loadPendingApplicants();
+  });
+
 </script>
 
 </body>
