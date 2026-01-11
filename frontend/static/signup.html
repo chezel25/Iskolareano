@@ -1,71 +1,66 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Scholar Signup</title>
-<link rel="stylesheet" href="/css/signup.css">
+  <meta charset="UTF-8">
+  <title>Sign Up - ISKOLAREALEÑO</title>
+  <link rel="stylesheet" href="css/style2.css">
 </head>
 <body>
 
-  <div class="bg-shape shape-orange"></div>
-  <div class="bg-shape shape-light"></div>
+<div class="bg-shape shape-orange"></div>
+<div class="bg-shape shape-light"></div>
 
-  <div class="wave wave1"></div>
-  <div class="wave wave2"></div>
-
-  <div class="register-wrapper"> 
-    <div class="sn-auth-card">
-      <img src="img/logo.png" alt="Iskolarealeno Logo" class="portal-logo">
-      <h1>ISKOLAREALEÑO</h1>
-      <p class="description">Fill out the form and provide only the necessary information.</p>
-
-      <form id="signupForm">
-        <div class="input-group">
-          <label>First Name</label>
-          <input id="fn" type="text" placeholder="Juan" required>
-        </div>
-
-        <div class="input-group">
-          <label>Middle Name</label>
-          <input id="mn" type="text" placeholder="Dela" required>
-        </div>
-
-        <div class="input-group">
-          <label>Last Name</label>
-          <input id="ln" type="text" placeholder="Cruz" required>
-        </div>
-
-        <div class="input-group">
-          <label>Address</label>
-          <input id="ad" type="text" placeholder="123 Main St, City" required>
-        </div>
-
-        <div class="input-group">
-          <label>Email</label>
-          <input id="em" type="email" placeholder="you@email.com" required>
-        </div>
-
-        <div class="input-group">
-          <label>Password</label>
-          <input id="pw" type="password" placeholder="••••••••" required>
-        </div>
+<div class="wave wave1"></div>
+<div class="wave wave2"></div>
 
 
-        <button class="btn" type="submit">Create Account</button>
-      </form>
+ <div class="register-wrapper"> 
+  <div class="sn-auth-card">
+     <img src="img/logo.png" alt="Iskolarealeno Logo" class="portal-logo">
+    <h1>ISKOLAREALEÑO</h1>
+    
+<p class="description">Fill out the form and provide only the necessary information.</p>
 
-      <p class="footer-text"><br>
-        <p style="text-align: center;">Already have an account?
-          <a class="link" href="login.html">Login</a>
-        </p>
+    <form>
+      <div class="input-group">
+        <label>Full Name</label>
+        <input type="text" placeholder="Juan Dela Cruz" required>
+      </div>
+
+      <div class="input-group">
+        <label>Email</label>
+        <input type="email" placeholder="you@email.com" required>
+      </div>
+
+      <div class="input-group">
+        <label>Password</label>
+        <input type="password" required>
+      </div>
+
+      <div class="input-group">
+        <label>Confirm Password</label>
+        <input type="password" required>
+      </div>
+
+      <div class="input-group">
+        <label>Role</label>
+        <select>
+          <option>Applicant</option>
+        </select>
+      </div>
+
+      <button class="btn">Create Account</button>
+    </form>
+
+    <p class="footer-text"> <br>
+      <p style="text-align: center;">Already have an account?
+      <a class="link" href="login.html">Login</a>
       </p>
-    </div>
+    </p>
+</div>
   </div>
 
-
-
-
-<script>
+  <script>
 const form = document.getElementById('signupForm');
 form.onsubmit = async e => {
   e.preventDefault();
@@ -92,5 +87,7 @@ form.onsubmit = async e => {
 };
 </script>
 
+
 </body>
 </html>
+
