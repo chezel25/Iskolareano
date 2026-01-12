@@ -1,0 +1,291 @@
+/* GLOBAL RESET & FONT */
+:root {
+  --orange: #FF6600;
+  --navy: #001F4D;
+  --light-gray: #F5F5F7;
+  --dark-gray: #333;
+  --white: #fff;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Segoe UI", Tahoma, sans-serif;
+}
+
+/* ------------------------------------------- */
+/* GLOBAL LAYOUT: Header, Main Content, Footer */
+/* ------------------------------------------- */
+
+/* Fixes the body style that centered everything incorrectly */
+html, body {
+ min-height: 100vh; /* Ensures the page is at least the screen height */
+  margin: 0;
+  display: flex; 
+  flex-direction: column; /* Stacks header, main, footer vertically */
+  overflow-y: auto; /* CRITICAL: Allows scrolling for the whole page */
+}
+body {
+  margin: 0;
+  display: flex; /* Stacks items vertically */
+  flex-direction: column;
+  overflow-y: auto;
+  /* Standard background consistent with the image provided */
+  background: var(--light-gray, #F5F5F7); 
+  padding: 0; /* Remove extra body padding */
+}
+
+main.container {
+    /* The 'flex: 1' rule is good, keeps main content flexible */
+    flex-grow: 1; 
+    margin-top: 40px;
+    margin-bottom: 40px;
+    display: block;
+    /* Ensure overflow is not hidden here either */
+    overflow: visible; 
+}
+
+/* General container for alignment and spacing */
+.container {
+  width: 90%;
+  max-width: 1200px;
+  margin: 0 auto;
+
+}
+
+/* Header styles: makes background span full width */
+header {
+ width: 100%;
+  background-color: var(--white);
+  padding: 1rem 0;
+  display: flex;
+  justify-content: space-between; /* Pushes logo to left, nav to right */
+  align-items: center; /* Vertically aligns logo and nav bar */
+
+   box-shadow: 0 4px 12px rgba(0,0,0,0.15); 
+  
+  /* Ensure this is set correctly to allow the shadow to render properly */
+  position: relative; 
+  z-index: 10; /* Make sure the header is on top of other elements */
+}
+
+
+/* Logo styles */
+.logo {
+   display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.logo img {
+    height: 48px;
+  border-radius: 80px;
+  margin-right: 0.1rem;
+  margin-left: 1.5rem;
+
+  
+  filter: drop-shadow(0 3px 2px rgba(0, 0, 0, 0.6)) drop-shadow(0 2px 1px rgba(0, 0, 0, 0.589));
+}
+
+.logo-text {
+  font-size: 1.6rem;
+  font-weight: 900;
+  color: #001F4D; /* Navy blue color */
+  letter-spacing: 1px;
+}
+
+nav {
+  display: flex;
+  align-items: center;
+  padding-right: 2rem;
+}
+
+/* Navigation links container */
+nav ul {
+  list-style: none;
+  display: flex;
+  gap: 1.8rem; /* Space between links */
+}
+
+/* Individual navigation links */
+nav li a {
+  font-weight: 600;
+  color: #333; /* Dark gray text */
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+nav li a:hover, nav li a.active {
+  color: #FF6600; /* Orange accent on hover/active */
+}
+
+/* Footer (Pushes to the bottom, spans full width) */
+footer {
+    width: 100%;
+    margin-top: auto; /* This pushes the footer to the bottom of the page */
+    background-color: #001F4D; /* Navy background */
+    color: white;
+    padding: 2rem 0;
+}
+
+
+/* Main content spacing */
+main.container {
+    flex: 1; /* Allows main content to grow */
+    margin-top: 40px;
+    margin-bottom: 40px;
+    display: block;
+}
+
+/* ------------------------------------------- */
+/* PROFILE CARD STYLES */
+/* ------------------------------------------- */
+
+/* THE MAIN WRAPPER: Now a standard white card with sharp glass effect */
+.login-wrapper {
+   margin-top: 40px; 
+  margin-bottom: 40px;
+  margin-left: auto; /* Keeps it centered */
+  margin-right: auto; /* Keeps it centered */
+  display: flex;
+  max-width: 600px; 
+  width: 100%;
+  background: rgba(255, 255, 255, 0.95); 
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border-radius: 20px; 
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.1); 
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  position: relative;
+  z-index: 1;
+}
+
+/* THE FORM CARD (auth-card) */
+.auth-card {
+  width: 100%; 
+  padding: 40px; 
+  background: transparent; 
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center; 
+}
+
+/* TITLES AND TEXT */
+.auth-card h1 {
+  margin-bottom: 0px; 
+  font-size: 1.8rem;
+  color: #001F4D; 
+}
+
+.auth-card p {
+  margin-top: 5px;    
+  margin-bottom: 30px; 
+  font-size: 0.9rem;
+  color: #333;
+}
+
+/* PROFILE PICTURE AND STATIC INFO STYLES */
+.profile-pic-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.user-pic {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 10px; 
+    border: 3px solid #FF6600; 
+}
+
+.user-info-static {
+    margin-bottom: 40px; 
+    margin-top: 20px;
+}
+
+.user-name {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin-bottom: 3px; 
+}
+
+.user-degree {
+    font-size: 0.9rem;
+    color: #555;
+}
+
+/* INPUT GROUPS & LABELS */
+.input-group {
+    margin-bottom: 20px; 
+    width: 100%;
+    max-width: 400px; 
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.input-group label {
+    display: block;
+    text-align: left; 
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #333;
+    font-size: 0.9rem;
+}
+
+.input-group input, .input-group select {
+    width: 100%;
+    padding: 10px 15px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 1rem;
+    background: #f9f9f9;
+}
+
+/* BUTTONS */
+.button-group {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px; 
+  margin-top: 30px;
+  width: 100%;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.btn {
+  padding: 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  width: 100%;
+}
+
+.save-btn {
+  background-color: #FF6600; 
+  color: white;
+  border: none;
+}
+
+.save-btn:hover {
+  background-color: #d4550c;
+}
+
+.cancel-btn {
+  background-color: transparent;
+  color: #FF6600; 
+  border: 1px solid #FF6600; 
+}
+
+.cancel-btn:hover {
+  background-color: #ffe8d8;
+}

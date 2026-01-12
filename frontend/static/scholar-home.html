@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Scholar Home - ISKOLAREALEÑO</title>
+<link rel="stylesheet" href="css/homestyle.css">
+</head>
+<body>
+
+
+<header role="banner"> 
+  
+    <!-- Logo is now aligned to the left side using the CSS below -->
+    <div class="logo">
+      <img src="img/logo.png" alt="Iskolarealeno Logo" />
+      <span class="logo-text">ISKOLAREALEÑO</span>
+    </div>
+      <nav role="navigation" aria-label="Main navigation">
+      <ul>
+        <li>
+          <a href="#" id="notificationBtn" class="notification-link">
+            <span>Notifications</span>
+            <span class="notification-badge" id="notificationBadge">3</span>
+          </a>
+        </li>
+        <li><a href="profile.html"index="0">My Profile</a></li>
+        <li><a href="landing.html"index="0">Logout</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+<!-- Main content and footer remain inside the container -->
+<main class="container" role="main" aria-label="Main content">
+<!-- Scholar Dashboard Section -->
+<section class="services-section">
+  <div class="container">
+    <div class="header">
+            <div class="welcome-section">
+                <div class="welcome-text">
+                    <h2 class="section-title">Welcome Back, <span class="orange-text">Iskolarealeño!</span></h2>
+                    <p class="section-description">Manage your profile, submit requirements, and check upcoming deadlines.</p>
+                    
+                </div>
+                
+                <div class="user-controls">
+                    <button class="requirement-btn" id="requirementBtn">
+                        <i class="fas fa-clipboard-check"></i>
+                        Requirement
+                    </button>
+                    
+                </div>
+            </div>
+          </div>
+
+    <div class="services-list">
+      
+      <!-- Card 1: Update Profile (Link to your profile.html) -->
+      <div class="service-card">
+        <div class="service-icon">👤</div>
+        <div class="service-title">Update Profile</div>
+        <div class="service-desc">Ensure your personal information, degree, and semester details are current.</div>
+        <a href="profile.html" class="service-link">Go to Profile →</a>
+      </div>
+
+      <!-- Card 2: Submit Grades -->
+      <div class="service-card">
+        <div class="service-icon">📂</div>
+        <div class="service-title">Submit Grades</div>
+        <div class="service-desc">Upload your complete academic grades as a PDF file before the deadline.</div>
+        <a href="profile.html#grades" class="service-link">Upload Now →</a>
+      </div>
+
+      <!-- Card 3: Submit Journal -->
+      <div class="service-card">
+        <div class="service-icon">✍️</div>
+        <div class="service-title">Submit Journal</div>
+        <div class="service-desc">Submit your latest reflection journal entry as a PDF file.</div>
+        <a href="profile.html#journal" class="service-link">Upload Now →</a>
+      </div>
+      
+    </div>
+  </div>
+</section>
+
+
+<script>
+        // Initialize the dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('requirementBtn').addEventListener('click', showRequirements);
+
+// Show requirements
+        function showRequirements() {
+            alert('Requirements:\n\n1. Ensure all profile information is accurate and updated. \n2. Upload your official grades for the current semester before the designated deadline. \n3. Keep your scholarship journal log fully updated with recent entries.');
+        }
+      });
+      </script>
+
+<footer> <!-- This tag now naturally spans 100% width -->
+     &copy; 2026 ISKOLAREALENO. Real, Quezon City, Philippines | Contact: info@iskolarealeno.ph
+</footer>
+
+</main>
+</body>
+</body>
+</html>

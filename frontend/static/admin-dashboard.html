@@ -12,13 +12,13 @@
 body {
   margin: 0;
   font-family: "Segoe UI", Arial, sans-serif;
-  background: #eef2ff;
+  background: #f0f4f8;
   color: #111827;
 }
 
 /* LAYOUT */
 .container {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 30px auto;
   padding: 20px;
 }
@@ -29,154 +29,637 @@ body {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 25px;
+  background: white;
+  padding: 20px 30px;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
 }
 
 .header h1 {
   margin: 0;
+  font-size: 28px;
+  background: linear-gradient(135deg, #FF6600 0%, #ff8833 100%);
+  
+  /* Standard property for modern browsers */
+  background-clip: text;
+  
+  /* WebKit prefix for Safari/Chrome */
+  -webkit-background-clip: text;
+  
+  /* Make the text show the gradient */
+  color: transparent;
+  -webkit-text-fill-color: transparent; /* WebKit specific */
 }
 
-.logout {
-  padding: 8px 14px;
-  border-radius: 8px;
+.header p {
+  margin: 4px 0 0;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.header-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.header-actions button {
+  padding: 10px 18px;
+  border-radius: 10px;
   border: 1px solid #e5e7eb;
   background: white;
   cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
 }
 
-/* NAV STICKERS */
-.nav {
+.header-actions button:hover {
+  background: #f9fafb;
+  border-color: #FF6600;
+  color: #FF6600;
+}
+
+/* STATS */
+.stats {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
   margin-bottom: 30px;
 }
 
-.nav-card {
+.stat-card {
   background: white;
+  padding: 24px;
   border-radius: 16px;
-  padding: 18px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  border-left: 4px solid #FF6600;
+  transition: transform 0.2s;
+}
+
+.stat-card:hover {
+  transform: translateY(-4px);
+}
+
+.stat-card small {
+  color: #6b7280;
+  font-size: 13px;
+  display: block;
+  font-weight: 500;
+}
+
+.stat-card h2 {
+  margin: 12px 0 0;
+  font-size: 32px;
+  color: #111827;
+  font-weight: 700;
+}
+
+/* TABS */
+.tabs {
   display: flex;
-  align-items: center;
-  gap: 14px;
+  gap: 8px;
+  margin-bottom: 25px;
+  background: white;
+  padding: 8px;
+  border-radius: 14px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.tab {
+  padding: 12px 24px;
+  background: none;
+  border: none;
   cursor: pointer;
-  box-shadow: 0 6px 15px rgba(0,0,0,0.06);
-  transition: transform .15s ease;
-}
-
-.nav-card:hover {
-  transform: translateY(-3px);
-}
-
-.nav-icon {
-  font-size: 28px;
-  background: #eef2ff;
-  padding: 12px;
-  border-radius: 12px;
-}
-
-.nav-text {
+  font-size: 14px;
   font-weight: 600;
+  color: #6b7280;
+  border-radius: 10px;
+  transition: all 0.2s;
 }
 
-/* CONTENT CARD */
+.tab:hover {
+  background: #f9fafb;
+  color: #FF6600;
+}
+
+.tab.active {
+  color: white;
+  background: linear-gradient(135deg, #FF6600 0%, #ff8833 100%);
+  box-shadow: 0 4px 12px rgba(255, 102, 0, 0.3);
+}
+
+/* CARD */
 .card {
   background: white;
   border-radius: 18px;
-  padding: 22px;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+  padding: 30px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  margin-bottom: 20px;
+}
+
+.card h3 {
+  margin-top: 0;
+  font-size: 22px;
+  color: #111827;
+}
+
+.card p {
+  font-size: 14px;
+  color: #6b7280;
+  margin-top: 0;
 }
 
 /* TABLE */
+.table-container {
+  overflow-x: auto;
+  margin-top: 20px;
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 15px;
 }
 
 th {
   text-align: left;
-  font-size: 13px;
+  font-size: 12px;
   color: #6b7280;
-  padding-bottom: 10px;
+  padding: 14px 12px;
+  font-weight: 600;
+  border-bottom: 2px solid #f3f4f6;
+  background: #f9fafb;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 td {
-  padding: 14px 0;
-  border-top: 1px solid #e5e7eb;
+  padding: 16px 12px;
+  border-bottom: 1px solid #f3f4f6;
+  font-size: 14px;
+  vertical-align: middle;
+}
+
+tr:hover {
+  background: #f9fafb;
 }
 
 /* BADGES */
 .badge {
-  padding: 4px 10px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
-.pending { background:#fde68a; color:#92400e; }
-.approved { background:#bbf7d0; color:#065f46; }
-.rejected { background:#fecaca; color:#7f1d1d; }
+.active { 
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+}
+
+.failed { 
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+}
+
+.graduated { 
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+}
 
 /* BUTTONS */
 button {
-  padding: 6px 12px;
+  padding: 8px 16px;
   border-radius: 8px;
   border: none;
   cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s;
+  font-size: 13px;
 }
 
-.approve { background:#111827; color:white; }
-.reject { background:#dc2626; color:white; }
+.btn-icon {
+  padding: 8px 14px;
+  background: white;
+  border: 1.5px solid #e5e7eb;
+  color: #6b7280;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
 
-/* INPUTS */
-input, textarea {
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 10px;
+.btn-icon:hover {
+  border-color: #FF6600;
+  color: #FF6600;
+  transform: translateY(-2px);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #FF6600 0%, #ff8833 100%);
+  color: white;
+  padding: 12px 28px;
+  font-weight: 600;
+  font-size: 15px;
+  box-shadow: 0 4px 12px rgba(255, 102, 0, 0.3);
+}
+
+.btn-primary:hover {
+  box-shadow: 0 6px 20px rgba(255, 102, 0, 0.4);
+  transform: translateY(-2px);
+}
+
+.btn-secondary {
+  background: #6b7280;
+  color: white;
+  padding: 12px 24px;
+}
+
+.btn-secondary:hover {
+  background: #4b5563;
+}
+
+/* DROPDOWN */
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-btn {
+  background: white;
+  border: 1.5px solid #e5e7eb;
+  padding: 8px 14px;
   border-radius: 8px;
-  border: 1px solid #d1d5db;
-}
-.nav {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 16px;
-  margin-bottom: 30px;
-}
-
-/* All nav cards share same style */
-.nav-card {
- 
-  color: rgb(9, 1, 1);
-  border-radius: 14px;
-  padding: 16px 18px;
   display: flex;
   align-items: center;
-  gap: 14px;
-  cursor: pointer;
-  box-shadow: 0 4px 12px rgba(11, 46, 127, 0.05);
-  transition: all .2s ease;
-  position: relative;
-  text-decoration: none; /* remove underline for <a> */
+  gap: 8px;
+  font-size: 13px;
+  color: #374151;
+  font-weight: 500;
 }
 
-.nav-card:hover {
-  background: #eb8125; /* lighter blue on hover */
+.dropdown-btn:hover {
+  border-color: #FF6600;
+  color: #FF6600;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background: white;
+  min-width: 180px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  border-radius: 10px;
+  z-index: 1000;
+  margin-top: 8px;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+}
+
+.dropdown.active .dropdown-content {
+  display: block;
+}
+
+.dropdown-item {
+  padding: 12px 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: #374151;
+  transition: all 0.2s;
+  border: none;
+  width: 100%;
+  text-align: left;
+  background: white;
+}
+
+.dropdown-item:hover {
+  background: #f9fafb;
+  color: #FF6600;
+}
+
+.dropdown-item i {
+  width: 18px;
+}
+
+/* INPUTS */
+input, textarea, select {
+  width: 100%;
+  padding: 12px 16px;
+  margin-bottom: 10px;
+  border-radius: 10px;
+  border: 1.5px solid #e5e7eb;
+  font-family: inherit;
+  font-size: 14px;
+  transition: border-color 0.2s;
+}
+
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  border-color: #FF6600;
+}
+
+.search-input {
+  position: relative;
+  margin-bottom: 20px;
+  max-width: 1280px;
+}
+
+.search-input input {
+  padding-left: 45px;
+  margin-bottom: 0;
+}
+
+.search-input i {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9ca3af;
+  font-size: 16px;
+}
+
+textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+/* FORM */
+.announcement-form {
+  background: #f9fafb;
+  padding: 25px;
+  border-radius: 14px;
+  margin-bottom: 30px;
+  border: 1px solid #e5e7eb;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #374151;
+  font-size: 14px;
+}
+
+/* LOADING & EMPTY STATE */
+.loading {
+  text-align: center;
+  padding: 60px;
+  color: #6b7280;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #9ca3af;
+  font-size: 14px;
+}
+
+.empty-state i {
+  font-size: 48px;
+  color: #d1d5db;
+  margin-bottom: 16px;
+}
+
+/* ACTION BUTTONS GROUP */
+.action-buttons {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+/*anouncement css*/
+/* ANNOUNCEMENT STYLES */
+.announcement-form {
+  background: #f9fafb;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 25px;
+}
+
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+
+.form-group label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #374151;
+}
+
+
+.template-selector {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  margin-bottom: 15px;
+}
+
+
+.template-card {
+  background: white;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 15px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+
+
+.template-card:hover {
+  border-color: #FF6600;
   transform: translateY(-2px);
 }
 
 
-
-/* Text inside card */
-.nav-text {
-  font-weight: 600;
-  font-size: 15px;
+.template-card.selected {
+  border-color: #FF6600;
+  background: #fff7ed;
 }
 
-/* Ensure <a> inherits nav-card styles */
-a.nav-card {
+
+.template-icon {
+  font-size: 32px;
+  margin-bottom: 8px;
+}
+
+
+.template-name {
+  font-weight: 600;
+  color: #111827;
+}
+
+
+.recipient-selector {
   display: flex;
-  color: inherit; /* remove link color */
-  text-decoration: none; /* remove underline */
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+
+.recipient-option {
+  background: white;
+  border: 2px solid #e5e7eb;
+  padding: 10px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+
+.recipient-option:hover {
+  border-color: #FF6600;
+}
+
+
+.recipient-option.selected {
+  background: #FF6600;
+  color: white;
+  border-color: #FF6600;
+}
+
+
+.scholar-list {
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 10px;
+  background: white;
+}
+
+
+.scholar-checkbox {
+  display: flex;
+  align-items: center;
+  padding: 8px;
+  margin-bottom: 5px;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+
+
+.scholar-checkbox:hover {
+  background: #f3f4f6;
+}
+
+
+.scholar-checkbox input {
+  width: auto;
+  margin-right: 10px;
+  margin-bottom: 0;
+}
+
+
+.btn-primary {
+  background: #FF6600;
+  color: white;
+  padding: 12px 24px;
+  font-weight: 600;
+  font-size: 16px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+
+.btn-primary:hover {
+  background: #cc5200;
+}
+
+
+.announcement-list {
+  margin-top: 30px;
+}
+
+
+.announcement-item {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 18px;
+  margin-bottom: 15px;
+}
+
+
+.announcement-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  margin-bottom: 10px;
+}
+
+
+.announcement-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+}
+
+
+.announcement-meta {
+  font-size: 12px;
+  color: #6b7280;
+  margin-top: 5px;
+}
+
+
+.announcement-content {
+  color: #374151;
+  line-height: 1.6;
+  margin: 10px 0;
+  white-space: pre-wrap;
+}
+
+
+.announcement-recipients {
+  font-size: 13px;
+  color: #6b7280;
+  margin-top: 10px;
+  font-style: italic;
+}
+
+
+.btn-delete {
+  background: #dc2626;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+
+.btn-delete:hover {
+  background: #b91c1c;
+}
+
+
+.loading {
+  text-align: center;
+  padding: 40px;
+  color: #6b7280;
+}
+
+
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #6b7280;
 }
 
 
@@ -189,69 +672,790 @@ a.nav-card {
 
   <!-- HEADER -->
   <div class="header">
-     <h1>Admin Dashboard</h1>
+    <div>
+      <h1><i class="fas fa-user-shield"></i> Admin Dashboard</h1>
+      <p>Manage scholars, applicants, and announcements</p>
+    </div>
 
-  <div style="display:flex; gap:10px; align-items:center;">
-    <button onclick="loadPendingAdmins()">Pending Approvals</button>
-<div id="pendingList"></div>
+    <div class="header-actions">
+      <button onclick="location.reload()">
+        <i class="fas fa-sync"></i> Refresh
+      </button>
+      <button onclick="location.href='admin-login.html'">
+        <i class="fas fa-sign-out-alt"></i> Logout
+      </button>
+    </div>
+  </div>
 
+  <!-- STATS -->
+  <div class="stats">
+    <div class="stat-card">
+      <small><i class="fas fa-user-graduate"></i> Total Scholars</small>
+      <h2 id="totalScholars">0</h2>
+    </div>
+    <div class="stat-card">
+      <small><i class="fas fa-users"></i> Total Applicants</small>
+      <h2 id="totalApplicants">0</h2>
+    </div>
+    <div class="stat-card">
+      <small><i class="fas fa-clock"></i> Pending Approvals</small>
+      <h2 id="pendingApprovals">0</h2>
+    </div>
+    <div class="stat-card">
+      <small><i class="fas fa-bullhorn"></i> Announcements</small>
+      <h2 id="totalAnnouncements">0</h2>
+    </div>
+  </div>
 
-    <button class="logout" onclick="location.href='admin-login.html'">
-      Logout
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab active" onclick="showDashboard()">
+      <i class="fas fa-home"></i> Dashboard
+    </button>
+    <button class="tab" onclick="showScholars()">
+      <i class="fas fa-user-graduate"></i> Scholars
+    </button>
+    <button class="tab" onclick="showApplicants()">
+      <i class="fas fa-users"></i> Applicants
+    </button>
+    <button class="tab" onclick="showAnnouncements()">
+      <i class="fas fa-bullhorn"></i> Announcements
+    </button>
+    <button class="tab" onclick="showGraduates()">
+      <i class="fas fa-graduation-cap"></i> Graduates
+    </button>
+    <button class="tab" onclick="showCreateScholarForm()">
+      <i class="fas fa-user-plus"></i> Create Scholar
     </button>
   </div>
+
+  <!-- CONTENT AREA -->
+  <div id="content" class="card">
+    <h3>Welcome to Admin Dashboard</h3>
+    <p>Select a tab above to manage the system.</p>
+  </div>
+
 </div>
-
-  <div class="nav">
-  <!-- Applicants redirect to another file -->
-   <a href="admin-applicant.html" class="nav-card">
-    <div class="nav-indicator"></div>
-    <div class="nav-text">Applicants</div>
-  </a>
-  <!-- Other cards stay on current page -->
-  <div class="nav-card" onclick="loadScholars()">
-    <div class="nav-indicator"></div>
-    <div class="nav-text">Scholars</div>
-  </div>
-
-  <div class="nav-card" onclick="showAnnouncements()">
-    <div class="nav-indicator"></div>
-    <div class="nav-text">Announcements</div>
-  </div>
-
-  <div class="nav-card" onclick="showGraduates()">
-    <div class="nav-indicator"></div>
-    <div class="nav-text">Graduates</div>
-  </div>
-
-  <div class="nav-card" onclick="showCreateScholarForm()">
-    <div class="nav-indicator"></div>
-    <div class="nav-text">Create Scholar</div>
-  </div>
-</div>
-
-<!-- Content area -->
-<div id="content" class="card">
-  <p>Select an option above to manage the system.</p>
-</div>
-
-
-
-<!-- KEEP YOUR EXISTING JS (UNCHANGED LOGIC) -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
 
-//CREATE SCHOLAR FORM
-  function showCreateScholarForm() {
+// Global variables
+let selectedTemplate = null;
+let recipientType = 'all';
+let selectedScholars = [];
+let allScholars = [];
+let allScholarData = [];
+const supabaseClient = supabase.createClient(
+  'https://wwzufquuogpshrlrofiv.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind3enVmcXV1b2dwc2hybHJvZml2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwNTgxMzcsImV4cCI6MjA4MTYzNDEzN30.JXJgJEpX0BEKYHGbWH1zUq6lVv1jetg0AmEsM-HvZQs'
+);
+// Switch active tab
+function switchTab(tabName) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  const tabs = document.querySelectorAll('.tab');
+  tabs.forEach(tab => {
+    if (tab.textContent.trim().includes(tabName)) {
+      tab.classList.add('active');
+    }
+  });
+}
+
+// DASHBOARD VIEW
+function showDashboard() {
+  switchTab('Dashboard');
   const html = `
-    <h3>Create Scholar Account</h3>
-    <input id="first_name" placeholder="First Name"><br>
-<input id="middle_name" placeholder="Middle Name"><br>
-<input id="last_name" placeholder="Last Name"><br>
-<input id="address" placeholder="Address"><br>
-<input id="email" placeholder="Email"><br>
-<input id="degree" placeholder="Degree"><br>
-<button onclick="createScholar()">Create Scholar</button>
+    <h3><i class="fas fa-chart-line"></i> Dashboard Overview</h3>
+    <p>Quick statistics and recent activity</p>
+    <div class="stats" style="margin-top: 30px;">
+      <div class="stat-card">
+        <small><i class="fas fa-user-graduate"></i> Total Scholars</small>
+        <h2 id="dashScholars">-</h2>
+      </div>
+      <div class="stat-card">
+        <small><i class="fas fa-users"></i> Total Applicants</small>
+        <h2 id="dashApplicants">-</h2>
+      </div>
+      <div class="stat-card">
+        <small><i class="fas fa-clock"></i> Pending Items</small>
+        <h2 id="dashPending">-</h2>
+      </div>
+      <div class="stat-card">
+        <small><i class="fas fa-bullhorn"></i> Announcements Sent</small>
+        <h2 id="dashAnnouncements">-</h2>
+      </div>
+    </div>
+  `;
+  document.getElementById('content').innerHTML = html;
+  loadDashboardStats();
+}
+
+async function loadDashboardStats() {
+  try {
+    const scholarsRes = await fetch('http://localhost:5000/api/admin/scholars');
+    if (scholarsRes.ok) {
+      const scholars = await scholarsRes.json();
+          // ✅ EXCLUDE GRADUATED SCHOLARS FROM COUNT
+    const activeScholars = scholars.filter(s =>
+      (s.status || '').toLowerCase().trim() !== 'graduated'
+    );
+
+    document.getElementById('totalScholars').textContent = activeScholars.length;
+  } else {
+    document.getElementById('totalScholars').textContent = '0';
+  }
+} catch {
+  document.getElementById('totalScholars').textContent = '0';
+}
+      
+}
+
+// ADD THIS AT THE TOP OF YOUR FILE
+
+// SCHOLARS VIEW
+// SCHOLARS VIEW (ACTIVE + FAILED ONLY)
+async function showScholars() {
+  switchTab('Scholars');
+  document.getElementById('content').innerHTML =
+    '<div class="loading"><i class="fas fa-spinner fa-spin"></i><br>Loading scholars...</div>';
+
+  try {
+    const res = await fetch('http://localhost:5000/api/admin/scholars');
+    if (!res.ok) throw new Error('Failed to fetch scholars');
+
+    const data = await res.json();
+
+    // ✅ REMOVE GRADUATED SCHOLARS HERE
+    const filtered = data.filter(s =>
+      (s.status || '').toLowerCase().trim() !== 'graduated'
+    );
+
+    allScholarData = filtered; // search uses this
+    renderScholars(filtered, true);
+
+  } catch (err) {
+    console.error(err);
+    document.getElementById('content').innerHTML = `
+      <h3><i class="fas fa-exclamation-triangle"></i> Error</h3>
+      <p>Failed to load scholars: ${err.message}</p>
+    `;
+  }
+}
+
+
+function renderScholars(data, isInitialRender = false) {
+  // FULL RENDER (only on initial load)
+  if (isInitialRender) {
+    let html = `
+      <h3><i class="fas fa-user-graduate"></i> Current Scholars</h3>
+      <p>Manage active scholarship recipients</p>
+      
+      <div class="search-input">
+        <i class="fas fa-search"></i>
+        <input
+          type="text"
+          id="searchScholar"
+          placeholder="Search by name, email, or scholar ID..."
+        />
+      </div>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th><i class="fas fa-id-card"></i> Scholar ID</th>
+              <th><i class="fas fa-user"></i> Full Name</th>
+              <th><i class="fas fa-envelope"></i> Email</th>
+              <th><i class="fas fa-graduation-cap"></i> Degree</th>
+              <th><i class="fas fa-toggle-on"></i> Status</th>
+              <th><i class="fas fa-cog"></i> Actions</th>
+            </tr>
+          </thead>
+          <tbody id="scholarTableBody">
+          </tbody>
+        </table>
+      </div>
+    `;
+    
+    document.getElementById('content').innerHTML = html;
+    
+    // Attach event listener ONCE
+    const searchInput = document.getElementById('searchScholar');
+    if (searchInput) {
+      searchInput.addEventListener('input', filterScholars);
+    }
+  }
+
+  // UPDATE ONLY TABLE BODY (always)
+  let tableHtml = '';
+  
+  if (data.length === 0) {
+    tableHtml = `
+      <tr>
+        <td colspan="6">
+          <div class="empty-state">
+            <i class="fas fa-users-slash"></i>
+            <p>No scholars found</p>
+          </div>
+        </td>
+      </tr>
+    `;
+  } else {
+    data.forEach(s => {
+      const status = (s.status || 'active').toLowerCase();
+      const statusIcon = {
+        'active': 'fa-check-circle',
+        'failed': 'fa-times-circle',
+        'graduated': 'fa-graduation-cap'
+      }[status] || 'fa-check-circle';
+
+      tableHtml += `
+        <tr>
+          <td><span style="font-family: monospace; color: #6b7280;">${s.scholar_id.substring(0, 8)}...</span></td>
+          <td><strong>${s.full_name}</strong></td>
+          <td>${s.email}</td>
+          <td>${s.degree || '-'}</td>
+          <td>
+            <span class="badge ${status}">
+              <i class="fas ${statusIcon}"></i>
+              ${status.toUpperCase()}
+            </span>
+          </td>
+          <td>
+            <div class="action-buttons">
+              <button class="btn-icon" onclick="editScholar('${s.scholar_id}')" title="Edit Details">
+                <i class="fas fa-edit"></i> Edit
+              </button>
+              
+              
+              
+
+              <button class="btn-icon" onclick="viewFiles('${s.scholar_id}')" title="View Files">
+                <i class="fas fa-folder-open"></i> Files
+              </button>
+              <button class="btn-icon" onclick="deleteScholar('${s.scholar_id}')" title="Delete Scholar">
+                <i class="fas fa-trash" style="color: #ef4444;"></i> Delete
+              </button>
+            </div>
+          </td>
+        </tr>
+      `;
+    });
+  }
+
+  // Update only the table body
+  const tbody = document.getElementById('scholarTableBody');
+  if (tbody) {
+    tbody.innerHTML = tableHtml;
+  }
+}
+
+function filterScholars() {
+  const searchInput = document.getElementById('searchScholar');
+  if (!searchInput) return;
+  
+  const query = searchInput.value.toLowerCase().trim();
+
+  if (!allScholarData || !Array.isArray(allScholarData)) {
+    console.warn('No scholar data available');
+    return;
+  }
+
+  const filtered = allScholarData.filter(s => {
+    const name = (s.full_name || '').toLowerCase();
+    const email = (s.email || '').toLowerCase();
+    const id = (s.scholar_id || '').toLowerCase();
+
+    return name.includes(query) || email.includes(query) || id.includes(query);
+  });
+
+  renderScholars(filtered, false); // Pass false - don't re-render the whole page
+}
+
+// Keep your existing dropdown functions
+function toggleDropdown(id) {
+  document.querySelectorAll('.dropdown').forEach(dropdown => {
+    if (dropdown.id !== `dropdown-${id}`) {
+      dropdown.classList.remove('active');
+    }
+  });
+  
+  const dropdown = document.getElementById(`dropdown-${id}`);
+  dropdown.classList.toggle('active');
+}
+
+document.addEventListener('click', function(event) {
+  if (!event.target.closest('.dropdown')) {
+    document.querySelectorAll('.dropdown').forEach(dropdown => {
+      dropdown.classList.remove('active');
+    });
+  }
+});
+
+// Open edit form
+async function editScholar(scholarId) {
+  try {
+    // Fetch the scholar details
+    const res = await fetch(`http://localhost:5000/api/admin/scholars/${scholarId}`);
+    if (!res.ok) throw new Error('Failed to fetch scholar data');
+    const scholar = await res.json();
+
+    // Render edit form
+    document.getElementById('content').innerHTML = `
+      <h3><i class="fas fa-edit"></i> Edit Scholar</h3>
+      <div class="announcement-form">
+        <div class="form-group">
+          <label>First Name</label>
+          <input id="edit_first_name" value="${scholar.first_name || ''}">
+        </div>
+        <div class="form-group">
+          <label>Middle Name</label>
+          <input id="edit_middle_name" value="${scholar.middle_name || ''}">
+        </div>
+        <div class="form-group">
+          <label>Last Name</label>
+          <input id="edit_last_name" value="${scholar.last_name || ''}">
+        </div>
+        <div class="form-group">
+          <label>Address</label>
+          <input id="edit_address" value="${scholar.address || ''}">
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input id="edit_email" type="email" value="${scholar.email || ''}">
+        </div>
+        <div class="form-group">
+          <label>Degree</label>
+          <input id="edit_degree" value="${scholar.degree || ''}">
+        </div>
+        <div class="form-group">
+          <label>Status</label>
+          <select id="edit_status">
+            <option value="active" ${scholar.status === 'active' ? 'selected' : ''}>Active</option>
+            <option value="failed" ${scholar.status === 'failed' ? 'selected' : ''}>Failed</option>
+            <option value="graduated" ${scholar.status === 'graduated' ? 'selected' : ''}>Graduated</option>
+          </select>
+        </div>
+        <button class="btn-primary" onclick="updateScholar('${scholarId}')">
+          <i class="fas fa-save"></i> Save Changes
+        </button>
+        <button class="btn-secondary" onclick="showScholars()">Cancel</button>
+      </div>
+    `;
+  } catch (err) {
+    alert('❌ Error loading scholar data: ' + err.message);
+  }
+}
+
+// Send updated data to backend
+async function updateScholar(scholarId) {
+  const updatedData = {
+    first_name: document.getElementById('edit_first_name').value,
+    middle_name: document.getElementById('edit_middle_name').value,
+    last_name: document.getElementById('edit_last_name').value,
+    address: document.getElementById('edit_address').value,
+    email: document.getElementById('edit_email').value,
+    degree: document.getElementById('edit_degree').value,
+    status: document.getElementById('edit_status').value
+  };
+
+  try {
+    const res = await fetch(`http://localhost:5000/api/admin/scholars/${scholarId}`, {
+      method: 'PUT',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(updatedData)
+    });
+
+    if (!res.ok) throw new Error('Failed to update scholar');
+
+    alert('✅ Scholar updated successfully!');
+    showScholars();
+  } catch (err) {
+    alert('❌ Error updating scholar: ' + err.message);
+  }
+}
+
+//-------------------delete area   ------------------//
+async function deleteScholar(id) {
+  if (!confirm('Are you sure you want to delete this scholar? This action cannot be undone.')) return;
+
+  try {
+    const res = await fetch(`http://localhost:5000/api/admin/scholars/${id}`, {
+      method: 'DELETE',
+    });
+
+    if (!res.ok) throw new Error('Failed to delete scholar');
+
+    alert('✅ Scholar deleted successfully!');
+    showScholars(); // refresh the table
+  } catch (err) {
+    console.error(err);
+    alert('❌ Error deleting scholar: ' + err.message);
+  }
+}
+
+async function updateStatus(id, status) {
+  const statusLabels = {
+    'active': 'Active',
+    'failed': 'Failed',
+    'graduated': 'Graduated'
+  };
+  
+  if (!confirm(`Mark scholar as ${statusLabels[status]}?`)) return;
+
+  try {
+    const res = await fetch(`http://localhost:5000/api/admin/scholars/${id}/status`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status })
+    });
+
+    if (res.ok) {
+      showScholars();
+    } else {
+      alert('❌ Failed to update status');
+    }
+  } catch (err) {
+    console.error(err);
+    alert('❌ Error updating status');
+  }
+}
+
+async function viewFiles(id) {
+  try {
+    const res = await fetch(`http://localhost:5000/api/admin/scholars/${id}/files`);
+    
+    if (!res.ok) {
+      alert('❌ Failed to load files');
+      return;
+    }
+    
+    const files = await res.json();
+
+    if (files.length === 0) {
+      alert('📂 No files uploaded yet');
+      return;
+    }
+
+    let fileList = '📂 Uploaded Files:\n\n';
+    files.forEach((f, index) => {
+      fileList += `${index + 1}. ${f.file_name}\n`;
+      fileList += `   Type: ${f.file_type || 'Unknown'}\n`;
+      fileList += `   Uploaded: ${new Date(f.uploaded_at).toLocaleDateString()}\n\n`;
+    });
+
+    alert(fileList);
+  } catch (err) {
+    console.error(err);
+    alert('❌ Error loading files');
+  }
+}
+
+async function editScholar(scholarId) {
+  try {
+    const res = await fetch(`http://localhost:5000/api/admin/scholars/${scholarId}`);
+    if (!res.ok) throw new Error('Failed to load scholar data');
+    
+    const scholar = await res.json();
+    
+    const html = `
+      <h3><i class="fas fa-user-edit"></i> Edit Scholar Details</h3>
+      <p>Update information for <strong>${scholar.full_name}</strong></p>
+      <div class="announcement-form">
+        <div class="form-group">
+          <label><i class="fas fa-user"></i> First Name *</label>
+          <input id="edit_first_name" value="${scholar.first_name || ''}" placeholder="Enter first name">
+        </div>
+        <div class="form-group">
+          <label><i class="fas fa-user"></i> Middle Name</label>
+          <input id="edit_middle_name" value="${scholar.middle_name || ''}" placeholder="Enter middle name (optional)">
+        </div>
+        <div class="form-group">
+          <label><i class="fas fa-user"></i> Last Name *</label>
+          <input id="edit_last_name" value="${scholar.last_name || ''}" placeholder="Enter last name">
+        </div>
+        <div class="form-group">
+          <label><i class="fas fa-map-marker-alt"></i> Address</label>
+          <input id="edit_address" value="${scholar.address || ''}" placeholder="Enter address">
+        </div>
+        <div class="form-group">
+          <label><i class="fas fa-envelope"></i> Email *</label>
+          <input id="edit_email" type="email" value="${scholar.email || ''}" placeholder="Enter email address">
+        </div>
+        <div class="form-group">
+          <label><i class="fas fa-graduation-cap"></i> Degree Program</label>
+          <input id="edit_degree" value="${scholar.degree || ''}" placeholder="Enter degree program">
+        </div>
+        <div class="form-group">
+          <label><i class="fas fa-toggle-on"></i> Status</label>
+          <select id="edit_status">
+            <option value="active" ${scholar.status === 'active' ? 'selected' : ''}>✅ Active</option>
+            <option value="failed" ${scholar.status === 'failed' ? 'selected' : ''}>❌ Failed</option>
+            <option value="graduated" ${scholar.status === 'graduated' ? 'selected' : ''}>🎓 Graduated</option>
+          </select>
+        </div>
+        <div style="display: flex; gap: 12px; margin-top: 24px;">
+          <button class="btn-primary" onclick="saveScholarEdit('${scholarId}')">
+            <i class="fas fa-save"></i> Save Changes
+          </button>
+          <button class="btn-secondary" onclick="showScholars()">
+            <i class="fas fa-times"></i> Cancel
+          </button>
+        </div>
+      </div>
+    `;
+    
+    document.getElementById('content').innerHTML = html;
+    
+  } catch (err) {
+    console.error(err);
+    alert('❌ Error loading scholar data');
+  }
+}
+
+async function saveScholarEdit(scholarId) {
+  const first_name = document.getElementById('edit_first_name').value;
+  const middle_name = document.getElementById('edit_middle_name').value;
+  const last_name = document.getElementById('edit_last_name').value;
+  const address = document.getElementById('edit_address').value;
+  const email = document.getElementById('edit_email').value;
+  const degree = document.getElementById('edit_degree').value;
+  const status = document.getElementById('edit_status').value;
+
+  if (!first_name || !last_name || !email) {
+    alert('❌ Please fill in all required fields (First Name, Last Name, Email)');
+    return;
+  }
+
+  try {
+    const res = await fetch(`http://localhost:5000/api/admin/scholars/${scholarId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        first_name,
+        middle_name,
+        last_name,
+        address,
+        email,
+        degree,
+        status
+      })
+    });
+
+    if (res.ok) {
+      alert('✅ Scholar details updated successfully!');
+      showScholars();
+    } else {
+      const data = await res.json();
+      alert('❌ Error: ' + (data.error || 'Failed to update scholar'));
+    }
+  } catch (err) {
+    console.error(err);
+    alert('❌ Error updating scholar details');
+  }
+}
+async function viewFiles(scholarId) {
+  try {
+    const bucketName = 'profiles';
+    const folder = `${scholarId}/`;
+
+    console.log('🔍 Listing files in:', folder);
+
+    // List ALL files recursively (no folder parameter = search all subfolders)
+    const { data: files, error } = await supabaseClient
+      .storage
+      .from(bucketName)
+      .list(folder, {
+        limit: 1000,
+        offset: 0,
+        sortBy: { column: 'name', order: 'asc' }
+      });
+
+    if (error) {
+      console.error('List error:', error);
+      throw error;
+    }
+
+    console.log('📁 Files found:', files);
+
+    // Get files from ALL subfolders
+    let allFiles = [];
+    
+    // First, get files in root folder
+    for (const file of files) {
+      if (file.name && file.id && file.name !== '.emptyFolderPlaceholder') {
+        allFiles.push({
+          name: file.name,
+          path: `${folder}${file.name}`,
+          isFolder: false
+        });
+      }
+    }
+
+    // Then, check each subfolder
+    for (const item of files) {
+      if (item.name && !item.id) {
+        // This is a folder, list its contents
+        const subfolderPath = `${folder}${item.name}/`;
+        const { data: subFiles } = await supabaseClient
+          .storage
+          .from(bucketName)
+          .list(subfolderPath, {
+            limit: 1000,
+            sortBy: { column: 'name', order: 'asc' }
+          });
+
+        if (subFiles) {
+          for (const subFile of subFiles) {
+            if (subFile.name && subFile.name !== '.emptyFolderPlaceholder') {
+              allFiles.push({
+                name: `${item.name}/${subFile.name}`,
+                path: `${subfolderPath}${subFile.name}`,
+                isFolder: false
+              });
+            }
+          }
+        }
+      }
+    }
+
+    console.log('📄 All files (including subfolders):', allFiles);
+
+    if (allFiles.length === 0) {
+      alert('📂 No files uploaded yet');
+      return;
+    }
+
+    // Render files in a table
+    let html = `
+      <h3><i class="fas fa-folder-open"></i> Uploaded Files for Scholar</h3>
+      <p>Scholar ID: <strong>${scholarId}</strong></p>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th><i class="fas fa-file"></i> File Name</th>
+              <th><i class="fas fa-link"></i> Link</th>
+              <th><i class="fas fa-cog"></i> Action</th>
+            </tr>
+          </thead>
+          <tbody>
+    `;
+    
+    for (const file of allFiles) {
+      console.log('🔗 Getting URL for:', file.path);
+
+      // Get public URL
+      const { data: urlData } = supabaseClient
+        .storage
+        .from(bucketName)
+        .getPublicUrl(file.path);
+
+      console.log('✅ Public URL:', urlData.publicUrl);
+
+      html += `
+        <tr>
+          <td><i class="fas fa-file-pdf"></i> ${file.name}</td>
+          <td>
+            <a href="${urlData.publicUrl}" target="_blank" class="btn-icon" style="text-decoration: none;">
+              <i class="fas fa-external-link-alt"></i> View
+            </a>
+            <button class="btn-icon" onclick="navigator.clipboard.writeText('${urlData.publicUrl}'); alert('✅ URL copied!');" title="Copy URL">
+              <i class="fas fa-copy"></i>
+            </button>
+          </td>
+          <td>
+            <button class="btn-icon" onclick="deleteFile('${scholarId}', '${file.name}')" style="color: #ef4444;">
+              <i class="fas fa-trash"></i> Delete
+            </button>
+          </td>
+        </tr>
+      `;
+    }
+
+    html += `
+          </tbody>
+        </table>
+      </div>
+      <button class="btn-icon" onclick="showScholars()" style="margin-top: 20px;">
+        <i class="fas fa-arrow-left"></i> Back to Scholars
+      </button>
+    `;
+    
+    document.getElementById('content').innerHTML = html;
+
+  } catch (err) {
+    console.error('❌ Error:', err);
+    alert('❌ Error loading files: ' + err.message);
+  }
+}
+
+async function deleteFile(scholarId, fileName) {
+  if (!confirm(`Are you sure you want to delete "${fileName}"?`)) return;
+
+  try {
+    // fileName might include subfolder like "1st/file.pdf"
+    const filePath = `${scholarId}/${fileName}`;
+    
+    console.log('🗑️ Deleting:', filePath);
+
+    const { error } = await supabaseClient
+      .storage
+      .from('profiles')
+      .remove([filePath]);
+
+    if (error) throw error;
+
+    alert('✅ File deleted successfully');
+    viewFiles(scholarId);
+
+  } catch (err) {
+    console.error('❌ Delete error:', err);
+    alert('❌ Failed to delete file: ' + err.message);
+  }
+}
+//-----------------------end for show scholar code----------------------
+// APPLICANTS VIEW
+async function showApplicants() {
+  switchTab('Applicants');
+  window.location.href = 'admin-applicant.html';
+}
+
+// CREATE SCHOLAR FORM
+function showCreateScholarForm() {
+  switchTab('Create Scholar');
+  const html = `
+    <h3><i class="fas fa-user-plus"></i> Create Scholar Account</h3>
+    <p>Add a new scholar to the system</p>
+    <div class="announcement-form">
+      <div class="form-group">
+        <label><i class="fas fa-user"></i> First Name *</label>
+        <input id="first_name" placeholder="Enter first name">
+      </div>
+      <div class="form-group">
+        <label><i class="fas fa-user"></i> Middle Name</label>
+        <input id="middle_name" placeholder="Enter middle name (optional)">
+      </div>
+      <div class="form-group">
+        <label><i class="fas fa-user"></i> Last Name *</label>
+        <input id="last_name" placeholder="Enter last name">
+      </div>
+      <div class="form-group">
+        <label><i class="fas fa-map-marker-alt"></i> Address</label>
+        <input id="address" placeholder="Enter address">
+      </div>
+      <div class="form-group">
+        <label><i class="fas fa-envelope"></i> Email *</label>
+        <input id="email" type="email" placeholder="Enter email address">
+      </div>
+      <div class="form-group">
+        <label><i class="fas fa-graduation-cap"></i> Degree Program *</label>
+        <input id="degree" placeholder="Enter degree program">
+      </div>
+      <button class="btn-primary" onclick="createScholar()">
+        <i class="fas fa-user-plus"></i> Create Scholar Account
+      </button>
+    </div>
   `;
   document.getElementById('content').innerHTML = html;
 }
@@ -264,185 +1468,576 @@ async function createScholar() {
   const email = document.getElementById('email').value;
   const degree = document.getElementById('degree').value;
 
-  console.log("Sending request:", { first_name, middle_name, last_name, address, email, degree });
-
-  const res = await fetch('http://localhost:5000/api/admin/create-scholar', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ first_name, middle_name, last_name, address, email, degree })
-  });
-
-  const data = await res.json();
-  console.log("Response:", data);
-
-  if (res.ok) {
-    alert("✅ Scholar account created. Check email for temporary password.");
-  } else {
-    alert("❌ Error: " + data.error);
+  if (!first_name || !last_name || !email || !degree) {
+    alert('❌ Please fill in all required fields');
+    return;
   }
-}
-async function loadApplicants() {
-  const res = await fetch('http://localhost:5000/api/admin/applicants');
-  const data = await res.json();
 
-  let html = "<h3>Applicants</h3><table border='1'><tr><th>Full Name</th><th>Email</th><th>Degree</th></tr>";
-
-  data.forEach(a => {
-    html += `<tr>
-      <td>${a.full_name || ''}</td>
-      <td>${a.email || ''}</td>
-      <td>${a.degree || '-'}</td>
-    </tr>`;
-  });
-
-  html += "</table>";
-  document.getElementById('content').innerHTML = html;
-}
-
-async function loadScholars() {
   try {
-    const res = await fetch('http://localhost:5000/api/admin/scholars');
-    const data = await res.json();
-
-    let html = "<h3>Current Scholars</h3><table border='1'><tr><th>Scholar ID</th><th>Full Name</th><th>Email</th><th>Degree</th></tr>";
-
-    data.forEach(s => {
-      html += `<tr>
-        <td>${s.scholar_id || '-'}</td>
-        <td>${s.full_name || '-'}</td>
-        <td>${s.email || '-'}</td>
-        <td>${s.degree || '-'}</td>
-      </tr>`;
+    const res = await fetch('http://localhost:5000/api/admin/create-scholar', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ first_name, middle_name, last_name, address, email, degree })
     });
 
-    html += "</table>";
-    document.getElementById('content').innerHTML = html;
+    const data = await res.json();
 
+    if (res.ok) {
+      alert("✅ Scholar account created successfully! Check email for temporary password.");
+      showCreateScholarForm();
+      loadStats();
+    } else {
+      alert("❌ Error: " + (data.error || 'Failed to create scholar'));
+    }
   } catch (err) {
     console.error(err);
-    alert("Failed to load scholars.");
-  }
-}
-//-------------------------------FOR NOTIFICATION-----------------------//
-async function loadPendingAdmins() {
-  try {
-    const res = await fetch('http://localhost:5000/api/admin/pending-approvals');
-    if (!res.ok) throw new Error('Failed to load pending admins');
-    const pending = await res.json();
-
-    document.getElementById('pendingList').innerHTML = pending.length === 0
-      ? "<p>No pending approvals</p>"
-      : pending.map(a => `
-          <li>
-            ${a.first_name} ${a.last_name} (${a.role}) - ${a.email}
-            <button onclick="approveAdmin('${a.id}')">Approve</button>
-            <button onclick="rejectAdmin('${a.id}')">Reject</button>
-          </li>
-        `).join('');
-
-    // Update red badge
-    document.getElementById('notifCount').textContent = pending.length;
-
-  } catch (err) {
-    console.error(err);
-    alert('Failed to load pending admins');
+    alert("❌ Error creating scholar");
   }
 }
 
+// ANNOUNCEMENTS (Placeholder)
 
-//-------------------------------------------------------------
+
+// Template definitions
+const announcementTemplates = {
+  gradeReminder: {
+    icon: '📚',
+    name: 'Grade Submission Reminder',
+    title: 'Grade Submission Reminder',
+    content: 'Dear Scholar,\n\nThis is a friendly reminder to submit your semester grades before the deadline. Please ensure all documents are properly formatted and uploaded to your profile.\n\nDeadline: [INSERT DATE]\n\nThank you for your compliance.'
+  },
+  journalReminder: {
+    icon: '✍️',
+    name: 'Journal Entry Reminder',
+    title: 'Journal Entry Due',
+    content: 'Dear Scholar,\n\nPlease remember to submit your monthly reflection journal entry. Your insights and experiences are valuable to us.\n\nDue Date: [INSERT DATE]\n\nThank you!'
+  },
+  meeting: {
+    icon: '📢',
+    name: 'Meeting Announcement',
+    title: 'Scholarship Meeting Scheduled',
+    content: 'Dear Scholar,\n\nYou are invited to attend our monthly scholarship holder meeting.\n\nDate: [INSERT DATE]\nTime: [INSERT TIME]\nVenue: [INSERT VENUE]\n\nYour attendance is highly encouraged.'
+  },
+  congratulations: {
+    icon: '🎉',
+    name: 'Congratulations',
+    title: 'Congratulations!',
+    content: 'Dear Scholar,\n\nCongratulations on your outstanding achievement! We are proud of your dedication and hard work.\n\nKeep up the excellent performance!\n\nBest regards,\nIskolarealeno Team'
+  },
+  warning: {
+    icon: '⚠️',
+    name: 'Important Notice',
+    title: 'Important Notice',
+    content: 'Dear Scholar,\n\nThis is an important notice regarding your scholarship status. Please review the information below carefully.\n\n[INSERT DETAILS]\n\nIf you have questions, please contact us immediately.'
+  },
+  custom: {
+    icon: '📝',
+    name: 'Custom Message',
+    title: '',
+    content: ''
+  }
+};
+
+// ANNOUNCEMENTS VIEW
 async function showAnnouncements() {
-  const res = await fetch('http://localhost:5000/api/announcements');
-  const data = await res.json();
-  let html = `
-    <h3>Manage Announcements</h3>
-    <input id="title" placeholder="Title"><br>
-    <textarea id="contentInput" placeholder="Write announcement..."></textarea><br>
-    <button onclick="postAnnouncement()">Post</button>
-    <hr>
-    <h4>Existing Announcements:</h4>
-    <ul>`;
-  data.forEach(a => {
-    html += `<li>
-      <b>${a.title}</b> (${a.date})<br>${a.content}
-      <button onclick="deleteAnnouncement(${a.id})">Delete</button>
-    </li><hr>`;
-  });
-  html += "</ul>";
-  document.getElementById('content').innerHTML = html;
+  switchTab('Announcements');
+  document.getElementById('content').innerHTML = '<div class="loading">Loading announcements...</div>';
+ 
+  let announcements = [];
+ 
+  try {
+    // Load scholars
+    const scholarsRes = await fetch('http://localhost:5000/api/admin/scholars');
+    if (scholarsRes.ok) {
+      allScholars = await scholarsRes.json();
+    } else {
+      allScholars = [];
+    }
+   
+    // Load announcements
+    try {
+      const announcementsRes = await fetch('http://localhost:5000/api/announcements');
+      if (announcementsRes.ok) {
+        announcements = await announcementsRes.json();
+      }
+    } catch (err) {
+      console.warn("Could not load announcements:", err);
+      announcements = [];
+    }
+
+
+    let html = `
+      <h3>Create Announcement</h3>
+      <p>Send notifications to scholars and applicants</p>
+      <div class="announcement-form">
+
+
+        <div class="form-group">
+          <label>Select Template</label>
+          <div class="template-selector">
+            ${Object.entries(announcementTemplates).map(([key, template]) => `
+              <div class="template-card" onclick="selectTemplate('${key}')">
+                <div class="template-icon">${template.icon}</div>
+                <div class="template-name">${template.name}</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+
+
+        <div class="form-group">
+          <label>Recipients</label>
+          <div class="recipient-selector">
+            <div class="recipient-option selected" onclick="selectRecipientType('all')">
+              All Scholars
+            </div>
+            <div class="recipient-option" onclick="selectRecipientType('specific')">
+              Specific Scholars
+            </div>
+            <div class="recipient-option" onclick="selectRecipientType('applicants')">
+              All Applicants
+            </div>
+          </div>
+        </div>
+
+
+        <div id="scholarListContainer" style="display:none;">
+          <div class="form-group">
+            <label>Select Scholars</label>
+            <div class="scholar-list" id="scholarList"></div>
+          </div>
+        </div>
+
+
+        <div class="form-group">
+          <label>Title</label>
+          <input id="announcementTitle" placeholder="Enter announcement title">
+        </div>
+
+
+        <div class="form-group">
+          <label>Message</label>
+          <textarea id="announcementContent" placeholder="Write your announcement here..."></textarea>
+        </div>
+
+
+        <button class="btn-primary" onclick="sendAnnouncement()">
+          <i class="fas fa-paper-plane"></i> Send Announcement
+        </button>
+      </div>
+
+
+      <div class="announcement-list">
+        <h3>Recent Announcements</h3>
+        ${announcements.length === 0
+          ? '<p class="empty-state">No announcements yet.</p>'
+          : announcements.map(a => `
+              <div class="announcement-item">
+                <div class="announcement-header">
+                  <div>
+                    <h4 class="announcement-title">${a.title}</h4>
+                    <div class="announcement-meta">
+                     Posted on ${new Date(a.created_at).toLocaleDateString()}
+                     at ${new Date(a.created_at).toLocaleTimeString()}
+
+
+                    </div>
+                  </div>
+                  <button class="btn-delete" onclick="deleteAnnouncement(${a.id})">
+                    <i class="fas fa-trash"></i> Delete
+                  </button>
+                </div>
+
+
+                <div class="announcement-content">${a.content}</div>
+
+
+                <div class="announcement-recipients">
+                  Sent to: ${a.recipients || 'All Scholars'}
+                </div>
+              </div>
+            `).join('')
+        }
+      </div>
+    `;
+
+
+    document.getElementById('content').innerHTML = html;
+    updateScholarList();
+
+
+  } catch (err) {
+    console.error("Critical error:", err);
+    document.getElementById('content').innerHTML = `
+      <h3>Error Loading Announcements</h3>
+      <p>Error: ${err.message}</p>
+      <button onclick="showAnnouncements()">Try Again</button>
+    `;
+  }
 }
 
-async function postAnnouncement() {
-  await fetch('http://localhost:5000/api/admin/announcement', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({
-      title: document.getElementById('title').value,
-      content: document.getElementById('contentInput').value
-    })
+
+function selectTemplate(templateKey) {
+  selectedTemplate = templateKey;
+  const template = announcementTemplates[templateKey];
+ 
+  document.querySelectorAll('.template-card').forEach(card => {
+    card.classList.remove('selected');
   });
-  alert("Announcement posted!");
-  showAnnouncements();
+ 
+  const clickedCard = document.querySelector(`[onclick="selectTemplate('${templateKey}')"]`);
+  if (clickedCard) {
+    clickedCard.classList.add('selected');
+  }
+ 
+  document.getElementById('announcementTitle').value = template.title;
+  document.getElementById('announcementContent').value = template.content;
 }
 
-async function deleteAnnouncement(id) {
-  if (confirm("Delete this announcement?")) {
-    await fetch(`http://localhost:5000/api/admin/announcement/${id}`, { method: 'DELETE' });
+
+function selectRecipientType(type) {
+  recipientType = type;
+ 
+  document.querySelectorAll('.recipient-option').forEach(option => {
+    option.classList.remove('selected');
+  });
+ 
+  const clickedOption = document.querySelector(`[onclick="selectRecipientType('${type}')"]`);
+  if (clickedOption) {
+    clickedOption.classList.add('selected');
+  }
+ 
+  const scholarListContainer = document.getElementById('scholarListContainer');
+  if (type === 'specific') {
+    scholarListContainer.style.display = 'block';
+  } else {
+    scholarListContainer.style.display = 'none';
+  }
+}
+
+
+function updateScholarList() {
+  const scholarListDiv = document.getElementById('scholarList');
+  if (!scholarListDiv) return;
+ 
+  scholarListDiv.innerHTML = allScholars.map((scholar) => `
+    <div class="scholar-checkbox">
+      <input type="checkbox" id="scholar_${scholar.scholar_id}"
+             value="${scholar.scholar_id}"
+             onchange="toggleScholar(${scholar.scholar_id})">
+      <label for="scholar_${scholar.scholar_id}">
+        ${scholar.full_name} (${scholar.email})
+      </label>
+    </div>
+  `).join('');
+}
+
+
+function toggleScholar(scholarId) {
+  const index = selectedScholars.indexOf(scholarId);
+  if (index > -1) {
+    selectedScholars.splice(index, 1);
+  } else {
+    selectedScholars.push(scholarId);
+  }
+}
+
+
+async function sendAnnouncement() {
+  const title = document.getElementById('announcementTitle').value.trim();
+  const content = document.getElementById('announcementContent').value.trim();
+
+  if (!title || !content) {
+    alert('Please fill in both title and message!');
+    return;
+  }
+
+  let recipients = '';
+  let scholarIds = [];
+
+  if (recipientType === 'all') {
+    recipients = 'All Scholars';
+    scholarIds = allScholars.map(s => s.scholar_id);
+  } else if (recipientType === 'specific') {
+    if (selectedScholars.length === 0) {
+      alert('Please select at least one scholar!');
+      return;
+    }
+    recipients = `${selectedScholars.length} Selected Scholar(s)`;
+    scholarIds = selectedScholars;
+  } else if (recipientType === 'applicants') {
+    recipients = 'All Applicants';
+    scholarIds = [];
+  }
+
+  try {
+    // Post announcement
+    const announcementRes = await fetch('http://localhost:5000/api/admin/announcement', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        title,
+        content,
+        recipients,
+        recipient_type: recipientType,
+        created_by: 'admin' // optional, required if DB NOT NULL
+      })
+    });
+
+    const announcementData = await announcementRes.json();
+
+    if (!announcementRes.ok) {
+      const errMsg = announcementData?.error || 'Failed to post announcement';
+      throw new Error(errMsg);
+    }
+
+    // Send notifications if specific scholars
+    if (scholarIds.length > 0) {
+      const notificationRes = await fetch('http://localhost:5000/api/admin/send-notification', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title,
+          message: content,
+          scholar_ids: scholarIds,
+          icon: selectedTemplate ? announcementTemplates[selectedTemplate].icon : '📢'
+        })
+      });
+
+      const notifData = await notificationRes.json();
+      if (!notificationRes.ok) {
+        const errMsg = notifData?.error || 'Failed to send notifications';
+        throw new Error(errMsg);
+      }
+    }
+
+    alert('✅ Announcement posted and notifications sent successfully!');
     showAnnouncements();
+
+    // Reset
+    selectedTemplate = null;
+    selectedScholars = [];
+    recipientType = 'all';
+
+  } catch (err) {
+    console.error(err);
+    alert('❌ Error: ' + err.message);
   }
 }
 
-// Graduates management
+
+
+// GRADUATES (Placeholder)
 async function showGraduates() {
-  const res = await fetch('http://localhost:5000/api/graduates');
-  const data = await res.json();
-  let html = `
-    <h3>Graduated Scholars</h3>
-    <form id="graduateForm" enctype="multipart/form-data">
-      <input id="g_name" placeholder="Full Name"><br>
-      <input id="g_degree" placeholder="Degree"><br>
-      <input id="g_year" placeholder="Year Graduated"><br>
-      <textarea id="g_message" placeholder="Farewell Message"></textarea><br>
-      <input type="file" id="g_photo"><br>
-      <button type="button" onclick="addGraduate()">Add Graduate</button>
-    </form>
-    <hr><h4>List of Graduates</h4>
+  switchTab('Graduates'); // your existing tab switch function
+
+  document.getElementById('content').innerHTML = `
+    <h3><i class="fas fa-graduation-cap"></i> Graduated Scholars</h3>
+    <p>Manage and celebrate our successful graduates</p>
+
+    <input type="text" id="graduatesSearch" placeholder="Search by name or email" 
+           onkeyup="filterGraduates()" style="margin-bottom: 15px; padding:5px; width: 250px;" />
+
+    <table id="graduatesTable" border="1" cellpadding="5" cellspacing="0" style="width:100%; border-collapse: collapse;">
+      <thead>
+        <tr>
+          <th>Full Name</th>
+          <th>Email</th>
+          <th>Degree</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="graduatesBody">
+        <tr><td colspan="4">Loading...</td></tr>
+      </tbody>
+    </table>
   `;
-  data.forEach(g => {
-    html += `
-      <div style="border:1px solid #aaa; padding:10px; margin:10px;">
-        ${g.photo ? `<img src="http://localhost:5000/uploads/${g.photo}" width="100"><br>` : ''}
-        <b>${g.name}</b> (${g.degree}, ${g.year})<br>
-        <i>"${g.message}"</i><br>
-        <button onclick="deleteGraduate(${g.id})">Delete</button>
-      </div>`;
-  });
-  document.getElementById('content').innerHTML = html;
-}
 
-async function addGraduate() {
-  const formData = new FormData();
-  formData.append('name', g_name.value);
-  formData.append('degree', g_degree.value);
-  formData.append('year', g_year.value);
-  formData.append('message', g_message.value);
-  if(g_photo.files[0]) formData.append('photo', g_photo.files[0]);
+  const tbody = document.getElementById('graduatesBody');
 
-  await fetch('http://localhost:5000/api/admin/graduate', {
-    method: 'POST',
-    body: formData
-  });
-  alert("Graduate added!");
-  showGraduates();
-}
+  try {
+    const res = await fetch('/api/admin/graduates');
+    const graduates = await res.json();
 
-async function deleteGraduate(id) {
-  if (confirm("Remove this graduate?")) {
-    await fetch(`http://localhost:5000/api/admin/graduate/${id}`, { method: 'DELETE' });
-    showGraduates();
+    if (!graduates || graduates.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="4">No graduates found</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = '';
+    for (const grad of graduates) {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${grad.full_name}</td>
+        <td>${grad.email}</td>
+        <td>${grad.degree}</td>
+        <td>
+          <button onclick="deleteGraduate('${grad.scholar_id}')">Delete</button>
+        </td>
+      `;
+      tbody.appendChild(row);
+    }
+
+  } catch (err) {
+    console.error(err);
+    tbody.innerHTML = `<tr><td colspan="4">❌ Error loading graduates</td></tr>`;
+    alert('❌ Error loading graduates: ' + err.message);
   }
-  
 }
+
+// Search filter inside script
+function filterGraduates() {
+  const input = document.getElementById('graduatesSearch').value.toLowerCase();
+  const rows = document.querySelectorAll('#graduatesTable tbody tr');
+
+  rows.forEach(row => {
+    const name = row.cells[0]?.innerText.toLowerCase() || '';
+    const email = row.cells[1]?.innerText.toLowerCase() || '';
+    row.style.display = (name.includes(input) || email.includes(input)) ? '' : 'none';
+  });
+}
+
+// Delete graduate inside script
+async function showGraduates() {
+  switchTab('Graduates');
+
+  document.getElementById('content').innerHTML = `
+    <h3><i class="fas fa-graduation-cap"></i> Graduated Scholars</h3>
+    <p>Manage and celebrate our successful graduates</p>
+
+    <input type="text" id="graduatesSearch" placeholder="Search by name or email" 
+           onkeyup="filterGraduates()" style="margin-bottom: 15px; padding:5px; width: 250px;" />
+
+    <table id="graduatesTable" border="1" cellpadding="5" cellspacing="0" style="width:100%; border-collapse: collapse;">
+      <thead>
+        <tr>
+          <th>Full Name</th>
+          <th>Email</th>
+          <th>Degree</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="graduatesBody">
+        <tr><td colspan="4">Loading...</td></tr>
+      </tbody>
+    </table>
+  `;
+
+  const tbody = document.getElementById('graduatesBody');
+
+  try {
+    const res = await fetch('/api/admin/graduates');
+    if (!res.ok) throw new Error(`HTTP error ${res.status}`);
+    const graduates = await res.json();
+
+    if (!graduates || graduates.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="4">No graduates found</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = '';
+    for (const grad of graduates) {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${grad.full_name}</td>
+        <td>${grad.email}</td>
+        <td>${grad.degree}</td>
+        <td>
+          <button onclick="deleteGraduate('${grad.scholar_id}')">Delete</button>
+        </td>
+      `;
+      tbody.appendChild(row);
+    }
+
+  } catch (err) {
+    console.error(err);
+    tbody.innerHTML = `<tr><td colspan="4">❌ Error loading graduates</td></tr>`;
+    alert('❌ Error loading graduates: ' + err.message);
+  }
+}
+
+// Search filter
+function filterGraduates() {
+  const input = document.getElementById('graduatesSearch').value.toLowerCase();
+  const rows = document.querySelectorAll('#graduatesTable tbody tr');
+
+  rows.forEach(row => {
+    const name = row.cells[0]?.innerText.toLowerCase() || '';
+    const email = row.cells[1]?.innerText.toLowerCase() || '';
+    row.style.display = (name.includes(input) || email.includes(input)) ? '' : 'none';
+  });
+}
+
+// Delete graduate
+async function deleteGraduate(id) {
+  if (!confirm('Are you sure you want to delete this graduate?')) return;
+
+  try {
+    const res = await fetch(`/api/admin/graduates/${id}`, { method: 'DELETE' });
+    const data = await res.json();
+    if (res.ok) {
+      alert('✅ Graduate deleted successfully');
+      showGraduates(); // refresh table
+    } else {
+      alert('❌ Error deleting graduate: ' + data.error);
+    }
+  } catch (err) {
+    console.error(err);
+    alert('❌ Error deleting graduate: ' + err.message);
+  }
+}
+
+// LOAD STATS
+async function loadStats() {
+  try {
+    try {
+      const scholarsRes = await fetch('http://localhost:5000/api/admin/scholars');
+      if (scholarsRes.ok) {
+        const scholars = await scholarsRes.json();
+        document.getElementById('totalScholars').textContent = scholars.length || 0;
+      } else {
+        document.getElementById('totalScholars').textContent = '0';
+      }
+    } catch {
+      document.getElementById('totalScholars').textContent = '0';
+    }
+
+    try {
+      const applicantsRes = await fetch('http://localhost:5000/api/admin/applicants');
+      if (applicantsRes.ok) {
+        const applicants = await applicantsRes.json();
+        document.getElementById('totalApplicants').textContent = applicants.length || 0;
+      } else {
+        document.getElementById('totalApplicants').textContent = '0';
+      }
+    } catch {
+      document.getElementById('totalApplicants').textContent = '0';
+    }
+
+    try {
+      const announcementsRes = await fetch('http://localhost:5000/api/announcements');
+      if (announcementsRes.ok) {
+        const announcements = await announcementsRes.json();
+        document.getElementById('totalAnnouncements').textContent = announcements.length || 0;
+      } else {
+        document.getElementById('totalAnnouncements').textContent = '0';
+      }
+    } catch {
+      document.getElementById('totalAnnouncements').textContent = '0';
+    }
+
+    document.getElementById('pendingApprovals').textContent = '0';
+
+  } catch (err) {
+    console.error('Error loading stats:', err);
+  }
+}
+
+// Initialize on load
+window.addEventListener('DOMContentLoaded', () => {
+  loadStats();
+  showDashboard();
+});
 </script>
 </body>
 </html>

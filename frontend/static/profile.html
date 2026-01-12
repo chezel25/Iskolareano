@@ -1,28 +1,489 @@
 <!DOCTYPE html>
-<html>
-<head><meta charset="utf-8"><title>Profile</title></head>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit Profile - ISKOLAREALEÑO</title>
+  <link rel="stylesheet" href="/css/profile.css">
+  <style>
+    .file-upload-area {
+      border: 2px dashed #ccc;
+      border-radius: 8px;
+      padding: 20px;
+      text-align: center;
+      margin: 10px 0;
+      background: #f9f9f9;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .file-upload-area:hover {
+      border-color: #ff7b00;
+      background: #fff5e6;
+    }
+    .file-upload-area.dragover {
+      border-color: #ff7b00;
+      background: #ffe6cc;
+    }
+    .file-list {
+      margin-top: 10px;
+      text-align: left;
+    }
+    .file-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 12px;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      margin: 5px 0;
+    }
+    .file-item span {
+      font-size: 14px;
+      color: #333;
+    }
+    .file-item button {
+      background: #ff4444;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+    .file-item button:hover {
+      background: #cc0000;
+    }
+    .uploaded-files {
+      margin-top: 20px;
+      padding: 15px;
+      background: #f0f0f0;
+      border-radius: 8px;
+    }
+    .semester-section {
+      margin: 15px 0;
+      padding: 15px;
+      background: white;
+      border-radius: 6px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .semester-section h4 {
+      margin-top: 0;
+      color: #ff7b00;
+      border-bottom: 2px solid #ff7b00;
+      padding-bottom: 8px;
+    }
+    .semester-section ul {
+      list-style: none;
+      padding: 0;
+    }
+    .semester-section li {
+      margin: 8px 0;
+    }
+    .semester-section a {
+      color: #0066cc;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .semester-section a:hover {
+      text-decoration: underline;
+    }
+    .loading {
+      display: none;
+      text-align: center;
+      padding: 20px;
+    }
+    .loading.active {
+      display: block;
+    }
+    .upload-icon {
+      font-size: 48px;
+      color: #ccc;
+      margin-bottom: 10px;
+    }
+    /* Profile Picture Styles */
+    .user-pic {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      object-fit: cover;
+      background: #f0f0f0;
+      border: 3px solid #ff7b00;
+    }
+    .profile-pic-group {
+      text-align: center;
+    }
+  </style>
+</head>
 <body>
-<h2>Update Profile</h2>
-<input id="degree" placeholder="Degree Program"><br>
-<button onclick="updateProfile()">Update</button>
+
+<header role="banner"> 
+  <div class="logo">
+    <img src="img/logo.png" alt="Iskolarealeno Logo" />
+    <span class="logo-text">ISKOLAREALEÑO</span>
+  </div>
+  <nav role="navigation" aria-label="Main navigation">
+    <ul>
+      <li><a href="scholar-home.html">Home</a></li>
+      <li><a href="profile.html">My Profile</a></li>
+      <li><a href="login.html" onclick="logout()">Logout</a></li>
+    </ul>
+  </nav>
+</header>
+
+<div class="bg-shape shape-orange"></div>
+<div class="bg-shape shape-light"></div>
+<div class="wave wave1"></div>
+<div class="wave wave2"></div>
+
+<div class="login-wrapper"> 
+  <div class="auth-card profile-card"><br>
+    <h1>Edit Profile</h1>
+    <p>Update your personal and academic information below.</p>
+
+    <!-- Loading indicator -->
+    <div class="loading" id="loading">
+      <p>Loading profile...</p>
+    </div>
+
+    <form id="profileForm">
+      
+      <!-- Profile Picture Section -->
+      <div class="input-group profile-pic-group">
+        <!-- Default avatar if no profile pic -->
+        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%23ddd'/%3E%3Ctext x='50' y='65' font-size='40' text-anchor='middle' fill='%23666'%3E👤%3C/text%3E%3C/svg%3E" alt="Profile Picture" class="user-pic" id="profilePic">
+        <input type="file" id="profile_pic" name="profile_pic" accept="image/png, image/jpeg">
+        
+      </div>
+
+      <!-- NON-EDITABLE Name and Degree -->
+      <div class="user-info-static">
+        <div class="user-name" id="userName">Loading...</div>
+        <div class="user-degree" id="userDegree">Loading...</div>
+      </div>
+
+      <!-- Semester Dropdown -->
+      <div class="input-group">
+        <label for="semester">Current Semester</label>
+        <select id="semester" name="semester" required>
+          <option value="">Select Semester</option>
+          <option value="1st">1st Semester</option>
+          <option value="2nd">2nd Semester</option>
+          <option value="3rd">3rd Semester</option>
+          <option value="4th">4th Semester</option>
+        </select>
+      </div>
+
+      <!-- Upload Files (Multiple) -->
+      <div class="input-group">
+        <label for="files">Upload Files (PDF Only - Multiple Files Allowed)</label>
+        <div class="file-upload-area" id="fileUploadArea">
+          <div class="upload-icon">📁</div>
+          <input type="file" id="files" name="files" accept="application/pdf" multiple style="display: none;">
+          <p><strong>Click to select</strong> or drag & drop PDF files</p>
+          <p style="font-size: 12px; color: #666;">You can select multiple files at once</p>
+        </div>
+        <div class="file-list" id="filesList"></div>
+      </div>
+
+      <!-- Previously Uploaded Files -->
+      <div class="uploaded-files" id="uploadedFiles">
+        <h3>Previously Uploaded Files</h3>
+        <div id="filesContainer"></div>
+      </div>
+      
+      <!-- Action Buttons -->
+      <div class="button-group">
+        <button type="button" class="btn cancel-btn" onclick="resetForm()">Cancel</button>
+        <button type="submit" class="btn save-btn">Save Changes</button>
+      </div>
+
+    </form>
+  </div>
+</div>
 
 <script>
-const scholar = JSON.parse(localStorage.getItem('scholar') || '{}');
-if(!scholar.scholar_id) {
-  document.body.innerHTML = '<p>Please login first. <a href="login.html">Login</a></p>';
+
+  const profilePicInput = document.getElementById("profile_pic");
+  const profilePicImg = document.getElementById("profilePic");
+profilePicInput.addEventListener('change', async () => {
+  const file = profilePicInput.files[0];
+  if (!file) return;
+
+  if (!file.type.startsWith("image/")) {
+    alert("Please select an image file");
+    profilePicInput.value = "";
+    return;
+  }
+
+  // Preview immediately
+  const reader = new FileReader();
+  reader.onload = () => {
+    profilePicImg.src = reader.result;
+  };
+  reader.readAsDataURL(file);
+
+  // Automatically upload to backend
+  const token = getAuthToken();
+  if (!token) return;
+
+  const formData = new FormData();
+  formData.append('profile_pic', file);
+
+  try {
+    const res = await fetch('/api/scholar/profile/upload', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`
+      },
+      body: formData
+    });
+
+    const data = await res.json();
+    if (!data.success) throw new Error(data.error);
+
+    // Update the displayed profile picture from storage
+    profilePicImg.src = data.url + '?t=' + Date.now(); // prevent caching
+    alert('Profile picture updated successfully');
+
+  } catch (err) {
+    console.error(err);
+    alert('Failed to upload profile picture');
+  }
+});
+
+  // ==============================
+  // GET AUTH TOKEN
+  // ==============================
+  function getAuthToken() {
+    const token = localStorage.getItem('auth_token'); // JWT saved on login
+    if (!token) {
+      alert("You must be logged in to access this page.");
+      window.location.href = "login.html";
+      return null;
+    }
+    return token;
+  }
+
+  // ==============================
+  // LOAD PROFILE DATA
+  // ==============================
+  async function loadProfile() {
+  const loading = document.getElementById('loading');
+  loading.classList.add('active');
+
+  const token = getAuthToken();
+  if (!token) {
+    loading.classList.remove('active');
+    return;
+  }
+
+  try {
+    const response = await fetch('/api/scholar/profile', {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`HTTP ${response.status}: ${errorText}`);
+    }
+
+    const data = await response.json();
+    if (!data.success) throw new Error(data.error);
+
+    // =============================
+    // Fill in profile info
+    // =============================
+    document.getElementById('userName').textContent = data.scholar.name;
+    document.getElementById('userDegree').textContent = data.scholar.degree || "N/A";
+    if (data.scholar.current_semester) {
+      document.getElementById('semester').value = data.scholar.current_semester;
+    }
+
+    // =============================
+    // Set profile picture
+    // =============================
+    const profilePic = document.getElementById('profilePic');
+    if (data.scholar.profile_pic) {
+      profilePic.src = data.scholar.profile_pic;
+    } else {
+      profilePic.src =
+        "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%23ddd'/%3E%3Ctext x='50' y='65' font-size='40' text-anchor='middle' fill='%23666'%3E👤%3C/text%3E%3C/svg%3E";
+    }
+
+    // =============================
+    // Display uploaded files
+    // =============================
+    displayUploadedFiles(data.files);
+
+  } catch (err) {
+    console.error(err);
+    alert('Failed to load profile: ' + err.message);
+  } finally {
+    loading.classList.remove('active');
+  }
 }
 
-async function updateProfile() {
-  const res = await fetch('http://localhost:5000/api/profile', {
-    method: 'POST',
-    headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({
-      scholar_id: scholar.scholar_id,
-      degree: document.getElementById('degree').value
-    })
+
+  // ==============================
+  // DISPLAY UPLOADED FILES
+  // ==============================
+  function displayUploadedFiles(filesBySemester) {
+    const container = document.getElementById('filesContainer');
+    container.innerHTML = '';
+
+    if (!filesBySemester || Object.keys(filesBySemester).length === 0) {
+      container.innerHTML = '<p>No files uploaded yet.</p>';
+      return;
+    }
+
+    for (const [semester, files] of Object.entries(filesBySemester)) {
+      const div = document.createElement('div');
+      div.className = 'semester-section';
+
+      let html = `<h4>${semester} Semester</h4><ul>`;
+      files.forEach(file => {
+        const uploadDate = new Date(file.uploaded_at).toLocaleDateString();
+        html += `
+          <li class="file-item">
+            <span>
+              <a href="${file.file_url}" target="_blank">${file.file_name}</a>
+              <span style="color:#666; font-size:12px; margin-left:10px;">(${uploadDate})</span>
+            </span>
+            <button onclick="deleteFile('${file.id}')">Delete</button>
+          </li>`;
+      });
+      html += '</ul>';
+      div.innerHTML = html;
+      container.appendChild(div);
+    }
+  }
+
+  // ==============================
+  // DELETE FILE
+  // ==============================
+  async function deleteFile(fileId) {
+    if (!confirm('Are you sure you want to delete this file?')) return;
+
+    const token = getAuthToken();
+    if (!token) return;
+
+    try {
+      const res = await fetch(`/api/scholar/profile/file/${fileId}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error);
+
+      alert('File deleted successfully');
+      loadProfile();
+    } catch (err) {
+      console.error(err);
+      alert('Failed to delete file: ' + err.message);
+    }
+  }
+
+  // ==============================
+  // FILE UPLOAD AREA
+  // ==============================
+  const fileUploadArea = document.getElementById('fileUploadArea');
+  const fileInput = document.getElementById('files');
+  const filesList = document.getElementById('filesList');
+
+  fileUploadArea.addEventListener('click', () => fileInput.click());
+
+  fileUploadArea.addEventListener('dragover', e => {
+    e.preventDefault();
+    fileUploadArea.classList.add('dragover');
   });
-  alert(await res.text());
-}
+
+  fileUploadArea.addEventListener('dragleave', e => {
+    e.preventDefault();
+    fileUploadArea.classList.remove('dragover');
+  });
+
+  fileUploadArea.addEventListener('drop', e => {
+    e.preventDefault();
+    fileUploadArea.classList.remove('dragover');
+    fileInput.files = e.dataTransfer.files;
+    displaySelectedFiles();
+  });
+
+  fileInput.addEventListener('change', displaySelectedFiles);
+
+  function displaySelectedFiles() {
+    filesList.innerHTML = '';
+    for (let file of fileInput.files) {
+      const div = document.createElement('div');
+      div.className = 'file-item';
+      div.innerHTML = `📄 ${file.name} (${(file.size/1024).toFixed(2)} KB)`;
+      filesList.appendChild(div);
+    }
+  }
+
+  // ==============================
+  // SUBMIT FORM
+  // ==============================
+  document.getElementById('profileForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const token = getAuthToken();
+    if (!token) return;
+
+    const semester = document.getElementById('semester').value;
+    if (!semester) { alert('Select a semester'); return; }
+    if (fileInput.files.length === 0) { alert('Select at least one file'); return; }
+
+    const formData = new FormData();
+    formData.append('semester', semester);
+    for (let file of fileInput.files) formData.append('files', file);
+
+    const submitBtn = e.target.querySelector('.save-btn');
+    const originalText = submitBtn.textContent;
+    submitBtn.textContent = 'Uploading...';
+    submitBtn.disabled = true;
+
+    try {
+      const res = await fetch('/api/scholar/profile/upload', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: formData
+      });
+
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error);
+
+      alert(data.message);
+      fileInput.value = '';
+      filesList.innerHTML = '';
+      loadProfile();
+    } catch (err) {
+      console.error(err);
+      alert('Failed to upload files: ' + err.message);
+    } finally {
+      submitBtn.textContent = originalText;
+      submitBtn.disabled = false;
+    }
+  });
+
+  // ==============================
+  // RESET FORM
+  // ==============================
+  function resetForm() {
+    document.getElementById('profileForm').reset();
+    filesList.innerHTML = '';
+    loadProfile();
+  }
+
+  // ==============================
+  // INITIALIZE
+  // ==============================
+  window.addEventListener('DOMContentLoaded', () => {
+    loadProfile();
+  });
 </script>
+
 </body>
 </html>

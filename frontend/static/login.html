@@ -96,7 +96,7 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
 
     // 3️⃣ Save session token for protected requests
     localStorage.setItem('user', JSON.stringify(result.user));
-    localStorage.setItem('access_token', authData.session.access_token); // ✅ important
+  localStorage.setItem('auth_token', authData.session.access_token);// ✅ important
     localStorage.setItem('role', result.role);
 
     // 4️⃣ Redirect to the correct page
