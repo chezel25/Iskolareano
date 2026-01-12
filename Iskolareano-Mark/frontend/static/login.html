@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Scholar Login</title>
+    <link rel="stylesheet" href="./css/style.css" />
+  </head>
+  <body>
+    <!-- Background Shapes -->
+    <div class="bg-shape shape-orange"></div>
+    <div class="bg-shape shape-light"></div>
+
+    <!-- Login Wrapper -->
+    <div class="login-wrapper">
+      <!-- LEFT IMAGE -->
+      <div class="login-image">
+        <img src="img/DOCU9.jpg" alt="Real Quezon Scholarship" />
+      </div>
+
+      <!-- RIGHT LOGIN CARD -->
+      <div class="auth-card">
+        <img src="img/logo.png" alt="Iskolarealeno Logo" class="portal-logo" />
+        <h1>ISKOLAREALEÑO</h1>
+        <p class="subtitle">Sign in to your account.</p>
+
+        <div class="input-group">
+          <label for="email">Email</label>
+          <input id="email" type="email" placeholder="you@email.com" required />
+        </div>
+
+        <div class="input-group">
+          <label for="password">Password</label>
+          <input
+            id="password"
+            type="password"
+            placeholder="••••••••"
+            required
+          />
+        </div>
+
+        <button id="loginBtn" class="btn">Login</button>
+
+        <p class="footer-text">
+          Don’t have an account?
+          <a class="link" href="signup.html">Register Here</a>
+        </p>
+        <p class="footer-text">
+          <a class="link" href="forgot-password.html">Forgot password?</a>
+        </p>
+      </div>
+    </div>
+    <!-- Supabase JS SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script>
+      const supabaseClient = supabase.createClient(
+        "https://wwzufquuogpshrlrofiv.supabase.co",
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind3enVmcXV1b2dwc2hybHJvZml2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwNTgxMzcsImV4cCI6MjA4MTYzNDEzN30.JXJgJEpX0BEKYHGbWH1zUq6lVv1jetg0AmEsM-HvZQs"
+      );
+
+      document
+        .getElementById("loginBtn")
+        .addEventListener("click", async () => {
+          const email = document.getElementById("email").value.trim();
+          const password = document.getElementById("password").value.trim();
+
+          if (!email || !password) {
+            alert("❌ Enter email and password");
+            return;
+          }
+
+          try {
+            // 1️⃣ Login with Supabase Auth
+            const { data, error } =
+              await supabaseClient.auth.signInWithPassword({
+                email,
+                password,
+              });
+
+            if (error) {
+              alert("❌ " + error.message);
+              return;
+            }
+
+            // 2️⃣ Ask backend which page to route
+            const res = await fetch("http://localhost:5000/api/login", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ email, password }),
+            });
+
+            const result = await res.json();
+
+            if (!res.ok) {
+              alert("❌ " + (result.error || "Login blocked"));
+              await supabaseClient.auth.signOut();
+              return;
+            }
+
+            // 3️⃣ Save session + role
+            localStorage.setItem("user", JSON.stringify(result.user));
+            localStorage.setItem("access_token", result.session.access_token);
+            localStorage.setItem("role", result.role);
+
+            // 4️⃣ Redirect based on backend decision
+            window.location.href = `./${result.redirect}`;
+          } catch (err) {
+            console.error(err);
+            alert("❌ Server error");
+          }
+        });
+    </script>
+  </body>
+</html>

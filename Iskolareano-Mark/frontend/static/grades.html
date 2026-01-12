@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><title>Grades</title></head>
+<body>
+<h2>Upload Grades</h2>
+<input id="semester" placeholder="Semester"><br>
+<textarea id="journal" placeholder="Write journal update..."></textarea><br>
+<input type="file" id="grade_file"><br>
+<button onclick="uploadGrade()">Upload</button>
+
+<script>
+const scholar = JSON.parse(localStorage.getItem('scholar') || '{}');
+if(!scholar.scholar_id) {
+  document.body.innerHTML = '<p>Please login first. <a href="login.html">Login</a></p>';
+}
+
+async function uploadGrade() {
+  const formData = new FormData();
+  formData.append('scholar_id', scholar.scholar_id);
+  formData.append('semester', semester.value);
+  formData.append('journal', journal.value);
+  if(grade_file.files[0]) formData.append('grade_file', grade_file.files[0]);
+
+  const res = await fetch('http://localhost:5000/api/upload', {
+    method: 'POST',
+    body: formData
+  });
+  alert(await res.text());
+}
+</script>
+</body>
+</html>

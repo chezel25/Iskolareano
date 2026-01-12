@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Email Verification</title>
+<link rel="stylesheet" href="/css/forgot-password.css">
+</head>
+<body>
+  <div class="forgot-wrapper">
+    <div class="forgot-card">
+
+      <!-- LOGO -->
+      <img src="/img/logo.png" class="portal-logo" alt="Logo">
+
+      <!-- TITLE -->
+      <h1>Email Verification</h1>
+      <p class="description" id="message">
+        Verifying your email...
+      </p>
+
+      <!-- LOGIN LINK -->
+      <div class="footer-text">
+        <a
+          href="http://localhost:5000/login.html"
+          id="loginLink"
+          style="display:none;"
+        >
+          Go to Login
+        </a>
+      </div>
+
+    </div>
+  </div>
+
+<script>
+(async () => {
+  const urlParams = new URLSearchParams(window.location.search);
+  const token = urlParams.get('token');
+
+  const messageDiv = document.getElementById('message');
+  const loginLink = document.getElementById('loginLink');
+
+  if (!token) {
+    messageDiv.textContent = '❌ Invalid verification link.';
+    return;
+  }
+
+  try {
+    const res = await fetch(`http://localhost:5000/api/verify-email?token=${token}`);
+    const text = await res.text();
+
+    if (res.ok) {
+      messageDiv.textContent = '✅ Your email has been verified successfully!';
+      loginLink.style.display = 'block';
+    } else {
+      messageDiv.textContent = '❌ Verification failed: ' + text;
+    }
+  } catch (err) {
+    console.error(err);
+    messageDiv.textContent = '❌ Server error during verification.';
+  }
+})();
+</script>
+
+</body>
+</html>

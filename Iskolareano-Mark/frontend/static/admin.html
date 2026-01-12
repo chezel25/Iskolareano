@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Dashboard</title>
+  <link rel="stylesheet" href="/iskolarealeno/frontend/css/admin.css">
+>
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <h2>🎓 ISKOLAR</h2>
+    <nav>
+      <a href="javascript:void(0)" onclick="loadApplicants()">📄 Applicants</a>
+      <a href="javascript:void(0)" onclick="loadScholars()">🎓 Scholars</a>
+      <a href="javascript:void(0)" onclick="showCreateScholarForm()">➕ Create Scholar</a>
+      <a href="javascript:void(0)" onclick="showAnnouncements()">📢 Announcements</a>
+      <a href="javascript:void(0)" onclick="showGraduates()">🏅 Graduates</a>
+    </nav>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <h1>Admin Dashboard</h1>
+
+    <!-- STATS -->
+    <div class="stats">
+      <div class="card">
+        <h3>Total</h3>
+        <p id="total">0</p>
+      </div>
+      <div class="card pending">
+        <h3>Pending</h3>
+        <p id="pending">0</p>
+      </div>
+      <div class="card approved">
+        <h3>Approved</h3>
+        <p id="approved">0</p>
+      </div>
+      <div class="card rejected">
+        <h3>Rejected</h3>
+        <p id="rejected">0</p>
+      </div>
+    </div>
+
+    <div id="content"></div>
+  </main>
+
+</div>
+
+<script src="admin.js"></script>
+</body>
+</html>

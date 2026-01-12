@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><title>Profile</title></head>
+<body>
+<h2>Update Profile</h2>
+<input id="degree" placeholder="Degree Program"><br>
+<button onclick="updateProfile()">Update</button>
+
+<script>
+const scholar = JSON.parse(localStorage.getItem('scholar') || '{}');
+if(!scholar.scholar_id) {
+  document.body.innerHTML = '<p>Please login first. <a href="login.html">Login</a></p>';
+}
+
+async function updateProfile() {
+  const res = await fetch('http://localhost:5000/api/profile', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({
+      scholar_id: scholar.scholar_id,
+      degree: document.getElementById('degree').value
+    })
+  });
+  alert(await res.text());
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,70 @@
+body {
+  margin: 0;
+  font-family: "Segoe UI", Arial, sans-serif;
+  background: #eef4ff;
+}
+
+.container {
+  max-width: 800px;
+  margin: 30px auto;
+  padding: 20px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header button {
+  padding: 8px 14px;
+  border: 1px solid #ddd;
+  background: white;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.card {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  margin-top: 20px;
+}
+
+.upload-group {
+  margin: 15px 0;
+}
+
+.upload-group label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.upload-group input {
+  width: 100%;
+}
+
+button {
+  margin-top: 20px;
+  padding: 12px;
+  background: #111827;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  width: 100%;
+}
+
+button:disabled {
+  background: #9ca3af;
+}
+
+.muted {
+  color: #6b7280;
+}
+
+.status {
+  margin-top: 15px;
+  font-weight: 600;
+}

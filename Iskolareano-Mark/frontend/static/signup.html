@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Scholar Signup</title>
+<link rel="stylesheet" href="./css/signup.css">
+</head>
+<body>
+
+  <div class="bg-shape shape-orange"></div>
+  <div class="bg-shape shape-light"></div>
+
+  <div class="wave wave1"></div>
+  <div class="wave wave2"></div>
+
+  <div class="register-wrapper"> 
+    <div class="sn-auth-card">
+      <img src="img/logo.png" alt="Iskolarealeno Logo" class="portal-logo">
+      <h1>ISKOLAREALEÑO</h1>
+      <p class="description">Fill out the form and provide only the necessary information.</p>
+
+      <form id="signupForm">
+        <div class="input-group">
+          <label>First Name</label>
+          <input id="fn" type="text" placeholder="Juan" required>
+        </div>
+
+        <div class="input-group">
+          <label>Middle Name</label>
+          <input id="mn" type="text" placeholder="Dela" required>
+        </div>
+
+        <div class="input-group">
+          <label>Last Name</label>
+          <input id="ln" type="text" placeholder="Cruz" required>
+        </div>
+
+        <div class="input-group">
+          <label>Address</label>
+          <input id="ad" type="text" placeholder="123 Main St, City" required>
+        </div>
+
+        <div class="input-group">
+          <label>Email</label>
+          <input id="em" type="email" placeholder="you@email.com" required>
+        </div>
+
+        <div class="input-group">
+          <label>Password</label>
+          <input id="pw" type="password" placeholder="••••••••" required>
+        </div>
+
+
+        <button class="btn" type="submit">Create Account</button>
+      </form>
+
+      <p class="footer-text"><br>
+        <p style="text-align: center;">Already have an account?
+          <a class="link" href="login.html">Login</a>
+        </p>
+      </p>
+    </div>
+  </div>
+
+
+
+
+<script>
+const form = document.getElementById('signupForm');
+form.onsubmit = async e => {
+  e.preventDefault();
+  const first_name = document.getElementById('fn').value.trim();
+  const middle_name = document.getElementById('mn').value.trim();
+  const last_name = document.getElementById('ln').value.trim();
+  const address = document.getElementById('ad').value.trim();
+  const email = document.getElementById('em').value.trim();
+  const password = document.getElementById('pw').value.trim();
+
+  if(!first_name||!last_name||!email||!password){ alert('Fill all required fields'); return; }
+
+  try {
+    const res = await fetch('http://localhost:5000/api/signup',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({first_name,middle_name,last_name,address,email,password})
+    });
+    const data = await res.json();
+    if(!res.ok){ alert("❌ "+(data.error||"Signup failed")); return; }
+    alert("✅ "+data.message);
+    window.location.href = "login.html";
+  } catch(err){ console.error(err); alert("❌ Server error"); }
+};
+</script>
+
+</body>
+</html>

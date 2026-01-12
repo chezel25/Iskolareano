@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Staff Access Request</title>
+
+<style>
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background:#f2f2f2;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+}
+.container {
+  background:white;
+  width:380px;
+  padding:2.5rem;
+  border-radius:20px;
+  box-shadow:0 6px 18px rgba(0,0,0,0.12);
+  text-align:center;
+}
+input, select {
+  width:100%;
+  padding:1rem;
+  margin-top:1rem;
+  border-radius:12px;
+  border:1.5px solid #bcbcbc;
+  box-sizing:border-box;
+}
+button {
+  width:100%;
+  margin-top:1.5rem;
+  padding:1rem;
+  background:#FF7700;
+  color:white;
+  border:none;
+  border-radius:20px;
+  font-size:1.1rem;
+  cursor:pointer;
+}
+button:hover {
+  background:#e06600;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+  <h2>Staff Access Request</h2>
+
+  <input id="first_name" placeholder="First Name">
+  <input id="last_name" placeholder="Last Name">
+  <input id="email" type="email" placeholder="Email">
+
+  <select id="role">
+    <option value="">Select Role</option>
+    <option value="mswd">MSWD</option>
+    <option value="examiner">Examiner</option>
+    <option value="staff">Staff</option>
+  </select>
+
+  <button onclick="requestAccess()">Request Access</button>
+</div>
+
+<script>
+async function requestAccess() {
+  const first_name = document.getElementById('first_name').value.trim();
+  const last_name = document.getElementById('last_name').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const role = document.getElementById('role').value;
+
+  if (!first_name || !last_name || !email || !role) {
+    alert('Please fill all required fields and select a role.');
+    return;
+  }
+
+  try {
+    const res = await fetch('http://localhost:5000/api/staff/request', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ first_name, last_name, email, role })
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      alert(data.error || 'Something went wrong.');
+      return;
+    }
+
+    alert('✅ Request submitted! Please wait for admin approval.');
+    document.querySelector('form')?.reset();
+
+  } catch (err) {
+    console.error(err);
+    alert('🔥 Server not reachable.');
+  }
+}
+</script>
+
+</body>
+</html>
