@@ -2464,90 +2464,111 @@ app.delete('/api/admin/graduates/:id', async (req, res) => {
 // GET - Fetch all announcements
 // ================= ANNOUNCEMENTS =================
 // GET all announcements
+// ----------------- ANNOUNCEMENTS -----------------
+
+// GET all announcements
 app.get('/api/announcements', async (req, res) => {
   try {
-    const result = await pool.query('SELECT * FROM announcements ORDER BY created_at DESC');
-    res.json(result.rows);
+    const { data, error } = await supabase
+      .from('announcements')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    res.json(data);
   } catch (err) {
-    console.error('Error fetching announcements:', err);
+    console.error(err);
     res.status(500).json({ error: 'Failed to fetch announcements' });
   }
 });
 
 // POST create announcement
+// POST - Create announcement & send notifications
 app.post('/api/admin/announcement', async (req, res) => {
   try {
-    const { title, content, recipients, recipient_type } = req.body;
+    const { title, content, recipients, recipient_type, scholar_ids, icon, created_by } = req.body;
 
-    if (!title || !content) {
-      return res.status(400).json({ error: 'Title and content are required' });
+    if (!title || !content) return res.status(400).json({ error: 'Title and content are required' });
+
+    // 1️⃣ Insert announcement
+    const { data: announcement, error: annErr } = await supabase
+      .from('announcements')
+      .insert({ title, content, recipients, recipient_type, created_by })
+      .select()
+      .single();
+
+    if (annErr) throw annErr;
+
+    // 2️⃣ Insert notifications for selected scholars
+    if (scholar_ids && scholar_ids.length > 0) {
+      const notifications = scholar_ids.map(scholar_id => ({
+        announcement_id: announcement.id,
+        scholar_id,
+        title,
+        message: content,
+        icon: icon || '📢'
+      }));
+
+      const { error: notifErr } = await supabase
+        .from('notifications')
+        .insert(notifications);
+
+      if (notifErr) throw notifErr;
     }
 
-    const result = await pool.query(
-      `INSERT INTO announcements (title, content, recipients, recipient_type)
-       VALUES ($1, $2, $3, $4)
-       RETURNING *`,
-      [title, content, recipients || 'All Scholars', recipient_type || 'all']
-    );
+    res.json({ message: 'Announcement posted and notifications sent!', announcement });
 
-    res.status(201).json({ success: true, announcement: result.rows[0] });
   } catch (err) {
     console.error('Error creating announcement:', err);
-    res.status(500).json({ error: 'Failed to create announcement' });
+    res.status(500).json({ error: err.message });
   }
 });
 
 // DELETE announcement
+// DELETE announcement (and related notifications)
 app.delete('/api/admin/announcement/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    await pool.query('DELETE FROM announcements WHERE id = $1', [id]);
-    res.json({ success: true });
+
+    // 1️⃣ Delete related notifications first
+    const { error: notifError } = await supabase
+      .from('notifications')
+      .delete()
+      .eq('announcement_id', id);
+
+    if (notifError) throw notifError;
+
+    // 2️⃣ Delete the announcement itself
+    const { error: annError } = await supabase
+      .from('announcements')
+      .delete()
+      .eq('id', id);
+
+    if (annError) throw annError;
+
+    res.json({ message: 'Announcement and related notifications deleted successfully!' });
   } catch (err) {
-    console.error('Error deleting announcement:', err);
-    res.status(500).json({ error: 'Failed to delete announcement' });
+    console.error(err);
+    res.status(500).json({ error: 'Failed to delete announcement and notifications' });
   }
 });
 
 
 // ================= NOTIFICATIONS =================
 
-// POST send notification to scholars
-app.post('/api/admin/send-notification', async (req, res) => {
-  try {
-    const { title, message, scholar_ids, icon } = req.body;
-    if (!title || !message || !scholar_ids || scholar_ids.length === 0) 
-      return res.status(400).json({ error: 'Title, message, and scholar_ids are required' });
-
-    const queries = scholar_ids.map(id => {
-      return pool.query(
-        `INSERT INTO notifications (scholar_id, title, message, icon, is_read, created_at)
-         VALUES ($1, $2, $3, $4, false, now())`,
-        [id, title, message, icon || '📢']
-      );
-    });
-
-    await Promise.all(queries);
-
-    res.json({ success: true, count: scholar_ids.length });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Failed to send notifications' });
-  }
-});
-
 // GET notifications for a scholar
 app.get('/api/scholar/notifications/:scholar_id', async (req, res) => {
   try {
     const { scholar_id } = req.params;
-    const result = await pool.query(
-      `SELECT * FROM notifications 
-       WHERE scholar_id = $1 
-       ORDER BY created_at DESC 
-       LIMIT 50`,
-      [scholar_id]
-    );
-    res.json(result.rows);
+    const { data, error } = await supabase
+      .from('notifications')
+      .select('*')
+      .eq('scholar_id', scholar_id)
+      .order('created_at', { ascending: false })
+      .limit(50);
+
+    if (error) throw error;
+    res.json(data);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Failed to fetch notifications' });
@@ -2558,18 +2579,19 @@ app.get('/api/scholar/notifications/:scholar_id', async (req, res) => {
 app.post('/api/scholar/notifications/:scholar_id/mark-read', async (req, res) => {
   try {
     const { scholar_id } = req.params;
-    await pool.query(
-      `UPDATE notifications SET is_read = true 
-       WHERE scholar_id = $1 AND is_read = false`,
-      [scholar_id]
-    );
-    res.json({ success: true });
+    const { error } = await supabase
+      .from('notifications')
+      .update({ is_read: true })
+      .eq('scholar_id', scholar_id)
+      .eq('is_read', false);
+
+    if (error) throw error;
+    res.json({ message: 'Notifications marked as read!' });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Failed to mark notifications as read' });
   }
 });
-
 // ---------------- SERVER ----------------
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`✅ Server running on http://localhost:${PORT}`));

@@ -1621,7 +1621,7 @@ async function showAnnouncements() {
         </div>
 
 
-        <button class="btn-primary" onclick="sendAnnouncement()">
+       <button class="btn-primary" onclick="sendAnnouncement()">
           <i class="fas fa-paper-plane"></i> Send Announcement
         </button>
       </div>
@@ -1643,9 +1643,10 @@ async function showAnnouncements() {
 
                     </div>
                   </div>
-                  <button class="btn-delete" onclick="deleteAnnouncement(${a.id})">
-                    <i class="fas fa-trash"></i> Delete
+                 <button class="btn-delete" onclick="deleteAnnouncement('${a.id}')">
+                  <i class="fas fa-trash"></i> Delete
                   </button>
+
                 </div>
 
 
@@ -1680,18 +1681,19 @@ async function showAnnouncements() {
 function selectTemplate(templateKey) {
   selectedTemplate = templateKey;
   const template = announcementTemplates[templateKey];
- 
+
   document.querySelectorAll('.template-card').forEach(card => {
     card.classList.remove('selected');
   });
- 
+
   const clickedCard = document.querySelector(`[onclick="selectTemplate('${templateKey}')"]`);
-  if (clickedCard) {
-    clickedCard.classList.add('selected');
-  }
- 
-  document.getElementById('announcementTitle').value = template.title;
-  document.getElementById('announcementContent').value = template.content;
+  if (clickedCard) clickedCard.classList.add('selected');
+
+  const titleInput = document.getElementById('announcementTitle');
+  const contentInput = document.getElementById('announcementContent');
+
+  if (titleInput) titleInput.value = template.title;
+  if (contentInput) contentInput.value = template.content;
 }
 
 
@@ -1744,8 +1746,8 @@ function toggleScholar(scholarId) {
 
 
 async function sendAnnouncement() {
-  const title = document.getElementById('announcementTitle').value.trim();
-  const content = document.getElementById('announcementContent').value.trim();
+  const title = document.getElementById('announcementTitle')?.value.trim();
+  const content = document.getElementById('announcementContent')?.value.trim();
 
   if (!title || !content) {
     alert('Please fill in both title and message!');
@@ -1753,26 +1755,17 @@ async function sendAnnouncement() {
   }
 
   let recipients = '';
-  let scholarIds = [];
-
-  if (recipientType === 'all') {
-    recipients = 'All Scholars';
-    scholarIds = allScholars.map(s => s.scholar_id);
-  } else if (recipientType === 'specific') {
+  if (recipientType === 'all') recipients = 'All Scholars';
+  else if (recipientType === 'specific') {
     if (selectedScholars.length === 0) {
       alert('Please select at least one scholar!');
       return;
     }
     recipients = `${selectedScholars.length} Selected Scholar(s)`;
-    scholarIds = selectedScholars;
-  } else if (recipientType === 'applicants') {
-    recipients = 'All Applicants';
-    scholarIds = [];
-  }
+  } else if (recipientType === 'applicants') recipients = 'All Applicants';
 
   try {
-    // Post announcement
-    const announcementRes = await fetch('http://localhost:5000/api/admin/announcement', {
+    const res = await fetch('http://localhost:5000/api/admin/announcement', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -1780,54 +1773,60 @@ async function sendAnnouncement() {
         content,
         recipients,
         recipient_type: recipientType,
-        created_by: 'admin' // optional, required if DB NOT NULL
+        scholar_ids: recipientType === 'specific' ? selectedScholars : undefined,
+        icon: selectedTemplate ? announcementTemplates[selectedTemplate].icon : '📢',
+        created_by: 'admin'
       })
     });
 
-    const announcementData = await announcementRes.json();
+    const data = await res.json();
 
-    if (!announcementRes.ok) {
-      const errMsg = announcementData?.error || 'Failed to post announcement';
-      throw new Error(errMsg);
-    }
+    if (!res.ok) throw new Error(data?.error || 'Failed to post announcement');
 
-    // Send notifications if specific scholars
-    if (scholarIds.length > 0) {
-      const notificationRes = await fetch('http://localhost:5000/api/admin/send-notification', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          title,
-          message: content,
-          scholar_ids: scholarIds,
-          icon: selectedTemplate ? announcementTemplates[selectedTemplate].icon : '📢'
-        })
-      });
-
-      const notifData = await notificationRes.json();
-      if (!notificationRes.ok) {
-        const errMsg = notifData?.error || 'Failed to send notifications';
-        throw new Error(errMsg);
-      }
-    }
-
-    alert('✅ Announcement posted and notifications sent successfully!');
+    alert('✅ Announcement posted successfully!');
     showAnnouncements();
 
-    // Reset
+    // Reset form safely
     selectedTemplate = null;
     selectedScholars = [];
     recipientType = 'all';
 
+    const titleInput = document.getElementById('announcementTitle');
+    const contentInput = document.getElementById('announcementContent');
+    if (titleInput) titleInput.value = '';
+    if (contentInput) contentInput.value = '';
+
   } catch (err) {
     console.error(err);
-    alert('❌ Error: ' + err.message);
+    alert('❌ Error posting announcement: ' + err.message);
+  }
+}
+//delete announcement
+async function deleteAnnouncement(id) {
+  if (!confirm('Are you sure you want to delete this announcement?')) return;
+
+  try {
+    const res = await fetch(`http://localhost:5000/api/admin/announcement/${id}`, {
+      method: 'DELETE'
+    });
+
+    let data = {};
+    try { data = await res.json(); } catch(e) { /* no JSON returned */ }
+
+    if (res.ok) {
+      alert('✅ Announcement deleted successfully!');
+      showAnnouncements(); // refresh the list
+    } else {
+      alert('❌ Error deleting announcement: ' + (data.error || 'Unknown error'));
+    }
+  } catch (err) {
+    console.error(err);
+    alert('❌ Error deleting announcement: ' + err.message);
   }
 }
 
 
-
-// GRADUATES (Placeholder)
+// GRADUATES (Placeholder)-------------------------------------------------------
 async function showGraduates() {
   switchTab('Graduates'); // your existing tab switch function
 
@@ -2037,6 +2036,10 @@ async function loadStats() {
 window.addEventListener('DOMContentLoaded', () => {
   loadStats();
   showDashboard();
+  const sendBtn = document.getElementById('sendAnnouncementBtn');
+  if (sendBtn) {
+    sendBtn.addEventListener('click', sendAnnouncement);
+  }
 });
 </script>
 </body>
