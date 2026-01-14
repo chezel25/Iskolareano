@@ -1587,6 +1587,11 @@ async function showAnnouncements() {
 
         <div class="form-group">
           <label>Recipients</label>
+          <select id="recipientType">
+  <option value="all">All Scholars</option>
+  <option value="specific">Specific Scholars</option>
+</select>
+
           <div class="recipient-selector">
             <div class="recipient-option selected" onclick="selectRecipientType('all')">
               All Scholars
@@ -1653,9 +1658,13 @@ async function showAnnouncements() {
                 <div class="announcement-content">${a.content}</div>
 
 
-                <div class="announcement-recipients">
-                  Sent to: ${a.recipients || 'All Scholars'}
-                </div>
+               <div class="announcement-recipients">
+  Sent to: ${
+    a.recipient_type === 'specific' && a.scholar_emails?.length > 0
+      ? a.scholar_emails.join(', ')
+      : 'All Scholars'
+  }
+</div>
               </div>
             `).join('')
         }
@@ -1723,15 +1732,16 @@ function updateScholarList() {
   if (!scholarListDiv) return;
  
   scholarListDiv.innerHTML = allScholars.map((scholar) => `
-    <div class="scholar-checkbox">
-      <input type="checkbox" id="scholar_${scholar.scholar_id}"
-             value="${scholar.scholar_id}"
-             onchange="toggleScholar(${scholar.scholar_id})">
-      <label for="scholar_${scholar.scholar_id}">
-        ${scholar.full_name} (${scholar.email})
-      </label>
-    </div>
-  `).join('');
+  <div class="scholar-checkbox">
+    <input type="checkbox" id="scholar_${scholar.scholar_id}"
+           value="${scholar.scholar_id}"
+           onchange="toggleScholar('${scholar.scholar_id}')">
+    <label for="scholar_${scholar.scholar_id}">
+      ${scholar.full_name} (${scholar.email})
+    </label>
+  </div>
+`).join('');
+
 }
 
 
@@ -1754,15 +1764,32 @@ async function sendAnnouncement() {
     return;
   }
 
+  // Define recipients here BEFORE using it
   let recipients = '';
-  if (recipientType === 'all') recipients = 'All Scholars';
-  else if (recipientType === 'specific') {
+  let selectedScholarEmails = [];
+
+  if (recipientType === 'all') {
+    recipients = 'All Scholars';
+  } else if (recipientType === 'specific') {
     if (selectedScholars.length === 0) {
       alert('Please select at least one scholar!');
       return;
     }
-    recipients = `${selectedScholars.length} Selected Scholar(s)`;
-  } else if (recipientType === 'applicants') recipients = 'All Applicants';
+
+    // Set recipients string for display
+    recipients = selectedScholars
+      .map(id => {
+        const s = allScholars.find(sch => sch.scholar_id === id);
+        return s ? s.email : '';
+      })
+      .filter(e => e)  // remove empty strings
+      .join(', ');
+
+    // Also send emails array to backend
+    selectedScholarEmails = recipients.split(', ');
+  } else if (recipientType === 'applicants') {
+    recipients = 'All Applicants';
+  }
 
   try {
     const res = await fetch('http://localhost:5000/api/admin/announcement', {
@@ -1774,6 +1801,7 @@ async function sendAnnouncement() {
         recipients,
         recipient_type: recipientType,
         scholar_ids: recipientType === 'specific' ? selectedScholars : undefined,
+        scholar_emails: recipientType === 'specific' ? selectedScholarEmails : undefined,
         icon: selectedTemplate ? announcementTemplates[selectedTemplate].icon : '📢',
         created_by: 'admin'
       })
@@ -1790,17 +1818,19 @@ async function sendAnnouncement() {
     selectedTemplate = null;
     selectedScholars = [];
     recipientType = 'all';
+   const titleInput = document.getElementById('announcementTitle');
+const contentInput = document.getElementById('announcementContent');
 
-    const titleInput = document.getElementById('announcementTitle');
-    const contentInput = document.getElementById('announcementContent');
-    if (titleInput) titleInput.value = '';
-    if (contentInput) contentInput.value = '';
+if (titleInput) titleInput.value = '';
+if (contentInput) contentInput.value = '';
+
 
   } catch (err) {
     console.error(err);
     alert('❌ Error posting announcement: ' + err.message);
   }
 }
+
 //delete announcement
 async function deleteAnnouncement(id) {
   if (!confirm('Are you sure you want to delete this announcement?')) return;

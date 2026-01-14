@@ -2121,14 +2121,7 @@ app.post(
       const profilePic = req.files?.profile_pic?.[0];
       const files = req.files?.files || [];
 
-      if (!profilePic && files.length === 0)
-        return res.status(400).json({
-          success: false,
-          error: "Upload a profile picture or at least one PDF"
-        });
-
-      /* ========= PROFILE PIC ========= */
-      let profilePicUrl = null;
+      /* ================= PROFILE PIC ================= */
       if (profilePic) {
         if (!profilePic.mimetype.startsWith("image/"))
           return res.status(400).json({ success: false, error: "Invalid image type" });
@@ -2136,7 +2129,16 @@ app.post(
         const ext = profilePic.originalname.split(".").pop();
         const picPath = `scholars/${scholar_id}.${ext}`;
 
-        // Upload to Supabase Storage
+        // 1️⃣ Get current profile pic URL from DB
+        const { data: currentData } = await supabase
+          .from("scholars")
+          .select("profile_pic")
+          .eq("id", scholar_id)
+          .single();
+
+        const oldPicUrl = currentData?.profile_pic;
+
+        // 2️⃣ Upload new picture
         const { error: picError } = await supabase.storage
           .from("profile-pics")
           .upload(picPath, profilePic.buffer, {
@@ -2150,13 +2152,21 @@ app.post(
           .from("profile-pics")
           .getPublicUrl(picPath);
 
-        
+        const profilePicUrl = picData.publicUrl;
 
-        // Update scholars table
+        // 3️⃣ Update scholars table
         await supabase
           .from("scholars")
           .update({ profile_pic: profilePicUrl })
           .eq("id", scholar_id);
+
+        // 4️⃣ Delete old picture from storage if it exists and is different
+        if (oldPicUrl && oldPicUrl !== profilePicUrl) {
+          const oldPath = oldPicUrl.split("/storage/v1/object/public/profile-pics/")[1];
+          if (oldPath) {
+            await supabase.storage.from("profile-pics").remove([oldPath]);
+          }
+        }
       }
 
       /* ========= PDF FILES ========= */
@@ -2484,22 +2494,29 @@ app.get('/api/announcements', async (req, res) => {
 
 // POST create announcement
 // POST - Create announcement & send notifications
+// Node.js / Express
 app.post('/api/admin/announcement', async (req, res) => {
   try {
-    const { title, content, recipients, recipient_type, scholar_ids, icon, created_by } = req.body;
+    const { title, content, recipients, recipient_type, scholar_ids, scholar_emails, icon, created_by } = req.body;
 
     if (!title || !content) return res.status(400).json({ error: 'Title and content are required' });
 
-    // 1️⃣ Insert announcement
+    // Insert announcement, include scholar_emails
     const { data: announcement, error: annErr } = await supabase
       .from('announcements')
-      .insert({ title, content, recipients, recipient_type, created_by })
+      .insert({
+        title,
+        content,
+        recipient_type,
+        created_by,
+        scholar_emails: scholar_emails || null  // <-- here
+      })
       .select()
       .single();
 
     if (annErr) throw annErr;
 
-    // 2️⃣ Insert notifications for selected scholars
+    // Insert notifications for specific scholars
     if (scholar_ids && scholar_ids.length > 0) {
       const notifications = scholar_ids.map(scholar_id => ({
         announcement_id: announcement.id,
@@ -2523,6 +2540,7 @@ app.post('/api/admin/announcement', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
 
 // DELETE announcement
 // DELETE announcement (and related notifications)
@@ -2556,10 +2574,16 @@ app.delete('/api/admin/announcement/:id', async (req, res) => {
 
 // ================= NOTIFICATIONS =================
 
-// GET notifications for a scholar
-app.get('/api/scholar/notifications/:scholar_id', async (req, res) => {
+
+// GET /api/scholar/notifications
+// Fetch all notifications for the logged-in scholar
+app.get('/api/scholar/notifications', async (req, res) => {
   try {
-    const { scholar_id } = req.params;
+    const scholar_id = await getScholarIdFromToken(req);
+    if (!scholar_id) {
+      return res.status(401).json({ success: false, error: 'Unauthorized' });
+    }
+
     const { data, error } = await supabase
       .from('notifications')
       .select('*')
@@ -2568,28 +2592,146 @@ app.get('/api/scholar/notifications/:scholar_id', async (req, res) => {
       .limit(50);
 
     if (error) throw error;
-    res.json(data);
+
+    res.json({ success: true, notifications: data || [] });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Failed to fetch notifications' });
+    console.error('Error fetching notifications:', err);
+    res.status(500).json({ success: false, error: err.message });
   }
 });
 
-// POST mark notifications as read
-app.post('/api/scholar/notifications/:scholar_id/mark-read', async (req, res) => {
+// PATCH /api/scholar/notifications/mark-read
+// Mark all unread notifications as read for the logged-in scholar
+app.patch('/api/scholar/notifications/mark-read', async (req, res) => {
   try {
-    const { scholar_id } = req.params;
-    const { error } = await supabase
+    const scholar_id = await getScholarIdFromToken(req);
+    if (!scholar_id) {
+      return res.status(401).json({ success: false, error: 'Unauthorized' });
+    }
+
+    await supabase
       .from('notifications')
       .update({ is_read: true })
       .eq('scholar_id', scholar_id)
       .eq('is_read', false);
 
-    if (error) throw error;
-    res.json({ message: 'Notifications marked as read!' });
+    res.json({ success: true });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to mark notifications as read' });
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// PATCH /api/scholar/notifications/:id/read
+// Mark a single notification as read
+app.patch('/api/scholar/notifications/:id/read', async (req, res) => {
+  try {
+    const scholar_id = await getScholarIdFromToken(req);
+    if (!scholar_id) {
+      return res.status(401).json({ success: false, error: 'Unauthorized' });
+    }
+
+    const { id } = req.params;
+
+    const { data: notif, error: fetchError } = await supabase
+      .from('notifications')
+      .select('scholar_id')
+      .eq('id', id)
+      .single();
+
+    if (fetchError) throw fetchError;
+    if (notif.scholar_id !== scholar_id) {
+      return res.status(403).json({ success: false, error: 'Forbidden' });
+    }
+
+    const { error } = await supabase
+      .from('notifications')
+      .update({ is_read: true })
+      .eq('id', id);
+
+    if (error) throw error;
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// POST /api/notifications/create (ADMIN ONLY)
+// Create a new notification - typically called by admin
+app.post('/api/notifications/create', async (req, res) => {
+  try {
+    const { scholar_id, title, message, icon } = req.body;
+
+    if (!scholar_id || !title || !message) {
+      return res.status(400).json({ success: false, error: 'Missing fields' });
+    }
+
+    const { data, error } = await supabase
+      .from('notifications')
+      .insert([{
+        scholar_id,
+        title,
+        message,
+        icon: icon || '📢',
+        is_read: false
+      }])
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    res.json({ success: true, notification: data });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+
+// DELETE /api/scholar/notifications/:id (Optional)
+// Delete a notification
+app.delete('/api/scholar/notifications/:id', async (req, res) => {
+  try {
+    const scholar_id = await getScholarIdFromToken(req);
+    if (!scholar_id) {
+      return res.status(401).json({ success: false, error: 'Unauthorized' });
+    }
+
+    const { id } = req.params;
+
+    // Verify ownership
+    const { data: notif, error: fetchError } = await supabase
+      .from('notifications')
+      .select('scholar_id')
+      .eq('id', id)
+      .single();
+
+    if (fetchError) throw fetchError;
+    
+    if (notif.scholar_id !== scholar_id) {
+      return res.status(403).json({ success: false, error: 'Forbidden' });
+    }
+
+    // Delete
+    const { error } = await supabase
+      .from('notifications')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw error;
+
+    res.json({ 
+      success: true, 
+      message: 'Notification deleted' 
+    });
+  } catch (err) {
+    console.error('Error deleting notification:', err);
+    res.status(500).json({ 
+      success: false, 
+      error: err.message 
+    });
   }
 });
 // ---------------- SERVER ----------------
