@@ -662,7 +662,14 @@ textarea {
   color: #6b7280;
 }
 
-
+.user-type-selector { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px; }
+.user-type-card { background: white; border: 3px solid #e5e7eb; border-radius: 16px; padding: 30px; cursor: pointer; transition: all 0.3s; text-align: center; }
+.user-type-card:hover { border-color: #FF6600; transform: translateY(-4px); box-shadow: 0 8px 20px rgba(255, 102, 0, 0.2); }
+.user-type-card.selected { border-color: #FF6600; background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%); box-shadow: 0 8px 20px rgba(255, 102, 0, 0.3); }
+.user-type-icon { font-size: 64px; margin-bottom: 15px; }
+.user-type-name { font-weight: 700; font-size: 20px; color: #111827; margin-bottom: 8px; }
+.user-type-description { font-size: 14px; color: #6b7280; line-height: 1.5; }
+</style>
 </style>
 </head>
 
@@ -724,9 +731,10 @@ textarea {
     <button class="tab" onclick="showGraduates()">
       <i class="fas fa-graduation-cap"></i> Graduates
     </button>
-    <button class="tab" onclick="showCreateScholarForm()">
-      <i class="fas fa-user-plus"></i> Create Scholar
+    <button class="tab" onclick="showCreateUserForm()">
+      <i class="fas fa-user-plus"></i> Create User
     </button>
+  
   </div>
 
   <!-- CONTENT AREA -->
@@ -1420,13 +1428,66 @@ async function showApplicants() {
   switchTab('Applicants');
   window.location.href = 'admin-applicant.html';
 }
+//-------------------------------------------------------------------------------------------
+let selectedUserType = null;
 
-// CREATE SCHOLAR FORM
-function showCreateScholarForm() {
-  switchTab('Create Scholar');
+function switchTab(tabName) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(tab => {
+    if (tab.textContent.trim().includes(tabName)) {
+      tab.classList.add('active');
+    }
+  });
+}
+// CREATE USER FORM - Main Function
+function showCreateUserForm() {
+  switchTab('Create User');
+  selectedUserType = null;
+  
   const html = `
-    <h3><i class="fas fa-user-plus"></i> Create Scholar Account</h3>
-    <p>Add a new scholar to the system</p>
+    <h3><i class="fas fa-user-plus"></i> Create New User</h3>
+    <p>Select the type of account you want to create</p>
+    
+    <div class="user-type-selector">
+      <div class="user-type-card" onclick="selectUserType('scholar')">
+        <div class="user-type-icon">🎓</div>
+        <div class="user-type-name">Create Scholar</div>
+        <div class="user-type-description">Add a new scholarship recipient to the system with email access</div>
+      </div>
+      
+      <div class="user-type-card" onclick="selectUserType('admin')">
+        <div class="user-type-icon">👨‍💼</div>
+        <div class="user-type-name">Create Admin</div>
+        <div class="user-type-description">Add a new administrator with full system access and privileges</div>
+      </div>
+    </div>
+    
+    <div id="userFormContainer"></div>
+  `;
+  
+  document.getElementById('content').innerHTML = html;
+}
+
+function selectUserType(type) {
+  selectedUserType = type;
+  
+  document.querySelectorAll('.user-type-card').forEach(card => {
+    card.classList.remove('selected');
+  });
+  
+  event.target.closest('.user-type-card').classList.add('selected');
+  
+  if (type === 'scholar') {
+    showScholarForm();
+  } else if (type === 'admin') {
+    showAdminForm();
+  }
+}
+
+// SCHOLAR FORM
+function showScholarForm() {
+  const formHtml = `
+    <h3 style="margin-top: 30px;"><i class="fas fa-graduation-cap"></i> Scholar Account Details</h3>
     <div class="announcement-form">
       <div class="form-group">
         <label><i class="fas fa-user"></i> First Name *</label>
@@ -1455,9 +1516,13 @@ function showCreateScholarForm() {
       <button class="btn-primary" onclick="createScholar()">
         <i class="fas fa-user-plus"></i> Create Scholar Account
       </button>
+      <button class="btn-secondary" onclick="showCreateUserForm()">
+        <i class="fas fa-times"></i> Cancel
+      </button>
     </div>
   `;
-  document.getElementById('content').innerHTML = html;
+  
+  document.getElementById('userFormContainer').innerHTML = formHtml;
 }
 
 async function createScholar() {
@@ -1494,7 +1559,78 @@ async function createScholar() {
     alert("❌ Error creating scholar");
   }
 }
+function showAdminForm() {
+  const formHtml = `
+    <h3 style="margin-top: 30px;"><i class="fas fa-user-shield"></i> Admin Account Details</h3>
+    <div class="announcement-form">
+      <div class="form-group">
+        <label><i class="fas fa-user"></i> First Name *</label>
+        <input id="admin_first_name" placeholder="Enter first name">
+      </div>
+      <div class="form-group">
+        <label><i class="fas fa-user"></i> Last Name *</label>
+        <input id="admin_last_name" placeholder="Enter last name">
+      </div>
+      <div class="form-group">
+        <label><i class="fas fa-envelope"></i> Email *</label>
+        <input id="admin_email" type="email" placeholder="Enter email address">
+      </div>
+      <div class="form-group">
+        <label><i class="fas fa-user-tag"></i> Admin Role *</label>
+       <select id="admin_role">
+  <option value="">Select role</option>
+  <option value="main_admin">Admin</option>
+  <option value="mswd">MSWD</option>
+  <option value="examiner">Examiner</option>
+</select>
+      </div>
+      <button class="btn-primary" onclick="createAdmin()">
+        <i class="fas fa-user-shield"></i> Create Admin Account
+      </button>
+      <button class="btn-secondary" onclick="showCreateUserForm()">
+        <i class="fas fa-times"></i> Cancel
+      </button>
+    </div>
+  `;
+  
+  document.getElementById('userFormContainer').innerHTML = formHtml;
+}
 
+async function createAdmin() {
+  const first_name = document.getElementById('admin_first_name').value.trim();
+  const last_name = document.getElementById('admin_last_name').value.trim();
+  const email = document.getElementById('admin_email').value.trim();
+  const role = document.getElementById('admin_role').value;
+
+  if (!first_name || !last_name || !email || !role) {
+    alert('❌ Please fill in all required fields');
+    return;
+  }
+
+  try {
+    const res = await fetch('http://localhost:5000/api/staff/create', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-role': 'admin'
+      },
+      body: JSON.stringify({ first_name, last_name, email, role })
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      alert('✅ Admin account created successfully!');
+      showCreateUserForm();
+    } else {
+      alert('❌ Error: ' + (data.error || 'Failed to create admin'));
+    }
+  } catch (err) {
+    console.error(err);
+    alert('❌ Error creating admin account');
+  }
+}
+//--------------------------------------------------------------------------------------------------
 // ANNOUNCEMENTS (Placeholder)
 
 

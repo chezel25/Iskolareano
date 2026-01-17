@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,7 +8,6 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    /* Notification Badge */
     .notification-link {
       position: relative;
       display: flex;
@@ -60,7 +58,7 @@
     }
 
     /* Notification Panel */
-    .notification-panel {
+    .notification-container {
       position: fixed;
       top: 0;
       right: -420px;
@@ -74,17 +72,249 @@
       flex-direction: column;
     }
 
-    .notification-panel.active {
+    .notification-container.active {
       right: 0;
+    }
+
+    /* Message Detail Modal (Center) */
+    .message-detail-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(6px);
+      z-index: 2000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      animation: fadeIn 0.3s;
+    }
+
+    .message-detail-overlay.active {
+      display: flex;
+    }
+
+    .message-detail-content {
+      background: white;
+      border-radius: 16px;
+      max-width: 700px;
+      width: 90%;
+      max-height: 85vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+    }
+
+    @keyframes slideUp {
+      from {
+        transform: translateY(50px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .message-detail-content::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .message-detail-content::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 8px;
+    }
+
+    .message-detail-content::-webkit-scrollbar-thumb {
+      background: #ccc;
+      border-radius: 8px;
+    }
+
+    .close-message-btn {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: rgba(0, 0, 0, 0.1);
+      border: none;
+      color: #6b7280;
+      font-size: 24px;
+      cursor: pointer;
+      padding: 0;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: all 0.2s;
+      z-index: 10;
+    }
+
+    .close-message-btn:hover {
+      background: rgba(0, 0, 0, 0.2);
+      transform: scale(1.1);
+    }
+
+    .empty-message {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 60px 40px;
+      color: #9ca3af;
+      text-align: center;
+    }
+
+    .empty-message i {
+      font-size: 80px;
+      margin-bottom: 24px;
+      opacity: 0.3;
+    }
+
+    .empty-message h3 {
+      font-size: 20px;
+      margin-bottom: 8px;
+      color: #6b7280;
+    }
+
+    .empty-message p {
+      font-size: 14px;
+    }
+
+    .message-card {
+      background: white;
+      border-radius: 16px;
+      padding: 40px;
+    }
+
+    .message-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 20px;
+      margin-bottom: 24px;
+      padding-bottom: 24px;
+      border-bottom: 2px solid #f3f4f6;
+    }
+
+    .message-icon-large {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      flex-shrink: 0;
+    }
+
+    .message-icon-large.info {
+      background: linear-gradient(135deg, #dbeafe 0%, #93c5fd 100%);
+    }
+
+    .message-icon-large.warning {
+      background: linear-gradient(135deg, #fef3c7 0%, #fde047 100%);
+    }
+
+    .message-icon-large.success {
+      background: linear-gradient(135deg, #d1fae5 0%, #6ee7b7 100%);
+    }
+
+    .message-icon-large.announcement {
+      background: linear-gradient(135deg, #fce7f3 0%, #f9a8d4 100%);
+    }
+
+    .message-title-section {
+      flex: 1;
+    }
+
+    .message-title {
+      font-size: 24px;
+      font-weight: 700;
+      color: #1f2937;
+      margin: 0 0 12px 0;
+      line-height: 1.3;
+    }
+
+    .message-meta {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      color: #6b7280;
+      font-size: 14px;
+    }
+
+    .message-meta i {
+      margin-right: 6px;
+    }
+
+    .message-body {
+      font-size: 16px;
+      line-height: 1.8;
+      color: #374151;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    .message-actions {
+      margin-top: 32px;
+      padding-top: 24px;
+      border-top: 2px solid #f3f4f6;
+      display: flex;
+      gap: 12px;
+    }
+
+    .message-action-btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-delete {
+      background: #fef2f2;
+      color: #dc2626;
+      border: 2px solid #fecaca;
+    }
+
+    .btn-delete:hover {
+      background: #fee2e2;
+      border-color: #dc2626;
+      transform: translateY(-2px);
+    }
+
+    .btn-mark-read {
+      background: #f0fdf4;
+      color: #16a34a;
+      border: 2px solid #bbf7d0;
+    }
+
+    .btn-mark-read:hover {
+      background: #dcfce7;
+      border-color: #16a34a;
+      transform: translateY(-2px);
+    }
+
+    /* Right Panel - Notification List */
+    .notification-list-panel {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      background: white;
     }
 
     .notification-header {
       padding: 24px;
       background: linear-gradient(135deg, #ff7b00 0%, #ff9500 100%);
       color: white;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
 
@@ -105,31 +335,9 @@
       font-weight: 600;
     }
 
-    .close-panel {
-      background: rgba(255, 255, 255, 0.2);
-      border: none;
-      color: white;
-      font-size: 20px;
-      cursor: pointer;
-      padding: 0;
-      width: 36px;
-      height: 36px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 8px;
-      transition: all 0.2s;
-    }
-
-    .close-panel:hover {
-      background: rgba(255, 255, 255, 0.3);
-      transform: scale(1.05);
-    }
-
     .notification-body {
       flex: 1;
       overflow-y: auto;
-      padding: 0;
       background: #f8f9fa;
     }
 
@@ -150,32 +358,35 @@
       background: #999;
     }
 
-    /* Gmail-Style Notification Item */
     .notification-item {
       padding: 16px 20px;
       background: white;
       margin: 8px 12px;
       border-radius: 12px;
       cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: all 0.2s;
       position: relative;
       border: 2px solid transparent;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-      overflow: hidden;
     }
 
     .notification-item:hover {
-      transform: translateY(-2px);
+      transform: translateX(-4px);
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
       border-color: #ff7b00;
     }
 
-    .notification-item.unread {
+    .notification-item.selected {
       background: linear-gradient(135deg, #fff5e6 0%, #ffffff 100%);
       border-left: 4px solid #ff7b00;
+      box-shadow: 0 4px 12px rgba(255, 123, 0, 0.2);
     }
 
-    .notification-item.unread::before {
+    .notification-item.unread {
+      background: linear-gradient(135deg, #fffbf5 0%, #ffffff 100%);
+      border-left: 3px solid #ff7b00;
+    }
+
+    .notification-item.unread::after {
       content: '';
       position: absolute;
       top: 20px;
@@ -187,22 +398,7 @@
       box-shadow: 0 0 0 3px rgba(255, 123, 0, 0.2);
     }
 
-    /* Expanded state */
-    .notification-item.expanded {
-      background: #f8f9fa;
-      border-color: #ff7b00;
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
-    }
-
-    .notification-item.expanded .notification-message {
-      max-height: 500px;
-      opacity: 1;
-      margin-top: 12px;
-      padding-top: 12px;
-      border-top: 1px solid #e5e7eb;
-    }
-
-    .notification-header-row {
+    .notification-item-header {
       display: flex;
       align-items: center;
       gap: 12px;
@@ -240,81 +436,22 @@
       min-width: 0;
     }
 
-    .notification-title-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      justify-content: space-between;
-    }
-
     .notification-title {
       font-weight: 600;
       color: #1f2937;
       font-size: 15px;
-      flex: 1;
-      white-space: nowrap;
+      margin-bottom: 4px;
       overflow: hidden;
       text-overflow: ellipsis;
-    }
-
-    .expand-indicator {
-      color: #9ca3af;
-      font-size: 12px;
-      transition: transform 0.3s;
-      flex-shrink: 0;
-    }
-
-    .notification-item.expanded .expand-indicator {
-      transform: rotate(180deg);
-    }
-
-    /* Message - hidden by default, shown when expanded */
-    .notification-message {
-      color: #4b5563;
-      font-size: 14px;
-      line-height: 1.6;
-      max-height: 0;
-      opacity: 0;
-      overflow: hidden;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      white-space: pre-wrap;
-      word-wrap: break-word;
+      white-space: nowrap;
     }
 
     .notification-time {
       color: #9ca3af;
-      font-size: 11px;
+      font-size: 12px;
       display: flex;
       align-items: center;
       gap: 4px;
-      margin-top: 4px;
-    }
-
-    /* Delete button - shown on hover or when expanded */
-    .delete-btn {
-      position: absolute;
-      top: 12px;
-      right: 12px;
-      background: #fee;
-      border: none;
-      color: #c33;
-      cursor: pointer;
-      font-size: 16px;
-      padding: 6px 10px;
-      border-radius: 6px;
-      opacity: 0;
-      transition: all 0.2s;
-      z-index: 10;
-    }
-
-    .notification-item:hover .delete-btn,
-    .notification-item.expanded .delete-btn {
-      opacity: 1;
-    }
-
-    .delete-btn:hover {
-      background: #fcc;
-      transform: scale(1.1);
     }
 
     .notification-actions {
@@ -322,11 +459,10 @@
       border-top: 1px solid #e5e7eb;
       background: white;
       display: flex;
-      justify-content: space-between;
       gap: 10px;
     }
 
-    .mark-all-read, .refresh-btn {
+    .action-btn {
       background: none;
       border: 1px solid #e5e7eb;
       color: #6b7280;
@@ -343,30 +479,12 @@
       justify-content: center;
     }
 
-    .mark-all-read:hover, .refresh-btn:hover {
+    .action-btn:hover {
       background: #f9fafb;
       border-color: #ff7b00;
       color: #ff7b00;
     }
 
-    .empty-notifications {
-      padding: 80px 20px;
-      text-align: center;
-      color: #9ca3af;
-    }
-
-    .empty-notifications i {
-      font-size: 64px;
-      margin-bottom: 16px;
-      opacity: 0.3;
-    }
-
-    .empty-notifications p {
-      font-size: 16px;
-      font-weight: 500;
-    }
-
-    /* Overlay */
     .notification-overlay {
       position: fixed;
       top: 0;
@@ -377,19 +495,12 @@
       backdrop-filter: blur(4px);
       z-index: 999;
       display: none;
-      animation: fadeIn 0.3s;
     }
 
     .notification-overlay.active {
       display: block;
     }
 
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-
-    /* Toast Notification */
     .toast-notification {
       position: fixed;
       top: 90px;
@@ -401,12 +512,30 @@
       z-index: 1001;
       min-width: 340px;
       transform: translateX(400px);
-      transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: transform 0.4s;
       border-left: 4px solid #ff7b00;
     }
 
     .toast-notification.show {
       transform: translateX(0);
+    }
+
+    .toast-close {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      background: #f3f4f6;
+      border: none;
+      color: #6b7280;
+      cursor: pointer;
+      font-size: 16px;
+      padding: 0;
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .toast-header {
@@ -434,31 +563,6 @@
       padding-left: 36px;
     }
 
-    .toast-close {
-      position: absolute;
-      top: 14px;
-      right: 14px;
-      background: #f3f4f6;
-      border: none;
-      color: #6b7280;
-      cursor: pointer;
-      font-size: 16px;
-      padding: 0;
-      width: 28px;
-      height: 28px;
-      border-radius: 6px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.2s;
-    }
-
-    .toast-close:hover {
-      background: #e5e7eb;
-      color: #374151;
-    }
-
-    /* Loading State */
     .loading-spinner {
       text-align: center;
       padding: 40px;
@@ -475,55 +579,28 @@
       to { transform: rotate(360deg); }
     }
 
-    /* Responsive */
-    @media (max-width: 768px) {
-      .notification-panel {
+    .empty-notifications {
+      padding: 80px 20px;
+      text-align: center;
+      color: #9ca3af;
+    }
+
+    .empty-notifications i {
+      font-size: 64px;
+      margin-bottom: 16px;
+      opacity: 0.3;
+    }
+
+    @media (max-width: 1024px) {
+      .notification-container {
         width: 100%;
         right: -100%;
       }
 
-      .toast-notification {
-        min-width: auto;
-        width: calc(100% - 40px);
-        right: 20px;
+      .message-detail-content {
+        width: 95%;
+        max-height: 90vh;
       }
-      /* Notification List Item - Compact */
-    .notification-item {
-      padding: 14px 18px;
-      background: white;
-      margin: 6px 12px;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-      position: relative;
-      border: 1px solid #e5e7eb;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    }
-
-    .notification-item:hover {
-      transform: translateX(4px);
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-      border-color: #ff7b00;
-      background: #fffbf5;
-    }
-
-    .notification-item.unread {
-      background: linear-gradient(135deg, #fff5e6 0%, #ffffff 100%);
-      border-left: 3px solid #ff7b00;
-      font-weight: 500;
-    }
-
-    .notification-item.unread::before {
-      content: '';
-      position: absolute;
-      top: 18px;
-      right: 18px;
-      width: 8px;
-      height: 8px;
-      background: #ff7b00;
-      border-radius: 50%;
-      box-shadow: 0 0 0 3px rgba(255, 123, 0, 0.2);
-    }
     }
   </style>
 </head>
@@ -534,7 +611,7 @@
     <img src="img/logo.png" alt="Iskolarealeno Logo" />
     <span class="logo-text">ISKOLAREALEÑO</span>
   </div>
-  <nav role="navigation" aria-label="Main navigation">
+  <nav role="navigation">
     <ul>
       <li>
         <a href="#" id="notificationBtn" class="notification-link">
@@ -549,40 +626,44 @@
   </nav>
 </header>
 
-<!-- Notification Overlay -->
 <div class="notification-overlay" id="notificationOverlay"></div>
 
-<!-- Notification Panel -->
-<div class="notification-panel" id="notificationPanel">
-  <div class="notification-header">
-    <h3>
-      <i class="fas fa-bell"></i>
-      Notifications
-      <span class="notification-count" id="notificationCount">0</span>
-    </h3>
-    <button class="close-panel" id="closePanel">
-      <i class="fas fa-times"></i>
-    </button>
-  </div>
-  
-  <div class="notification-body" id="notificationBody">
-    <div class="loading-spinner">
-      <i class="fas fa-spinner fa-spin"></i>
-      <p>Loading notifications...</p>
-    </div>
-  </div>
-
-  <div class="notification-actions">
-    <button class="refresh-btn" id="refreshBtn">
-      <i class="fas fa-sync-alt"></i> Refresh
-    </button>
-    <button class="mark-all-read" id="markAllRead">
-      <i class="fas fa-check-double"></i> Mark all as read
-    </button>
+<!-- Message Detail Modal (Center) -->
+<div class="message-detail-overlay" id="messageDetailOverlay">
+  <div class="message-detail-content" id="messageDetailContent">
+    <!-- Content will be dynamically inserted here -->
   </div>
 </div>
 
-<!-- Toast Notification -->
+<!-- Notification Panel (Right Side) -->
+<div class="notification-container" id="notificationContainer">
+  <div class="notification-list-panel">
+    <div class="notification-header">
+      <h3>
+        <i class="fas fa-bell"></i>
+        Notifications
+        <span class="notification-count" id="notificationCount">0</span>
+      </h3>
+    </div>
+    
+    <div class="notification-body" id="notificationBody">
+      <div class="loading-spinner">
+        <i class="fas fa-spinner fa-spin"></i>
+        <p>Loading...</p>
+      </div>
+    </div>
+
+    <div class="notification-actions">
+      <button class="action-btn" id="refreshBtn">
+        <i class="fas fa-sync-alt"></i> Refresh
+      </button>
+      <button class="action-btn" id="markAllRead">
+        <i class="fas fa-check-double"></i> Mark all read
+      </button>
+    </div>
+  </div>
+</div>
+
 <div class="toast-notification" id="toastNotification">
   <button class="toast-close" id="toastClose">×</button>
   <div class="toast-header">
@@ -592,25 +673,19 @@
   <div class="toast-message" id="toastMessage"></div>
 </div>
 
-<main class="container" role="main" aria-label="Main content">
+<main class="container">
   <section class="services-section">
     <div class="container">
       <div class="header">
         <div class="welcome-section">
           <div class="welcome-text">
-            <h2 class="section-title">Welcome Back, <span class="orange-text" id="scholarName">Iskolarealeño</span>!</h2>
+            <h2 class="section-title">Welcome Back, <span class="orange-text">Iskolarealeño</span>!</h2>
             <p class="section-description">Manage your profile, submit requirements, and check upcoming deadlines.</p>
-          </div>
-          
-          <div class="user-controls">
-            <button class="requirement-btn" id="requirementBtn">
-              <i class="fas fa-clipboard-check"></i>
-              Requirements
-            </button>
           </div>
         </div>
       </div>
-
+    </div>
+  </section>
       <div class="services-list">
         <div class="service-card">
           <div class="service-icon">👤</div>
@@ -638,29 +713,20 @@
 </main>
 
 <footer>
-  &copy; 2026 ISKOLAREALENO. Real, Quezon City, Philippines | Contact: info@iskolarealeno.ph
+  &copy; 2026 ISKOLAREALENO. Real, Quezon City, Philippines
 </footer>
 
 <script>
-// ==============================
-// SUPABASE CONFIGURATION
-// ==============================
 const SUPABASE_URL = 'https://wwzufquuogpshrlrofiv.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind3enVmcXV1b2dwc2hybHJvZml2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwNTgxMzcsImV4cCI6MjA4MTYzNDEzN30.JXJgJEpX0BEKYHGbWH1zUq6lVv1jetg0AmEsM-HvZQs';
 
 const { createClient } = supabase;
 const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// ==============================
-// STATE
-// ==============================
 let notifications = [];
 let unreadCount = 0;
-let expandedNotificationId = null; // Track which notification is expanded
+let selectedNotificationId = null;
 
-// ==============================
-// HELPER FUNCTIONS
-// ==============================
 function getIconClass(icon) {
   const iconMap = {
     '📢': 'announcement',
@@ -675,22 +741,16 @@ function getIconClass(icon) {
 
 function timeAgo(date) {
   const seconds = Math.floor((new Date() - new Date(date)) / 1000);
-  
   if (seconds < 60) return 'Just now';
   if (seconds < 3600) return Math.floor(seconds / 60) + ' min ago';
   if (seconds < 86400) return Math.floor(seconds / 3600) + ' hours ago';
   if (seconds < 604800) return Math.floor(seconds / 86400) + ' days ago';
-  
   return new Date(date).toLocaleDateString();
 }
 
-// ==============================
-// UI FUNCTIONS
-// ==============================
 function updateBadge() {
   const badge = document.getElementById("notificationBadge");
   const count = document.getElementById("notificationCount");
-
   if (unreadCount > 0) {
     badge.textContent = unreadCount > 99 ? '99+' : unreadCount;
     badge.classList.remove("hidden");
@@ -703,7 +763,6 @@ function updateBadge() {
 
 function renderNotifications() {
   const body = document.getElementById("notificationBody");
-
   if (!notifications.length) {
     body.innerHTML = `
       <div class="empty-notifications">
@@ -715,65 +774,86 @@ function renderNotifications() {
   }
 
   body.innerHTML = notifications.map(n => `
-    <div class="notification-item ${n.is_read ? "" : "unread"} ${expandedNotificationId === n.id ? "expanded" : ""}" 
+    <div class="notification-item ${n.is_read ? "" : "unread"} ${selectedNotificationId === n.id ? "selected" : ""}" 
          data-id="${n.id}">
-      <button class="delete-btn" onclick="event.stopPropagation(); deleteNotification('${n.id}')">🗑️</button>
-      
-      <div class="notification-header-row">
+      <div class="notification-item-header">
         <div class="notification-icon ${getIconClass(n.icon || '📢')}">
           ${n.icon || '📢'}
         </div>
         <div class="notification-content">
-          <div class="notification-title-row">
-            <div class="notification-title">${n.title}</div>
-            <i class="fas fa-chevron-down expand-indicator"></i>
-          </div>
+          <div class="notification-title">${n.title}</div>
           <div class="notification-time">
             <i class="fas fa-clock"></i>
             ${timeAgo(n.created_at)}
           </div>
         </div>
       </div>
-      
-      <!-- Message - hidden until expanded -->
-      <div class="notification-message">${n.message}</div>
     </div>
   `).join("");
 
-  // Attach click handlers
   document.querySelectorAll(".notification-item").forEach(item => {
-    item.onclick = (e) => {
-      if (!e.target.classList.contains('delete-btn')) {
-        toggleNotification(item.dataset.id);
-      }
-    };
+    item.onclick = () => selectNotification(item.dataset.id);
   });
 }
 
-// ==============================
-// TOGGLE NOTIFICATION (EXPAND/COLLAPSE)
-// ==============================
-function toggleNotification(id) {
-  // If clicking the same notification, collapse it
-  if (expandedNotificationId === id) {
-    expandedNotificationId = null;
-  } else {
-    // Expand the clicked notification
-    expandedNotificationId = id;
-    
-    // Mark as read when expanded
-    const notification = notifications.find(n => n.id === id);
-    if (notification && !notification.is_read) {
-      markAsRead(id);
-    }
+function selectNotification(id) {
+  selectedNotificationId = id;
+  const notification = notifications.find(n => n.id === id);
+  if (!notification) return;
+
+  renderNotifications();
+  renderMessageDetail(notification);
+
+  if (!notification.is_read) {
+    markAsRead(id);
   }
+}
+
+function renderMessageDetail(n) {
+  const content = document.getElementById("messageDetailContent");
+  content.innerHTML = `
+    <button class="close-message-btn" onclick="closeMessageDetail()">
+      <i class="fas fa-times"></i>
+    </button>
+    <div class="message-card">
+      <div class="message-header">
+        <div class="message-icon-large ${getIconClass(n.icon || '📢')}">
+          ${n.icon || '📢'}
+        </div>
+        <div class="message-title-section">
+          <h2 class="message-title">${n.title}</h2>
+          <div class="message-meta">
+            <span><i class="fas fa-clock"></i>${timeAgo(n.created_at)}</span>
+            <span><i class="fas fa-circle"></i>${n.is_read ? 'Read' : 'Unread'}</span>
+          </div>
+        </div>
+      </div>
+      <div class="message-body">${n.message}</div>
+      <div class="message-actions">
+        <button class="message-action-btn btn-delete" onclick="deleteNotificationFromDetail('${n.id}')">
+          <i class="fas fa-trash"></i>
+          Delete
+        </button>
+        ${!n.is_read ? `
+          <button class="message-action-btn btn-mark-read" onclick="markAsRead('${n.id}')">
+            <i class="fas fa-check"></i>
+            Mark as Read
+          </button>
+        ` : ''}
+      </div>
+    </div>
+  `;
   
+  // Show the modal overlay
+  document.getElementById("messageDetailOverlay").classList.add("active");
+}
+
+function closeMessageDetail() {
+  document.getElementById("messageDetailOverlay").classList.remove("active");
+  selectedNotificationId = null;
   renderNotifications();
 }
 
-// ==============================
-// MARK AS READ
-// ==============================
 async function markAsRead(id) {
   try {
     const { error } = await supabaseClient
@@ -788,16 +868,17 @@ async function markAsRead(id) {
       n.is_read = true;
       unreadCount = Math.max(0, unreadCount - 1);
       updateBadge();
+      renderNotifications();
+      if (selectedNotificationId === id) {
+        renderMessageDetail(n);
+      }
     }
   } catch (err) {
     console.error("Failed to mark as read:", err.message);
   }
 }
 
-// ==============================
-// DELETE NOTIFICATION
-// ==============================
-async function deleteNotification(id) {
+async function deleteNotificationFromDetail(id) {
   if (!confirm('Delete this notification?')) return;
   
   try {
@@ -808,7 +889,6 @@ async function deleteNotification(id) {
 
     if (error) throw error;
 
-    // Remove from local array
     const wasUnread = notifications.find(n => n.id === id)?.is_read === false;
     notifications = notifications.filter(n => n.id !== id);
     
@@ -816,29 +896,20 @@ async function deleteNotification(id) {
       unreadCount = Math.max(0, unreadCount - 1);
     }
     
-    // Clear expanded state if deleted
-    if (expandedNotificationId === id) {
-      expandedNotificationId = null;
-    }
+    selectedNotificationId = null;
+    closeMessageDetail();
     
     updateBadge();
     renderNotifications();
-    showToast("Deleted", "Notification removed successfully");
+    showToast("Deleted", "Notification removed");
 
   } catch (err) {
-    console.error("Failed to delete notification:", err.message);
-    showToast("Error", "Failed to delete notification");
+    console.error("Failed to delete:", err.message);
   }
 }
 
-// ==============================
-// MARK ALL AS READ
-// ==============================
 async function markAllAsRead() {
-  if (unreadCount === 0) {
-    showToast("Info", "No unread notifications");
-    return;
-  }
+  if (unreadCount === 0) return;
   
   try {
     const { data: { session } } = await supabaseClient.auth.getSession();
@@ -856,22 +927,23 @@ async function markAllAsRead() {
     unreadCount = 0;
     updateBadge();
     renderNotifications();
-    showToast("Success", "All notifications marked as read");
+    if (selectedNotificationId) {
+      const n = notifications.find(x => x.id === selectedNotificationId);
+      if (n) renderMessageDetail(n);
+    }
+    showToast("Success", "All marked as read");
   } catch (err) {
-    console.error("Failed to mark all as read:", err.message);
+    console.error("Failed:", err.message);
   }
 }
 
-// ==============================
-// LOAD NOTIFICATIONS
-// ==============================
 async function loadNotifications() {
   const { data: { session } } = await supabaseClient.auth.getSession();
   if (!session) {
     document.getElementById("notificationBody").innerHTML = `
       <div class="empty-notifications">
         <i class="fas fa-sign-in-alt"></i>
-        <p>Please log in to view notifications</p>
+        <p>Please log in</p>
       </div>
     `;
     return;
@@ -891,24 +963,13 @@ async function loadNotifications() {
     updateBadge();
     renderNotifications();
   } catch (err) {
-    console.error("Failed to load notifications:", err.message);
-    document.getElementById("notificationBody").innerHTML = `
-      <div class="empty-notifications">
-        <i class="fas fa-exclamation-triangle"></i>
-        <p>Failed to load notifications</p>
-      </div>
-    `;
+    console.error("Failed to load:", err.message);
   }
 }
 
-// ==============================
-// REALTIME SUBSCRIPTION
-// ==============================
 async function setupRealtime() {
   const { data: { session } } = await supabaseClient.auth.getSession();
   if (!session) return;
-
-  const userId = session.user.id;
 
   supabaseClient
     .channel("notifications")
@@ -916,7 +977,7 @@ async function setupRealtime() {
       event: "INSERT",
       schema: "public",
       table: "notifications",
-      filter: `scholar_id=eq.${userId}`
+      filter: `scholar_id=eq.${session.user.id}`
     }, payload => {
       notifications.unshift(payload.new);
       unreadCount++;
@@ -927,9 +988,6 @@ async function setupRealtime() {
     .subscribe();
 }
 
-// ==============================
-// TOAST NOTIFICATION
-// ==============================
 function showToast(title, message) {
   const toast = document.getElementById("toastNotification");
   document.getElementById("toastTitle").textContent = title;
@@ -938,38 +996,42 @@ function showToast(title, message) {
   setTimeout(() => toast.classList.remove("show"), 4000);
 }
 
-// ==============================
-// MAKE FUNCTIONS GLOBAL
-// ==============================
-window.deleteNotification = deleteNotification;
+window.deleteNotificationFromDetail = deleteNotificationFromDetail;
+window.markAsRead = markAsRead;
 window.markAllAsRead = markAllAsRead;
+window.closeMessageDetail = closeMessageDetail;
 
-/* ===============================
-   INIT
-================================ */
 document.addEventListener("DOMContentLoaded", async () => {
   await loadNotifications();
   await setupRealtime();
 
   document.getElementById("notificationBtn").onclick = e => {
     e.preventDefault();
-    document.getElementById("notificationPanel").classList.add("active");
+    document.getElementById("notificationContainer").classList.add("active");
     document.getElementById("notificationOverlay").classList.add("active");
   };
 
-  document.getElementById("closePanel").onclick =
-  document.getElementById("notificationOverlay").onclick = () => {
-    document.getElementById("notificationPanel").classList.remove("active");
+  const closeContainer = () => {
+    document.getElementById("notificationContainer").classList.remove("active");
     document.getElementById("notificationOverlay").classList.remove("active");
-      expandedNotificationId = null; // Collapse all when closing panel
+    closeMessageDetail();
   };
 
+  document.getElementById("notificationOverlay").onclick = closeContainer;
+  
+  // Close message modal when clicking outside
+  document.getElementById("messageDetailOverlay").onclick = (e) => {
+    if (e.target.id === "messageDetailOverlay") {
+      closeMessageDetail();
+    }
+  };
+  
   document.getElementById("markAllRead").onclick = markAllAsRead;
   document.getElementById("refreshBtn").onclick = loadNotifications;
-  document.getElementById("toastClose").onclick =
-    () => document.getElementById("toastNotification").classList.remove("show");
+  document.getElementById("toastClose").onclick = () => 
+    document.getElementById("toastNotification").classList.remove("show");
 });
 </script>
 
 </body>
-</html>
+</html

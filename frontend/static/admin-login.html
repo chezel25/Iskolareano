@@ -1,166 +1,128 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
+<meta charset="UTF-8">
 <title>Scholar Login</title>
-<style>
-  :root {
-    --orange: #FF7700;
-    --navy: #002054;
-    --light-gray: #F2F2F2;
-    --white: #ffffff;
-  }
+<link rel="stylesheet" href="/css/style.css">
 
-  body {
-    margin: 0;
-    background-color: var(--light-gray);
-    font-family: 'Segoe UI', Arial, sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-  }
-
-  .container {
-    width: 380px;
-    background: var(--white);
-    padding: 2.5rem 2.2rem;
-    border-radius: 22px;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.12);
-    text-align: center;
-  }
-
-  .title {
-    font-size: 1.9rem;
-    font-weight: 900;
-    color: var(--navy);
-  }
-
-  .title span {
-    color: var(--orange);
-  }
-
-  .subtitle {
-    margin-top: 4px;
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: var(--navy);
-  }
-
-  .input-box {
-    width: 100%;
-    padding: 1rem;
-    margin-top: 1.2rem;
-    border-radius: 16px;
-    border: 1.5px solid #bcbcbc;
-    font-size: 1rem;
-    background: #f7f7f7;
-    box-sizing: border-box;
-  }
-
-  .input-box::placeholder {
-    color: #888;
-  }
-
-  .input-box:focus {
-    outline: none;
-    border-color: var(--orange);
-    box-shadow: 0 0 0 3px rgba(255,119,0,0.25);
-  }
-
-  button {
-    width: 100%;
-    margin-top: 1.8rem;
-    padding: 1rem;
-    background: var(--orange);
-    color: var(--white);
-    font-size: 1.15rem;
-    border: none;
-    border-radius: 22px;
-    cursor: pointer;
-    font-weight: 700;
-    transition: 0.3s;
-  }
-
-  button:hover {
-    background: #e06200;
-  }
-
-  .back {
-    display: block;
-    margin-top: 1rem;
-    font-size: 0.95rem;
-    color: var(--navy);
-    text-decoration: none;
-  }
-
-  .back:hover {
-    text-decoration: underline;
-  }
-</style>
 </head>
 <body>
 
-<div class="container">
-  <div class="title">ISKOLA<span>REALEÑO</span></div>
-  <div class="subtitle">Admin Login</div>
+  <!-- Background Shapes -->
+  <div class="bg-shape shape-orange"></div>
+  <div class="bg-shape shape-light"></div>
 
-  <form id="adminLoginForm">
-    <input id="email" type="email" class="input-box" placeholder="Email" required>
-    <input id="password" type="password" class="input-box" placeholder="Password" required>
-    <button type="submit">Login</button>
-  </form>
+  <!-- Login Wrapper -->
+  <div class="login-wrapper">
 
-  <a href="admin-signup.html" class="back">← Sign up</a>
-  <a href="forgot-password.html" class="back">← Forgot password?</a>
-</div>
+    <!-- LEFT IMAGE -->
+    <div class="login-image">
+      <img src="img/DOCU9.jpg" alt="Real Quezon Scholarship">
+    </div>
 
+    <!-- RIGHT LOGIN CARD -->
+    <div class="auth-card">
+      <img src="img/logo.png" alt="Iskolarealeno Logo" class="portal-logo">
+      <h1>ISKOLAREALEÑO</h1>
+      <p class="subtitle">Sign in to your account.</p>
 
+      <div class="input-group">
+        <label for="email">Email</label>
+        <input id="email" type="email" placeholder="you@email.com" required>
+      </div>
+
+      <div class="input-group">
+        <label for="password">Password</label>
+        <input id="password" type="password" placeholder="••••••••" required>
+      </div>
+
+      <button id="loginBtn" class="btn">Login</button>
+
+      <p class="footer-text">
+        <a class="link" href="admin_forgot-password.html">Forgot password?</a>
+      </p>
+
+    </div>
+  </div>
+<!-- Supabase JS SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
-document.getElementById('adminLoginForm').addEventListener('submit', async (e) => {
-  e.preventDefault();
+const supabaseClient = supabase.createClient(
+  'https://wwzufquuogpshrlrofiv.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind3enVmcXV1b2dwc2hybHJvZml2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwNTgxMzcsImV4cCI6MjA4MTYzNDEzN30.JXJgJEpX0BEKYHGbWH1zUq6lVv1jetg0AmEsM-HvZQs'
+);
 
-  const email = document.getElementById('email').value;
-  const password = document.getElementById('password').value;
+
+   
+
+document.getElementById('loginBtn').addEventListener('click', async () => {
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value.trim();
+
+  if (!email || !password) {
+    alert('❌ Enter email and password');
+    return;
+  }
 
   try {
+    // 1️⃣ Supabase Auth Login
+    const { data: authData, error } =
+      await supabaseClient.auth.signInWithPassword({
+        email,
+        password
+      });
+
+    if (error) {
+      alert('❌ ' + error.message);
+      return;
+    }
+
+    // 2️⃣ Backend role validation
     const res = await fetch('http://localhost:5000/api/admin/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password })
+      body: JSON.stringify({ email })
     });
 
-    const data = await res.json();
+    const result = await res.json();
 
     if (!res.ok) {
-      alert(data.error || 'Login failed');
+      alert('❌ ' + (result.error || 'Login blocked'));
+      await supabaseClient.auth.signOut();
       return;
     }
 
-    // --- Redirect based on role safely
-    const role = data.role;
-    if (!role) {
-      alert('Role not found. Cannot login.');
-      return;
+    // 3️⃣ Store session
+    localStorage.setItem('auth_token', authData.session.access_token);
+    localStorage.setItem('role', result.role);
+    localStorage.setItem('user', JSON.stringify(result.user));
+
+    // 4️⃣ Role-based redirect
+    switch (result.role) {
+      case 'main_admin':
+        window.location.href = 'admin-dashboard.html';
+        break;
+
+      case 'examiner':
+        window.location.href = 'exam-admin.html';
+        break;
+
+      case 'mswd':
+        window.location.href = 'mswd-dashboard.html';
+        break;
+
+      default:
+        alert('❌ Unauthorized role');
+        await supabaseClient.auth.signOut();
     }
 
-    if (data.role === 'main_admin') {
-  window.location.href = 'admin-dashboard.html';
-} else if (data.role === 'examiner') {
-  window.location.href = '/admin/examiner-dashboard.html';
-} else if (data.role === 'mswd') {
-  window.location.href = '/admin/mswd-dashboard.html';
-} else {
-  alert('Unknown role');
-}
   } catch (err) {
     console.error(err);
-    alert('Login failed. Check console.');
+    alert('❌ Server error');
   }
 });
 </script>
-
 
 </body>
 </html>

@@ -2734,6 +2734,231 @@ app.delete('/api/scholar/notifications/:id', async (req, res) => {
     });
   }
 });
+//-------ADMIN CREATE------------------
+/**
+ * CREATE ADMIN / STAFF ACCOUNT
+ */// ---------------- CREATE STAFF ----------------
+app.post('/api/staff/create', async (req, res) => {
+  let { first_name, last_name, email, role } = req.body;
+
+  // ✅ Validate input
+  if (!first_name || !last_name || !email || !role) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  // ✅ Normalize role (admin === main_admin)
+  if (role === 'admin') {
+    role = 'main_admin';
+  }
+
+  const VALID_ROLES = ['main_admin', 'examiner', 'mswd'];
+
+  if (!VALID_ROLES.includes(role)) {
+    return res.status(400).json({ error: 'Invalid role' });
+  }
+
+  const tempPassword = generateTempPassword();
+
+  try {
+    // 1️⃣ CREATE AUTH USER
+    const { data: authData, error: authError } =
+      await supabase.auth.admin.createUser({
+        email,
+        password: tempPassword,
+        email_confirm: true
+      });
+
+    if (authError) {
+      console.error('AUTH ERROR:', authError);
+      return res.status(400).json({ error: authError.message });
+    }
+
+    const authId = authData.user.id;
+
+    // 2️⃣ INSERT INTO ADMINS TABLE
+    const { error: insertError } = await supabase
+      .from('admins')
+      .insert({
+        auth_id: authId,
+        email,
+        role,
+        status: role === 'main_admin' ? 'approved' : 'pending'
+      });
+
+    if (insertError) {
+      console.error('DB ERROR:', insertError);
+
+      // rollback auth user
+      await supabase.auth.admin.deleteUser(authId);
+
+      return res.status(400).json({ error: insertError.message });
+    }
+
+    // 3️⃣ SEND EMAIL
+    await transporter.sendMail({
+      from: `"Iskolarealeno" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: 'Admin Account Created',
+      text: `Hello ${first_name},
+
+Your ${role.replace('_', ' ')} account has been created.
+
+Email: ${email}
+Temporary Password: ${tempPassword}
+
+Please log in and change your password immediately.
+
+Regards,
+Iskolarealeno Team`
+    });
+
+    // 4️⃣ SUCCESS
+    res.json({
+      success: true,
+      message: 'Admin account created successfully'
+    });
+
+  } catch (err) {
+    console.error('SERVER ERROR:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+//-------------------ADMIN LOGIN-----------------------
+app.post('/api/admin/login', async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({ error: 'Email is required' });
+  }
+
+  try {
+    const { data: admin, error } = await supabase
+      .from('admins')
+      .select('id, email, role')
+      .eq('email', email)
+      .single();
+
+    if (error || !admin) {
+      return res.status(403).json({
+        error: 'Access denied. Not an admin account.'
+      });
+    }
+
+    // ✅ SUCCESS — no approval checks
+    res.json({
+      success: true,
+      role: admin.role,
+      user: {
+        id: admin.id,
+        email: admin.email
+      }
+    });
+
+  } catch (err) {
+    console.error('ADMIN LOGIN ERROR:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+
+//--------------------ADMIN FORGOT/RESET PASSWORD-----------------
+// ------------------ ADMIN FORGOT PASSWORD ------------------
+app.post('/api/admin/forgot-password', async (req, res) => {
+  const { email } = req.body;
+  if (!email) return res.status(400).json({ error: 'Email required' });
+
+  try {
+    // 1️⃣ Find admin
+    const { data: admin, error: findError } = await supabase
+      .from('admins')
+      .select('id, email')
+      .ilike('email', email.trim())
+      .single();
+
+    if (findError || !admin) {
+      return res.status(404).json({ error: 'Admin not found' });
+    }
+
+    // 2️⃣ Generate reset token
+    const token = Math.random().toString(36).substring(2, 15);
+
+    // 3️⃣ Save token
+    const { error: updateError } = await supabase
+      .from('admins')
+      .update({ reset_token: token })
+      .eq('id', admin.id);
+
+    if (updateError) {
+      return res.status(500).json({ error: updateError.message });
+    }
+
+    // 4️⃣ Send email
+    const resetLink = `${process.env.FRONTEND_URL}/admin_reset-password.html?token=${token}`;
+
+    await transporter.sendMail({
+      from: `"Iskolarealeno Admin" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: 'Reset your admin password',
+      html: `
+        <p>Hello Admin,</p>
+        <p>Click the link below to reset your password:</p>
+        <a href="${resetLink}">${resetLink}</a>
+        <p>If you did not request this, ignore this email.</p>
+      `
+    });
+
+    res.json({ message: '✅ Check your email for the reset link!' });
+
+  } catch (err) {
+    console.error('ADMIN FORGOT PASSWORD ERROR:', err);
+    res.status(500).json({ error: 'Server error: ' + err.message });
+  }
+});
+// ------------------ ADMIN RESET PASSWORD ------------------
+app.post('/api/admin/reset-password', async (req, res) => {
+  const { token, newPassword } = req.body;
+
+  if (!token || !newPassword) {
+    return res.status(400).json({ error: 'Missing token or new password' });
+  }
+
+  try {
+    // 1️⃣ Find admin by token
+    const { data: admin, error } = await supabase
+      .from('admins')
+      .select('id, auth_id')
+      .eq('reset_token', token)
+      .single();
+
+    if (error || !admin) {
+      return res.status(404).json({ error: 'Invalid or expired token' });
+    }
+
+    // 2️⃣ Update password in Supabase Auth
+    const { error: updateError } =
+      await supabase.auth.admin.updateUserById(admin.auth_id, {
+        password: newPassword
+      });
+
+    if (updateError) throw updateError;
+
+    // 3️⃣ Clear reset token
+    await supabase
+      .from('admins')
+      .update({ reset_token: null })
+      .eq('id', admin.id);
+
+    res.json({
+      success: true,
+      message: 'Password updated successfully'
+    });
+
+  } catch (err) {
+    console.error('ADMIN RESET PASSWORD ERROR:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ---------------- SERVER ----------------
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`✅ Server running on http://localhost:${PORT}`));
