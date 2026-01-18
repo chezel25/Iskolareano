@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>About Us - ISKOLAREALEÑO Scholarship Portal</title>
+<link rel="stylesheet" href="css/homestyle.css">
+<style>
+/* About Page Specific Styles */
+.about-section {
+  padding: 80px 0;
+  background: #fff;
+}
+
+.about-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: start;
+}
+
+.about-left {
+  padding-right: 20px;
+}
+
+.section-subtitle {
+  color: #ff6b35;
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 12px;
+}
+
+.section-title {
+  font-size: 2.5rem;
+  line-height: 1.2;
+  margin-bottom: 24px;
+  color: #1a1a1a;
+}
+
+.orange-text {
+  color: #ff6b35;
+}
+
+.about-description {
+  font-size: 1.05rem;
+  line-height: 1.8;
+  color: #555;
+  margin-bottom: 20px;
+}
+
+.about-values {
+  margin-top: 40px;
+  display: grid;
+  gap: 25px;
+}
+
+.value-item {
+  padding: 20px;
+  border-left: 3px solid #ff6b35;
+  background: #f9f9f9;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.value-item:hover {
+  background: #fff;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  transform: translateX(5px);
+}
+
+.value-item h3 {
+  color: #ff6b35;
+  font-size: 1.2rem;
+  margin-bottom: 8px;
+}
+
+.value-item p {
+  color: #666;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.about-right {
+  position: relative;
+}
+
+.about-image-container {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  margin-bottom: 30px;
+}
+
+.about-image {
+  width: 100%;
+  height: 400px;
+  object-fit: cover;
+  display: block;
+  background: linear-gradient(135deg, #ff6b35 0%, #ff8c42 100%);
+}
+
+.about-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+  padding: 30px;
+}
+
+.overlay-stat {
+  display: flex;
+  flex-direction: column;
+  color: white;
+}
+
+.overlay-number {
+  font-size: 2.5rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.overlay-label {
+  font-size: 0.95rem;
+  opacity: 0.9;
+  margin-top: 5px;
+}
+
+.mission-box {
+  background: linear-gradient(135deg, #ff6b35 0%, #ff8c42 100%);
+  color: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 8px 25px rgba(255,107,53,0.3);
+}
+
+.mission-box h3 {
+  font-size: 1.4rem;
+  margin-bottom: 15px;
+  color: white;
+}
+
+.mission-box p {
+  margin: 0;
+  line-height: 1.7;
+  opacity: 0.95;
+  font-size: 1rem;
+}
+
+/* Team Section Styles */
+.team-section {
+  padding: 80px 0;
+  background: #f8f9fa;
+}
+
+.section-description {
+  text-align: center;
+  max-width: 700px;
+  margin: 0 auto 20px;
+  font-size: 1.05rem;
+  color: #666;
+  line-height: 1.7;
+}
+
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 30px;
+  margin-top: 50px;
+}
+
+.team-card {
+  background: white;
+  padding: 35px 25px;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+  transition: all 0.3s ease;
+  border-top: 3px solid transparent;
+}
+
+.team-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+  border-top-color: #ff6b35;
+}
+
+.team-avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ff6b35 0%, #ff8c42 100%);
+  margin: 0 auto 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  font-weight: 700;
+  color: white;
+  box-shadow: 0 6px 20px rgba(255,107,53,0.3);
+}
+
+.team-card h3 {
+  color: #1a1a1a;
+  font-size: 1.3rem;
+  margin-bottom: 8px;
+}
+
+.team-role {
+  color: #ff6b35;
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-bottom: 15px;
+}
+
+.team-bio {
+  color: #666;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.professor-card {
+  background: white;
+  padding: 40px;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+  margin: 50px auto 0;
+  max-width: 600px;
+  border: 2px solid #ff6b35;
+}
+
+.professor-card .team-avatar {
+  width: 120px;
+  height: 120px;
+  font-size: 2.5rem;
+}
+
+.professor-card h3 {
+  font-size: 1.5rem;
+  margin-bottom: 10px;
+}
+
+.professor-card .team-role {
+  font-size: 1.1rem;
+  margin-bottom: 20px;
+}
+
+.tech-stack {
+  margin-top: 60px;
+  text-align: center;
+  padding: 40px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+}
+
+.tech-stack h3 {
+  color: #1a1a1a;
+  font-size: 1.5rem;
+  margin-bottom: 25px;
+}
+
+.tech-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  justify-content: center;
+}
+
+.tech-badge {
+  display: inline-block;
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #ff6b35 0%, #ff8c42 100%);
+  color: white;
+  border-radius: 25px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  box-shadow: 0 3px 10px rgba(255,107,53,0.2);
+  transition: all 0.3s ease;
+}
+
+.tech-badge:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 15px rgba(255,107,53,0.3);
+}
+
+/* Responsive Design */
+@media (max-width: 968px) {
+  .team-grid {
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 25px;
+  }
+  
+  .about-content {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+  
+  .about-left {
+    padding-right: 0;
+  }
+  
+  .section-title {
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .about-section {
+    padding: 60px 0;
+  }
+  
+  .team-section {
+    padding: 60px 0;
+  }
+  
+  .team-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .section-title {
+    font-size: 1.75rem;
+  }
+  
+  .about-image {
+    height: 300px;
+  }
+  
+  .about-values {
+    margin-top: 30px;
+  }
+  
+  .professor-card {
+    padding: 30px 20px;
+  }
+}
+</style>
+</head>
+<body>
+
+<header role="banner"> 
+  <div class="logo" aria-label="Iskolarealeno logo and name">
+    <img src="img/logo.png" alt="Iskolarealeno Logo">
+    <span class="logo-text">ISKOLAREALEÑO</span>
+  </div>
+  <nav aria-label="Main navigation">
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="#">Scholarships</a></li>
+      <li><a href="profile.html">Profile</a></li>
+      <li><a href="about.html" class="active">About</a></li>
+      <li><a href="login.html">Logout</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main class="container" role="main" aria-label="Main content">
+
+<!-- About Section -->
+<section class="about-section">
+  <div class="container">
+    <div class="about-content">
+      <div class="about-left">
+        <div class="section-subtitle">About Us</div>
+        <h2 class="section-title">Empowering Students from<br /><span class="orange-text">Real, Quezon</span></h2>
+        <p class="about-description">
+          ISKOLAREALEÑO is more than a scholarship program—it's a commitment to nurturing the brightest minds from Real, Quezon. Since our establishment, we've been dedicated to providing educational opportunities, mentorship, and community support to deserving students.
+        </p>
+        <p class="about-description">
+          Our mission is to break down financial barriers to education and create pathways for students to achieve their full potential. Through comprehensive scholarship packages, skill development programs, and community engagement initiatives, we're building a brighter future for Real, Quezon.
+        </p>
+        <div class="about-values">
+          <div class="value-item">
+            <h3>Excellence</h3>
+            <p>We foster academic excellence and encourage scholars to reach their highest potential in all endeavors.</p>
+          </div>
+          <div class="value-item">
+            <h3>Community</h3>
+            <p>Building strong connections between scholars, alumni, and the Real community is at our core.</p>
+          </div>
+          <div class="value-item">
+            <h3>Integrity</h3>
+            <p>We maintain transparency and fairness in all our scholarship processes and programs.</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="about-right">
+        <div class="about-image-container">
+          <img src="img/about-scholars.jpg" alt="ISKOLAREALEÑO Scholars" class="about-image">
+          <div class="about-overlay">
+            <div class="overlay-stat">
+              <span class="overlay-number">756+</span>
+              <span class="overlay-label">Total Scholars</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="mission-box">
+          <h3>Our Mission</h3>
+          <p>To provide accessible, quality education to talented students from Real, Quezon, empowering them to become leaders and change-makers in their communities.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Development Team Section -->
+<section class="team-section">
+  <div class="container">
+    <div class="section-subtitle">Our Team</div>
+    <h2 class="section-title">Meet the <span class="orange-text">Development Team</span></h2>
+    <p class="section-description">
+      The dedicated team behind the ISKOLAREALEÑO Scholarship Portal, working to create a seamless experience for our scholars.
+    </p>
+
+    <!-- Professor Card -->
+    <div class="professor-card">
+      <div class="team-avatar">
+        <span>PR</span>
+      </div>
+      <h3>Prof. Rodriguez</h3>
+      <p class="team-role">Project Adviser</p>
+      <p class="team-bio">Guiding and mentoring the development team throughout the project lifecycle, ensuring alignment with educational goals and best practices.</p>
+    </div>
+
+    <!-- Developers Grid -->
+    <div class="team-grid">
+      <div class="team-card">
+        <div class="team-avatar">
+          <span>JD</span>
+        </div>
+        <h3>Juan Dela Cruz</h3>
+        <p class="team-role">Lead Developer</p>
+        <p class="team-bio">Full-stack developer specializing in web applications and database management systems.</p>
+      </div>
+
+      <div class="team-card">
+        <div class="team-avatar">
+          <span>MS</span>
+        </div>
+        <h3>Maria Santos</h3>
+        <p class="team-role">Frontend Developer</p>
+        <p class="team-bio">UI/UX designer focused on creating intuitive and accessible user interfaces for all users.</p>
+      </div>
+
+      <div class="team-card">
+        <div class="team-avatar">
+          <span>AR</span>
+        </div>
+        <h3>Antonio Reyes</h3>
+        <p class="team-role">Backend Developer</p>
+        <p class="team-bio">Systems architect ensuring secure and efficient server-side operations and data management.</p>
+      </div>
+
+      <div class="team-card">
+        <div class="team-avatar">
+          <span>LC</span>
+        </div>
+        <h3>Lisa Cruz</h3>
+        <p class="team-role">Project Manager</p>
+        <p class="team-bio">Coordinating development efforts and ensuring timely delivery of features and updates.</p>
+      </div>
+    </div>
+
+    <div class="tech-stack">
+      <h3>Built With</h3>
+      <div class="tech-badges">
+        <span class="tech-badge">HTML5</span>
+        <span class="tech-badge">CSS3</span>
+        <span class="tech-badge">JavaScript</span>
+        <span class="tech-badge">PHP</span>
+        <span class="tech-badge">MySQL</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="container">
+    &copy; 2026 ISKOLAREALENO. Real, Quezon City, Philippines | Contact: info@iskolarealeno.ph
+  </div>
+</footer>
+
+</body>
+</html>

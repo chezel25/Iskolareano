@@ -508,6 +508,7 @@ function applyStatusUI(status) {
 // ==============================
 // UPLOAD FILE
 // ==============================
+
 async function uploadReq(input, type) {
   if (!input || !input.files || !input.files[0]) return;
 
@@ -598,39 +599,29 @@ async function deleteFile(type) {
 // SUBMIT ALL REQUIREMENTS
 // ==============================
 async function submitRequirements() {
-  const token = localStorage.getItem("access_token");
+  const token = localStorage.getItem("auth_token");
   if (!token) return alert("You are not logged in");
 
-  try {
-    const res = await fetch("/api/requirements/submit", {
-      method: "POST",
-      headers: {
-        "Authorization": "Bearer " + token,
-        "Content-Type": "application/json"
-      }
-    });
-
-    const data = await res.json();
-
-    if (!data.success) {
-      alert("Submit failed: " + data.error);
-      return;
+  const res = await fetch("/api/requirements/submit", {
+    method: "POST",
+    headers: {
+      Authorization: "Bearer " + token,
+      "Content-Type": "application/json"
     }
+  });
 
-    // Update UI immediately with new status
-    const newStatus = "requirements_review";
-    applyStatusUI(newStatus);
-    updateTrackerUI(newStatus);
+  const data = await res.json();
 
-    alert("📄 Documents submitted and under review");
-
-    // Reload status from server to confirm
-    await loadApplicationStatus();
-
-  } catch (err) {
-    alert("Submit error: " + err.message);
+  if (!data.success) {
+    alert("Submit failed: " + data.error);
+    return;
   }
+
+  applyStatusUI("requirements_review");
+  updateTrackerUI("requirements_review");
+  alert("📄 Documents submitted and under review");
 }
+
 
 // ==============================
 // UPDATE SUBMIT BUTTON
