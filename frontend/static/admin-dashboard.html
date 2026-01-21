@@ -705,7 +705,7 @@ textarea {
       <h2 id="totalApplicants">0</h2>
     </div>
     <div class="stat-card">
-      <small><i class="fas fa-clock"></i> Pending Approvals</small>
+      <small><i class="fas fa-clock"></i> Total Graduated</small>
       <h2 id="pendingApprovals">0</h2>
     </div>
     <div class="stat-card">
@@ -758,6 +758,31 @@ const supabaseClient = supabase.createClient(
   'https://wwzufquuogpshrlrofiv.supabase.co',
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind3enVmcXV1b2dwc2hybHJvZml2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwNTgxMzcsImV4cCI6MjA4MTYzNDEzN30.JXJgJEpX0BEKYHGbWH1zUq6lVv1jetg0AmEsM-HvZQs'
 );
+///-----------------------(TOKEN) cannot access page without logging in----------------
+
+(async function protectAdmin() {
+  const sessionStr = localStorage.getItem('supabase_session');
+  const role = localStorage.getItem('role');
+
+  if (!sessionStr || !['main_admin','examiner','mswd'].includes(role)) {
+    alert('❌ You must be logged in as an admin');
+    window.location.replace('admin-login.html');
+    return;
+  }
+
+  const session = JSON.parse(sessionStr);
+  await supabaseClient.auth.setSession(session);
+
+  const { data, error } = await supabaseClient.auth.getUser();
+  if (error || !data.user) {
+    localStorage.clear();
+    window.location.replace('admin-login.html');
+    return;
+  }
+
+  console.log('✅ Admin logged in:', role, data.user.email);
+})();
+//----------------------------------------------------------
 // Switch active tab
 function switchTab(tabName) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -769,56 +794,17 @@ function switchTab(tabName) {
   });
 }
 
-// DASHBOARD VIEW
+//---------------------------------------------
 function showDashboard() {
-  switchTab('Dashboard');
-  const html = `
-    <h3><i class="fas fa-chart-line"></i> Dashboard Overview</h3>
-    <p>Quick statistics and recent activity</p>
-    <div class="stats" style="margin-top: 30px;">
-      <div class="stat-card">
-        <small><i class="fas fa-user-graduate"></i> Total Scholars</small>
-        <h2 id="dashScholars">-</h2>
-      </div>
-      <div class="stat-card">
-        <small><i class="fas fa-users"></i> Total Applicants</small>
-        <h2 id="dashApplicants">-</h2>
-      </div>
-      <div class="stat-card">
-        <small><i class="fas fa-clock"></i> Pending Items</small>
-        <h2 id="dashPending">-</h2>
-      </div>
-      <div class="stat-card">
-        <small><i class="fas fa-bullhorn"></i> Announcements Sent</small>
-        <h2 id="dashAnnouncements">-</h2>
-      </div>
-    </div>
+  loadStats(); // load the stats
+  document.getElementById('content').innerHTML = `
+  
+    <h3>Welcome to Admin Dashboard</h3>
+    <p>Select a tab above to manage the system.</p>
+  
   `;
-  document.getElementById('content').innerHTML = html;
-  loadDashboardStats();
 }
 
-async function loadDashboardStats() {
-  try {
-    const scholarsRes = await fetch('http://localhost:5000/api/admin/scholars');
-    if (scholarsRes.ok) {
-      const scholars = await scholarsRes.json();
-          // ✅ EXCLUDE GRADUATED SCHOLARS FROM COUNT
-    const activeScholars = scholars.filter(s =>
-      (s.status || '').toLowerCase().trim() !== 'graduated'
-    );
-
-    document.getElementById('totalScholars').textContent = activeScholars.length;
-  } else {
-    document.getElementById('totalScholars').textContent = '0';
-  }
-} catch {
-  document.getElementById('totalScholars').textContent = '0';
-}
-      
-}
-
-// ADD THIS AT THE TOP OF YOUR FILE
 
 // SCHOLARS VIEW
 // SCHOLARS VIEW (ACTIVE + FAILED ONLY)
@@ -2155,48 +2141,50 @@ async function deleteGraduate(id) {
 // LOAD STATS
 async function loadStats() {
   try {
-    try {
-      const scholarsRes = await fetch('http://localhost:5000/api/admin/scholars');
-      if (scholarsRes.ok) {
-        const scholars = await scholarsRes.json();
-        document.getElementById('totalScholars').textContent = scholars.length || 0;
-      } else {
-        document.getElementById('totalScholars').textContent = '0';
-      }
-    } catch {
-      document.getElementById('totalScholars').textContent = '0';
+    // ---------- SCHOLARS ----------
+    const scholarsRes = await fetch('http://localhost:5000/api/admin/scholars');
+    let scholars = [];
+    if (scholarsRes.ok) {
+      scholars = await scholarsRes.json();
     }
+    const totalScholars = scholars.filter(s => (s.status || '').toLowerCase() !== 'graduated').length;
+    document.getElementById('totalScholars').textContent = totalScholars;
 
-    try {
-      const applicantsRes = await fetch('http://localhost:5000/api/admin/applicants');
-      if (applicantsRes.ok) {
-        const applicants = await applicantsRes.json();
-        document.getElementById('totalApplicants').textContent = applicants.length || 0;
-      } else {
-        document.getElementById('totalApplicants').textContent = '0';
-      }
-    } catch {
-      document.getElementById('totalApplicants').textContent = '0';
+    // ---------- GRADUATES ----------
+    const graduatesRes = await fetch('http://localhost:5000/api/admin/graduates');
+    let graduates = [];
+    if (graduatesRes.ok) {
+      graduates = await graduatesRes.json();
     }
+    document.getElementById('pendingApprovals').textContent = graduates.length || 0;
 
-    try {
-      const announcementsRes = await fetch('http://localhost:5000/api/announcements');
-      if (announcementsRes.ok) {
-        const announcements = await announcementsRes.json();
-        document.getElementById('totalAnnouncements').textContent = announcements.length || 0;
-      } else {
-        document.getElementById('totalAnnouncements').textContent = '0';
-      }
-    } catch {
-      document.getElementById('totalAnnouncements').textContent = '0';
+    // ---------- APPLICANTS ----------
+    const applicantsRes = await fetch('http://localhost:5000/api/admin/applicants');
+    let applicants = [];
+    if (applicantsRes.ok) {
+      const result = await applicantsRes.json();
+      applicants = result.applicants || [];
     }
+    document.getElementById('totalApplicants').textContent = applicants.length || 0;
 
-    document.getElementById('pendingApprovals').textContent = '0';
+    // ---------- ANNOUNCEMENTS ----------
+    const announcementsRes = await fetch('http://localhost:5000/api/announcements');
+    let announcements = [];
+    if (announcementsRes.ok) {
+      announcements = await announcementsRes.json();
+    }
+    document.getElementById('totalAnnouncements').textContent = announcements.length || 0;
 
   } catch (err) {
     console.error('Error loading stats:', err);
+    document.getElementById('totalScholars').textContent = '0';
+    document.getElementById('pendingApprovals').textContent = '0';
+    document.getElementById('totalApplicants').textContent = '0';
+    document.getElementById('totalAnnouncements').textContent = '0';
   }
 }
+
+window.addEventListener("DOMContentLoaded", loadStats);
 
 // Initialize on load
 window.addEventListener('DOMContentLoaded', () => {

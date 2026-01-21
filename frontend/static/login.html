@@ -94,9 +94,11 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
       return;
     }
 
+    await supabaseClient.auth.setSession(authData.session);
     // 3️⃣ Save session token for protected requests
     localStorage.setItem('user', JSON.stringify(result.user));
   localStorage.setItem('auth_token', authData.session.access_token);// ✅ important
+   localStorage.setItem('supabase_session', JSON.stringify(authData.session));
     localStorage.setItem('role', result.role);
 
     // 4️⃣ Redirect to the correct page

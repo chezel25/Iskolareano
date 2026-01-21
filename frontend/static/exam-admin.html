@@ -373,6 +373,31 @@ td {
 </div>
 
 <script>
+  (async function protectExaminer() {
+  const sessionStr = localStorage.getItem('supabase_session');
+  const role = localStorage.getItem('role');
+
+  // 1️⃣ Not logged in or not an examiner → redirect
+  if (!sessionStr || role !== 'examiner') {
+    alert('❌ You must be logged in as an examiner to access this page.');
+    window.location.replace('admin-login.html'); // redirect to admin login
+    return;
+  }
+
+  // 2️⃣ Restore Supabase session
+  const session = JSON.parse(sessionStr);
+  await supabaseClient.auth.setSession(session);
+
+  // 3️⃣ Verify user is still valid
+  const { data, error } = await supabaseClient.auth.getUser();
+  if (error || !data.user) {
+    localStorage.clear();
+    window.location.replace('admin-login.html');
+    return;
+  }
+
+  console.log('✅ Examiner logged in:', data.user.email);
+})();
   const API_BASE = 'http://localhost:5000';
 
   let allApplicants = [];

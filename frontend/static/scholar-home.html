@@ -722,7 +722,33 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 
 const { createClient } = supabase;
 const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+(async function protectPage() {
+  const sessionStr = localStorage.getItem('supabase_session');
+  const role = localStorage.getItem('role');
 
+  if (!sessionStr) {
+    window.location.replace('login.html'); // fallback
+    return;
+  }
+
+  const session = JSON.parse(sessionStr);
+  await supabaseClient.auth.setSession(session);
+
+  const { data, error } = await supabaseClient.auth.getUser();
+  if (error || !data.user) {
+    localStorage.clear();
+    window.location.replace('login.html');
+    return;
+  }
+
+  if (role !== 'scholar') {
+    alert('❌ You must be logged in as a scholar');
+    window.location.replace('login.html');
+    return;
+  }
+
+  console.log('✅ Logged in as:', role, data.user.email);
+})();
 let notifications = [];
 let unreadCount = 0;
 let selectedNotificationId = null;

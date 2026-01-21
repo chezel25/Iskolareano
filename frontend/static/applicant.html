@@ -370,6 +370,35 @@ const supabaseUrl = "https://wwzufquuogpshrlrofiv.supabase.co";
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind3enVmcXV1b2dwc2hybHJvZml2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwNTgxMzcsImV4cCI6MjA4MTYzNDEzN30.JXJgJEpX0BEKYHGbWH1zUq6lVv1jetg0AmEsM-HvZQs";
 const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
+
+
+(async function protectPage() {
+  const sessionStr = localStorage.getItem('supabase_session');
+  const role = localStorage.getItem('role');
+
+  if (!sessionStr) {
+    window.location.replace('login.html'); // fallback
+    return;
+  }
+
+  const session = JSON.parse(sessionStr);
+  await supabaseClient.auth.setSession(session);
+
+  const { data, error } = await supabaseClient.auth.getUser();
+  if (error || !data.user) {
+    localStorage.clear();
+    window.location.replace('login.html');
+    return;
+  }
+
+  if (role !== 'applicant') {
+    alert('❌ You must be logged in as an applicant');
+    window.location.replace('login.html');
+    return;
+  }
+
+  console.log('✅ Logged in as:', role, data.user.email);
+})();
 const TOTAL_REQ = 4;
 
 // Store uploaded file URLs locally
@@ -398,35 +427,6 @@ function toggleRequirements() {
 // ==============================
 // STATUS BAR (FIRST BOX)
 // ==============================
-function applyStatusUI(status) {
-  const badge = document.getElementById("statusBadge");
-  const fill = document.getElementById("progressFill");
-  const percent = document.getElementById("progressPercent");
-
-  const steps = {
-    requirements_pending: 0,
-    requirements_review: 25,
-    requirements_approved: 40,
-    exam_pending: 60,
-    mswd_pending: 80,
-    scholar: 100
-  };
-
-  const labels = {
-    requirements_pending: "Upload Required Documents",
-    requirements_review: "Requirements Under Review",
-    requirements_approved: "✅ Requirements Approved",
-    exam_pending: "Examination Phase",
-    mswd_pending: "MSWD Evaluation",
-    scholar: "🎉 Scholar Accepted"
-  };
-
-  const progress = steps[status] ?? 0;
-  fill.style.width = progress + "%";
-  percent.innerText = progress + "%";
-  badge.innerText = labels[status] ?? labels.requirements_pending;
-}
-
 // ==============================
 // TRACKER UI (SECOND BOX)
 // ==============================
@@ -567,7 +567,8 @@ function viewFile(type) {
 // DELETE FILE
 // ==============================
 async function deleteFile(type) {
-  const token = localStorage.getItem("access_token");
+  const token = localStorage.getItem("auth_token")
+
   if (!token) return alert("You are not logged in");
 
   const res = await fetch(`/api/requirements/${encodeURIComponent(type)}`, {
@@ -599,7 +600,9 @@ async function deleteFile(type) {
 // SUBMIT ALL REQUIREMENTS
 // ==============================
 async function submitRequirements() {
-  const token = localStorage.getItem("auth_token");
+ const token = localStorage.getItem("auth_token")
+
+
   if (!token) return alert("You are not logged in");
 
   const res = await fetch("/api/requirements/submit", {
@@ -668,7 +671,8 @@ function renderRequirementButtons() {
 // LOAD APPLICATION STATUS
 // ==============================
 async function loadApplicationStatus() {
-  const token = localStorage.getItem("access_token");
+  const token = localStorage.getItem("auth_token")
+
   if (!token) {
     console.log("No token found, skipping status load");
     return;
@@ -704,7 +708,7 @@ async function loadApplicationStatus() {
 }
 
 // ==============================
-// LOAD WELCOME NAME
+// LOAD WELCOME NAME/REQUIREMENTS
 // ==============================
 async function loadWelcomeName() {
   const { data: { session } } = await supabaseClient.auth.getSession();
@@ -727,42 +731,46 @@ async function loadWelcomeName() {
 // ==============================
 // LOAD EXISTING REQUIREMENTS
 // ==============================
+
 async function loadRequirements() {
-  const { data: { session } } = await supabaseClient.auth.getSession();
-  if (!session) return;
+  const token = localStorage.getItem("auth_token");
+
+  if (!token) {
+    console.log("No token found, skipping requirements load");
+    return;
+  }
 
   try {
     const res = await fetch("/api/requirements", {
-      method: "GET",
       headers: {
-        Authorization: "Bearer " + session.access_token
+        Authorization: `Bearer ${token}`
       }
     });
 
     const data = await res.json();
-    if (!data.success) return;
 
-    // Reset first
-    Object.keys(requirements).forEach(k => requirements[k] = null);
+    if (!data.success) {
+      console.error("Failed to load requirements:", data.error);
+      return;
+    }
 
-    data.files.forEach(f => {
-      requirements[f.requirement_type] = f.file_url;
-    });
+    console.log("saved requirements found");
 
-    // Restore UI
-    document.querySelectorAll(".req-item").forEach(item => {
-      const type = item.querySelector("strong").innerText;
-      const input = item.querySelector("input");
+    // Populate the frontend requirements state
+    data.files.forEach(req => {       // <-- use files here
+      requirements[req.requirement_type] = req.file_url;
 
-      if (requirements[type]) {
+      const item = Array.from(document.querySelectorAll(".req-item"))
+        .find(i => i.querySelector("strong").innerText === req.requirement_type);
+
+      if (item) {
         item.classList.add("done");
-        input.disabled = true;
-      } else {
-        item.classList.remove("done");
-        input.disabled = false;
+        const input = item.querySelector("input");
+        if (input) input.disabled = true;
       }
     });
 
+    // Render buttons and update submit
     renderRequirementButtons();
     updateSubmitButton();
 
@@ -770,7 +778,6 @@ async function loadRequirements() {
     console.error("Failed to load requirements:", err);
   }
 }
-
 // ==============================
 // CLOSE POPUP
 // ==============================

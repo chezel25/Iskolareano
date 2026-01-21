@@ -95,6 +95,7 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
 
     // 3️⃣ Store session
     localStorage.setItem('auth_token', authData.session.access_token);
+    localStorage.setItem('supabase_session', JSON.stringify(authData.session));
     localStorage.setItem('role', result.role);
     localStorage.setItem('user', JSON.stringify(result.user));
 

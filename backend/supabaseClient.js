@@ -7,7 +7,7 @@ export const supabaseAnon = createClient(
 );
 
 // Client for server-side usage (service_role, bypasses RLS)
-export const supabaseServer = createClient(
+export const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_SERVICE_KEY
 );
