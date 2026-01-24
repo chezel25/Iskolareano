@@ -451,57 +451,56 @@ td {
   }
 
   // ---------------- Format Status ----------------
-  function formatStatus(status) {
-    const labels = {
-      requirements_pending: 'Requirements Pending',
-      requirements_review: 'Under Review',
-      requirements_approved: 'Requirements Approved',
-      exam_pending: 'Exam Pending',
-      mswd_pending: 'MSWD Evaluation',
-      scholar: 'Scholar'
-    };
-    return labels[status] || status;
-  }
+function formatStatus(status) {
+  const labels = {
+    requirements_pending: 'Requirements Pending',
+    requirements_review: 'Under Review',
+    requirements_approved: 'Requirements Approved',
+    requirements_failed: 'Requirements Failed',
+    exam_pending: 'Exam Pending',
+    exam_failed: 'Exam Failed',
+    mswd_pending: 'MSWD Evaluation',
+    mswd_failed: 'MSWD Evaluation Failed',
+    scholar: 'Scholar'
+  };
+  return labels[status] || status;
+}
 
   // ---------------- View Files ----------------
-  async function viewFiles(applicantId, applicantName) {
-    const modal = document.getElementById('filesModal');
-    const modalTitle = document.getElementById('modalTitle');
-    const modalBody = document.getElementById('modalBody');
+ async function viewFiles(applicantId, applicantName) {
+  const modal = document.getElementById('filesModal');
+  const modalTitle = document.getElementById('modalTitle');
+  const modalBody = document.getElementById('modalBody');
 
-    // Show modal
-    modal.classList.add('active');
-    modalTitle.textContent = `Files - ${applicantName}`;
-    modalBody.innerHTML = '<p style="text-align: center; color: #6b7280;">Loading files...</p>';
+  // Show modal
+  modal.classList.add('active');
+  modalTitle.textContent = `Files - ${applicantName}`;
+  modalBody.innerHTML = '<p style="text-align: center; color: #6b7280;">Loading files...</p>';
 
-    try {
-      const res = await fetch(`${API_BASE}/api/admin/applicants/${applicantId}/files`);
-      const data = await res.json();
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/applicants/${applicantId}/files`);
+    const data = await res.json();
 
-      if (!data.success) {
-        throw new Error(data.error || 'Failed to load files');
-      }
+    if (!data.success) {
+      throw new Error(data.error || 'Failed to load files');
+    }
 
-      const files = data.files || [];
+    const files = data.files || [];
 
-      if (files.length === 0) {
-        modalBody.innerHTML = `
-          <div class="no-files">
-            <p>No files uploaded yet</p>
-          </div>
-        `;
-        return;
-      }
-
+    if (files.length === 0) {
+      modalBody.innerHTML = `
+        <div class="no-files">
+          <p>No files uploaded yet</p>
+        </div>
+      `;
+    } else {
       const fileList = document.createElement('ul');
       fileList.className = 'file-list';
 
       files.forEach(file => {
         const li = document.createElement('li');
         li.className = 'file-item';
-        
         const uploadDate = new Date(file.uploaded_at).toLocaleString();
-        
         li.innerHTML = `
           <div>
             <strong>${file.requirement_type}</strong>
@@ -515,16 +514,58 @@ td {
 
       modalBody.innerHTML = '';
       modalBody.appendChild(fileList);
-
-    } catch (err) {
-      console.error('Error loading files:', err);
-      modalBody.innerHTML = `
-        <div class="no-files">
-          <p style="color: #dc2626;">Error loading files: ${err.message}</p>
-        </div>
-      `;
     }
+
+    // ---------------- Add "Mark Not Eligible" button ----------------
+    const actionBtn = document.createElement('button');
+    actionBtn.className = 'reject-btn';
+    actionBtn.style.marginTop = '20px';
+    actionBtn.innerText = 'Mark Not Eligible';
+    actionBtn.onclick = () => markNotEligible(applicantId, applicantName);
+    modalBody.appendChild(actionBtn);
+
+  } catch (err) {
+    console.error('Error loading files:', err);
+    modalBody.innerHTML = `
+      <div class="no-files">
+        <p style="color: #dc2626;">Error loading files: ${err.message}</p>
+      </div>
+    `;
   }
+}
+async function markNotEligible(applicantId, applicantName) {
+  if (!confirm(`⚠️ Are you sure you want to mark ${applicantName} as NOT ELIGIBLE?\n\nThis will mark their requirements as failed.`)) {
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/mark-not-eligible`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ applicant_id: applicantId })
+    });
+
+    const data = await res.json();
+
+    if (!data.success) {
+      throw new Error(data.error || 'Failed to mark applicant as not eligible');
+    }
+
+    alert(`✅ ${applicantName} has been marked as NOT ELIGIBLE for the scholarship.`);
+    
+    // Close modal and refresh applicants
+    closeModal();
+    loadApplicants();
+    loadDashboardStats();
+
+  } catch (err) {
+    console.error('Error marking applicant as not eligible:', err);
+    alert('❌ Error: ' + err.message);
+  }
+}
+
 
   // ---------------- Close Modal ----------------
   function closeModal() {

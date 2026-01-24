@@ -219,6 +219,11 @@ body {
   border-radius:8px;
   cursor:pointer;
 }
+.tracker li.failed .dot {
+  background:#b91c1c; /* red */
+  border-color:#b91c1c;
+}
+
 </style>
 </head>
 
@@ -351,15 +356,13 @@ body {
 <!-- POPUP -->
 <div id="popup">
   <div class="popup-card">
-    <h2>🎉 Congratulations!</h2>
-    <p>You are now part of<strong>Iskolarealeño</strong>!</p>
-    <p style="margin-top: 15px; font-size: 14px; color: #6b7280;">
-      Your scholar portal credentials have been sent to your email.<br>
-      Please check your inbox for login instructions.
-    </p>
+    <h2 id="popupTitle"></h2>
+    <p id="popupMessage" style="margin-top: 15px; font-size: 14px; color: #6b7280;"></p>
     <button onclick="closePopup()">Continue</button>
   </div>
 </div>
+    
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 <script>
 // ==============================
@@ -434,7 +437,6 @@ function toggleRequirements() {
 // TRACKER UI (SECOND BOX)
 // ==============================
 function updateTrackerUI(status) {
-  // Define steps in order
   const steps = [
     "requirements_pending",
     "requirements_review",
@@ -448,24 +450,58 @@ function updateTrackerUI(status) {
     const stepElement = document.querySelector(`#tracker-${step}`);
     if (!stepElement) return;
 
-    if (step === status) {
+    stepElement.classList.remove("current", "completed", "failed");
+
+    if (step === status || 
+       (status.endsWith("_failed") && step === status.replace("_failed", "_pending"))) {
       stepElement.classList.add("current");
-      stepElement.classList.remove("completed");
-    } else if (steps.indexOf(step) < steps.indexOf(status)) {
+    } else if (steps.indexOf(step) < steps.indexOf("scholar") && steps.indexOf(step) < steps.indexOf(status.replace("_failed", "_pending"))) {
       stepElement.classList.add("completed");
-      stepElement.classList.remove("current");
+    }
+
+    const smallText = stepElement.querySelector("small.muted");
+    if (status === "requirements_failed" && step === "requirements_approved") {
+      if (smallText) smallText.innerText = "Requirements Failed ❌";
+      stepElement.classList.add("failed");
+    } else if (status === "exam_failed" && step === "exam_pending") {
+      if (smallText) smallText.innerText = "Exam Failed ❌";
+      stepElement.classList.add("failed");
+    } else if (status === "mswd_failed" && step === "mswd_pending") {
+      if (smallText) smallText.innerText = "MSWD Evaluation Failed ❌";
+      stepElement.classList.add("failed");
     } else {
-      stepElement.classList.remove("completed", "current");
+      if (step === "requirements_approved") smallText.innerText = "Ready for examination";
+      if (step === "exam_pending") smallText.innerText = "Passed the exam";
+      if (step === "mswd_pending") smallText.innerText = "Final evaluation";
+      stepElement.classList.remove("failed");
     }
   });
 
-  // 🎉 Show popup if scholar status
-  if (status === 'scholar') {
-    setTimeout(() => {
-      document.getElementById("popup").style.display = "flex";
-    }, 500);
+  // Show popup dynamically
+  const popup = document.getElementById("popup");
+  const popupTitle = document.getElementById("popupTitle");
+  const popupMessage = document.getElementById("popupMessage");
+
+  if (status === "scholar") {
+    popupTitle.innerText = "🎉 Congratulations!";
+    popupMessage.innerHTML = "You are now part of <strong>Iskolarealeño</strong>!<br>Your scholar portal credentials have been sent to your email.<br>Please check your inbox for login instructions.";
+    setTimeout(() => popup.style.display = "flex", 500);
+  } 
+  else if (status.endsWith("_failed")) {
+    if (status === "requirements_failed") {
+      popupTitle.innerText = "❌ Operation Failed!";
+      popupMessage.innerHTML = "Some of your requirements were not approved.<br>Unfortunately, you are not eligible for the scholarship.";
+    } else if (status === "exam_failed") {
+      popupTitle.innerText = "❌ Exam Failed!";
+      popupMessage.innerHTML = "You did not pass the scholarship examination this time. Don’t be discouraged! Take this as an opportunity to learn and improve. Please review your materials and try again during the next scheduled exam. Remember, persistence pays off!";
+    } else if (status === "mswd_failed") {
+      popupTitle.innerText = "❌ MSWD Evaluation Failed!";
+      popupMessage.innerHTML = "Unfortunately, you did not pass the MSWD evaluation. You are not eligible for the scholarship.";
+    }
+    setTimeout(() => popup.style.display = "flex", 500);
   }
 }
+
 
 // ==============================
 // STATUS BAR (FIRST BOX)
@@ -479,8 +515,11 @@ function applyStatusUI(status) {
     requirements_pending: 0,
     requirements_review: 25,
     requirements_approved: 40,
+    requirements_failed: 40, // same as approved for progress bar
     exam_pending: 60,
+    exam_failed: 60,         // same as exam_pending for progress bar
     mswd_pending: 80,
+    mswd_failed: 80,         // same as mswd_pending for progress bar
     scholar: 100
   };
 
@@ -488,8 +527,11 @@ function applyStatusUI(status) {
     requirements_pending: "Upload Required Documents",
     requirements_review: "Requirements Under Review",
     requirements_approved: "✅ Requirements Approved",
+    requirements_failed: "❌ Requirements Failed",
     exam_pending: "Examination Phase",
+    exam_failed: "❌ Exam Failed",
     mswd_pending: "MSWD Evaluation",
+    mswd_failed: "❌ MSWD Evaluation Failed",
     scholar: "🎉 Scholar - Check your email for login credentials!"
   };
 
@@ -498,12 +540,19 @@ function applyStatusUI(status) {
   percent.innerText = progress + "%";
   badge.innerText = labels[status] ?? labels.requirements_pending;
 
-  // Change badge color for scholar status
-  if (status === 'scholar') {
-    badge.style.background = '#d1fae5';
-    badge.style.color = '#065f46';
+  // Badge color
+  if (status.includes("failed")) {
+    badge.style.background = "#fef2f2"; // light red
+    badge.style.color = "#b91c1c";       // red text
+  } else if (status === "scholar") {
+    badge.style.background = "#d1fae5";
+    badge.style.color = "#065f46";
+  } else {
+    badge.style.background = "#e0f2fe"; // default blue-ish
+    badge.style.color = "#0369a1";
   }
 }
+
 
 // ==============================
 // UPLOAD FILE

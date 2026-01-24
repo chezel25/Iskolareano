@@ -499,7 +499,7 @@ app.post('/api/admin/grades', async (req, res) => {
       .update({ 
         exam_score: grade,
         exam_passed: examPassed,
-        application_status: examPassed ? 'exam_pending' : 'requirements_approved',
+        application_status: examPassed ? 'mswd_pending' : 'exam_failed',
         exam_graded_at: new Date().toISOString()
       })
       .eq('id', applicant_id);
@@ -975,16 +975,48 @@ app.get("/api/application", async (req, res) => {
       .select("*")
       .eq("applicant_id", applicant_id);
 
-    let progress = 0;
-    switch (applicant.application_status) {
-      case "requirements_pending": progress = 0; break;
-      case "requirements_review": progress = 20; break;
-      case "requirements_approved": progress = 40; break;
-      case "exam_pending": progress = 60; break;
-      case "mswd_pending": progress = 80; break;
-      case "scholar": progress = 100; break;
-      default: progress = 0;
-    }
+  let progress = 0;
+switch (applicant.application_status) {
+  case "requirements_pending":
+    progress = 0;
+    break;
+
+  case "requirements_review":
+    progress = 20;
+    break;
+
+  case "requirements_approved":
+    progress = 40;
+    break;
+
+  case "requirements_failed":
+    progress = 20;
+    break;
+
+  case "exam_pending":
+    progress = 60;
+    break;
+
+  case "exam_failed":
+    progress = 60;
+    break;
+
+  case "mswd_pending":
+    progress = 80;
+    break;
+
+  case "mswd_failed":
+    progress = 80;
+    break;
+
+  case "scholar":
+    progress = 100;
+    break;
+
+  default:
+    progress = 0;
+}
+
 
     res.json({ 
       success: true, 
@@ -1036,6 +1068,39 @@ app.post("/api/admin/approve-requirements", async (req, res) => {
     });
   }
 });
+//reject requirements
+app.post('/api/admin/mark-not-eligible', async (req, res) => {
+  const { applicant_id } = req.body;
+
+  if (!applicant_id) {
+    return res.status(400).json({ success: false, error: 'Applicant ID is required' });
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('applicants')
+        .update({ application_status: 'requirements_failed' })
+      .eq('id', applicant_id)
+      .select(); // returns updated row
+
+    if (error) throw error;
+
+    if (!data || data.length === 0) {
+      return res.status(404).json({ success: false, error: 'Applicant not found' });
+    }
+
+    return res.json({
+      success: true,
+      message: 'Applicant marked as not eligible',
+      applicant: data[0]
+    });
+
+  } catch (err) {
+    console.error('Error updating applicant status:', err);
+    return res.status(500).json({ success: false, error: 'Server error' });
+  }
+});
+
 // ================================
 // ADMIN: Get all applicants with file counts
 // ================================
@@ -1136,15 +1201,16 @@ app.get("/api/admin/dashboard-stats", async (req, res) => {
     }
 
     // Count by status
-    const stats = {
-      total: applicants.length,
-      requirements_pending: 0,
-      requirements_review: 0,
-      requirements_approved: 0,
-      exam_pending: 0,
-      mswd_pending: 0,
-      scholar: 0
-    };
+  const stats = {
+  total: applicants.length,
+  requirements_pending: 0,
+  requirements_review: 0,
+  requirements_approved: 0,
+  exam_pending: 0,
+  mswd_pending: 0,
+  scholar: 0
+};
+
 
     applicants.forEach(app => {
       const status = app.application_status || 'requirements_pending';
@@ -1270,14 +1336,17 @@ app.post("/api/admin/update-status", async (req, res) => {
       });
     }
 
-    const validStatuses = [
-      'requirements_pending',
-      'requirements_review',
-      'requirements_approved',
-      'exam_pending',
-      'mswd_pending',
-      'scholar'
-    ];
+   const validStatuses = [
+  'requirements_pending',
+  'requirements_review',
+  'requirements_approved',
+  'requirements_failed',
+  'exam_pending',
+  'exam_failed',
+  'mswd_pending',
+  'mswd_failed',
+  'scholar'
+];
 
     if (!validStatuses.includes(status)) {
       return res.status(400).json({ 
@@ -1845,7 +1914,7 @@ app.post('/api/admin/mswd-approve', async (req, res) => {
 // ---------------- MSWD Reject ----------------
 app.post('/api/admin/mswd-reject', async (req, res) => {
   try {
-    const { applicant_id, rejection_reason } = req.body;
+    const { applicant_id } = req.body;
 
     if (!applicant_id) {
       return res.status(400).json({ 
@@ -1854,13 +1923,11 @@ app.post('/api/admin/mswd-reject', async (req, res) => {
       });
     }
 
-    // Update applicant status to rejected
+    // Update applicant status to MSWD failed
     const { error: updateError } = await supabase
       .from('applicants')
       .update({
-        application_status: 'rejected',
-        rejection_reason: rejection_reason || 'No reason provided',
-        rejected_at: new Date().toISOString()
+        application_status: 'mswd_failed'
       })
       .eq('id', applicant_id);
 
@@ -1872,11 +1939,15 @@ app.post('/api/admin/mswd-reject', async (req, res) => {
     }
 
     // Get applicant details for email
-    const { data: applicant } = await supabase
+    const { data: applicant, error: applicantError } = await supabase
       .from('applicants')
       .select('first_name, email')
       .eq('id', applicant_id)
       .single();
+
+    if (applicantError) {
+      console.error('Failed to fetch applicant:', applicantError);
+    }
 
     // Optional: Send email notification
     if (applicant) {
@@ -1888,10 +1959,8 @@ app.post('/api/admin/mswd-reject', async (req, res) => {
           html: `
             <h2>Dear ${applicant.first_name},</h2>
             <p>Thank you for your interest in the Iskolar ng Realeno scholarship program.</p>
-            <p>After careful evaluation, we regret to inform you that your application did not pass the final MSWD evaluation stage.</p>
-            ${rejection_reason ? `<p><strong>Reason:</strong> ${rejection_reason}</p>` : ''}
+            <p>After careful evaluation, we regret to inform you that you did not pass the final MSWD evaluation stage.</p>
             <p>We encourage you to apply again in future cycles.</p>
-            <p>Thank you for your understanding.</p>
             <p><strong>Iskolar ng Realeno Team</strong></p>
           `
         });
@@ -1902,7 +1971,7 @@ app.post('/api/admin/mswd-reject', async (req, res) => {
 
     res.json({ 
       success: true,
-      message: 'Applicant rejected'
+      message: 'Applicant marked as MSWD failed'
     });
 
   } catch (err) {
@@ -1912,6 +1981,7 @@ app.post('/api/admin/mswd-reject', async (req, res) => {
     });
   }
 });
+
 
 
 // ================================
