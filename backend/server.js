@@ -1771,11 +1771,11 @@ app.post('/api/admin/mswd-approve', async (req, res) => {
     const { error: updateError } = await supabase
       .from('applicants')
       .update({
-        application_status: 'approved', // or 'mswd_approved'
-        scholarship_reason: scholarship_reason,
-        mswd_approved_at: new Date().toISOString()
-      })
-      .eq('id', applicant_id);
+  application_status: 'scholar',
+  scholarship_reason: scholarship_reason,
+  mswd_approved_at: new Date().toISOString()
+})
+.eq('id', applicant_id);
 
     if (updateError) {
       console.error("Applicant update error:", updateError);

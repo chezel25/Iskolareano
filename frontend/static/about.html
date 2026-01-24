@@ -1,348 +1,26 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>About Us - ISKOLAREALEÑO Scholarship Portal</title>
-<link rel="stylesheet" href="css/homestyle.css">
-<style>
-/* About Page Specific Styles */
-.about-section {
-  padding: 80px 0;
-  background: #fff;
-}
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
 
-.about-content {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 60px;
-  align-items: start;
-}
+        <meta name="description" content="">
+        <meta name="author" content="">
 
-.about-left {
-  padding-right: 20px;
-}
+        <title>About US</title>
 
-.section-subtitle {
-  color: #ff6b35;
-  font-size: 14px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  margin-bottom: 12px;
-}
+        <!-- CSS FILES -->
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        
+        <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
 
-.section-title {
-  font-size: 2.5rem;
-  line-height: 1.2;
-  margin-bottom: 24px;
-  color: #1a1a1a;
-}
+        <link href="css/bootstrap.min.css" rel="stylesheet">
 
-.orange-text {
-  color: #ff6b35;
-}
+        <link href="css/bootstrap-icons.css" rel="stylesheet">
 
-.about-description {
-  font-size: 1.05rem;
-  line-height: 1.8;
-  color: #555;
-  margin-bottom: 20px;
-}
+        <link href="css/templatemo-leadership-event.css" rel="stylesheet">
 
-.about-values {
-  margin-top: 40px;
-  display: grid;
-  gap: 25px;
-}
-
-.value-item {
-  padding: 20px;
-  border-left: 3px solid #ff6b35;
-  background: #f9f9f9;
-  border-radius: 4px;
-  transition: all 0.3s ease;
-}
-
-.value-item:hover {
-  background: #fff;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-  transform: translateX(5px);
-}
-
-.value-item h3 {
-  color: #ff6b35;
-  font-size: 1.2rem;
-  margin-bottom: 8px;
-}
-
-.value-item p {
-  color: #666;
-  font-size: 0.95rem;
-  line-height: 1.6;
-  margin: 0;
-}
-
-.about-right {
-  position: relative;
-}
-
-.about-image-container {
-  position: relative;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-  margin-bottom: 30px;
-}
-
-.about-image {
-  width: 100%;
-  height: 400px;
-  object-fit: cover;
-  display: block;
-  background: linear-gradient(135deg, #ff6b35 0%, #ff8c42 100%);
-}
-
-.about-overlay {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
-  padding: 30px;
-}
-
-.overlay-stat {
-  display: flex;
-  flex-direction: column;
-  color: white;
-}
-
-.overlay-number {
-  font-size: 2.5rem;
-  font-weight: 700;
-  line-height: 1;
-}
-
-.overlay-label {
-  font-size: 0.95rem;
-  opacity: 0.9;
-  margin-top: 5px;
-}
-
-.mission-box {
-  background: linear-gradient(135deg, #ff6b35 0%, #ff8c42 100%);
-  color: white;
-  padding: 30px;
-  border-radius: 12px;
-  box-shadow: 0 8px 25px rgba(255,107,53,0.3);
-}
-
-.mission-box h3 {
-  font-size: 1.4rem;
-  margin-bottom: 15px;
-  color: white;
-}
-
-.mission-box p {
-  margin: 0;
-  line-height: 1.7;
-  opacity: 0.95;
-  font-size: 1rem;
-}
-
-/* Team Section Styles */
-.team-section {
-  padding: 80px 0;
-  background: #f8f9fa;
-}
-
-.section-description {
-  text-align: center;
-  max-width: 700px;
-  margin: 0 auto 20px;
-  font-size: 1.05rem;
-  color: #666;
-  line-height: 1.7;
-}
-
-.team-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 30px;
-  margin-top: 50px;
-}
-
-.team-card {
-  background: white;
-  padding: 35px 25px;
-  border-radius: 12px;
-  text-align: center;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-  transition: all 0.3s ease;
-  border-top: 3px solid transparent;
-}
-
-.team-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 12px 30px rgba(0,0,0,0.15);
-  border-top-color: #ff6b35;
-}
-
-.team-avatar {
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #ff6b35 0%, #ff8c42 100%);
-  margin: 0 auto 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 2rem;
-  font-weight: 700;
-  color: white;
-  box-shadow: 0 6px 20px rgba(255,107,53,0.3);
-}
-
-.team-card h3 {
-  color: #1a1a1a;
-  font-size: 1.3rem;
-  margin-bottom: 8px;
-}
-
-.team-role {
-  color: #ff6b35;
-  font-weight: 600;
-  font-size: 0.95rem;
-  margin-bottom: 15px;
-}
-
-.team-bio {
-  color: #666;
-  font-size: 0.9rem;
-  line-height: 1.6;
-  margin: 0;
-}
-
-.professor-card {
-  background: white;
-  padding: 40px;
-  border-radius: 12px;
-  text-align: center;
-  box-shadow: 0 8px 25px rgba(0,0,0,0.12);
-  margin: 50px auto 0;
-  max-width: 600px;
-  border: 2px solid #ff6b35;
-}
-
-.professor-card .team-avatar {
-  width: 120px;
-  height: 120px;
-  font-size: 2.5rem;
-}
-
-.professor-card h3 {
-  font-size: 1.5rem;
-  margin-bottom: 10px;
-}
-
-.professor-card .team-role {
-  font-size: 1.1rem;
-  margin-bottom: 20px;
-}
-
-.tech-stack {
-  margin-top: 60px;
-  text-align: center;
-  padding: 40px;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-}
-
-.tech-stack h3 {
-  color: #1a1a1a;
-  font-size: 1.5rem;
-  margin-bottom: 25px;
-}
-
-.tech-badges {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 15px;
-  justify-content: center;
-}
-
-.tech-badge {
-  display: inline-block;
-  padding: 10px 20px;
-  background: linear-gradient(135deg, #ff6b35 0%, #ff8c42 100%);
-  color: white;
-  border-radius: 25px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  box-shadow: 0 3px 10px rgba(255,107,53,0.2);
-  transition: all 0.3s ease;
-}
-
-.tech-badge:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 15px rgba(255,107,53,0.3);
-}
-
-/* Responsive Design */
-@media (max-width: 968px) {
-  .team-grid {
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 25px;
-  }
-  
-  .about-content {
-    grid-template-columns: 1fr;
-    gap: 40px;
-  }
-  
-  .about-left {
-    padding-right: 0;
-  }
-  
-  .section-title {
-    font-size: 2rem;
-  }
-}
-
-@media (max-width: 768px) {
-  .about-section {
-    padding: 60px 0;
-  }
-  
-  .team-section {
-    padding: 60px 0;
-  }
-  
-  .team-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .section-title {
-    font-size: 1.75rem;
-  }
-  
-  .about-image {
-    height: 300px;
-  }
-  
-  .about-values {
-    margin-top: 30px;
-  }
-  
-  .professor-card {
-    padding: 30px 20px;
-  }
-}
-</style>
-</head>
-<body>
 
 <header role="banner"> 
   <div class="logo" aria-label="Iskolarealeno logo and name">
@@ -351,144 +29,157 @@
   </div>
   <nav aria-label="Main navigation">
     <ul>
-      <li><a href="index.html">Home</a></li>
+      <li><a href="landing.html" class="active">Home</a></li>
       <li><a href="#">Scholarships</a></li>
-      <li><a href="profile.html">Profile</a></li>
-      <li><a href="about.html" class="active">About</a></li>
-      <li><a href="login.html">Logout</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="login.html">Login</a></li>
     </ul>
   </nav>
 </header>
 
-<main class="container" role="main" aria-label="Main content">
+<style>
+  .site-footer {
+    background-color: #1a234a; 
+    padding: 25px 0;
+    width: 100%;
+    text-align: center;
+  }
 
-<!-- About Section -->
-<section class="about-section">
-  <div class="container">
-    <div class="about-content">
-      <div class="about-left">
-        <div class="section-subtitle">About Us</div>
-        <h2 class="section-title">Empowering Students from<br /><span class="orange-text">Real, Quezon</span></h2>
-        <p class="about-description">
-          ISKOLAREALEÑO is more than a scholarship program—it's a commitment to nurturing the brightest minds from Real, Quezon. Since our establishment, we've been dedicated to providing educational opportunities, mentorship, and community support to deserving students.
-        </p>
-        <p class="about-description">
-          Our mission is to break down financial barriers to education and create pathways for students to achieve their full potential. Through comprehensive scholarship packages, skill development programs, and community engagement initiatives, we're building a brighter future for Real, Quezon.
-        </p>
-        <div class="about-values">
-          <div class="value-item">
-            <h3>Excellence</h3>
-            <p>We foster academic excellence and encourage scholars to reach their highest potential in all endeavors.</p>
-          </div>
-          <div class="value-item">
-            <h3>Community</h3>
-            <p>Building strong connections between scholars, alumni, and the Real community is at our core.</p>
-          </div>
-          <div class="value-item">
-            <h3>Integrity</h3>
-            <p>We maintain transparency and fairness in all our scholarship processes and programs.</p>
-          </div>
-        </div>
-      </div>
-      
-      <div class="about-right">
-        <div class="about-image-container">
-          <img src="img/about-scholars.jpg" alt="ISKOLAREALEÑO Scholars" class="about-image">
-          <div class="about-overlay">
-            <div class="overlay-stat">
-              <span class="overlay-number">756+</span>
-              <span class="overlay-label">Total Scholars</span>
-            </div>
-          </div>
-        </div>
+  .site-footer p, 
+  .site-footer p a {
+    color: #ffffff !important; 
+    text-decoration: none;    
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    opacity: 1;                
+  }
+</style>
+
+        </head>
+
+        <body>
+        <main>
+
+            <section class="hero" id="section_1">
+                <div class="container">
+                    <div class="row">
+
+                        <div class="col-lg-5 col-12 m-auto">
+                            <div class="hero-text">
+
+                               <h1 class="mb-4">
+                                 <span style="color: #ff7308;">Iskola</span><span style="color: #0d2088;">realeño</span>
+                                </h1>
+
+
+                                <p class="text-white">Empowering the Youth of Real, Quezon through Efficient, Transparent Scholarship Support.</p>
+
+                               <a href="#section_2" class="custom-link arrow-icon" style="text-decoration: none; font-size: 32px; color: black;">
+                                 &#x2193; <!-- This is the code for a down arrow (↓) -->
+                                </a>
+
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="video-wrap">
+                    <img src="img/DOCU5.jpg" alt="A relevant description" class="custom-video">
+                </div>
+
+            </section>
+
+
+            <section class="highlight">
+                <div class="container">
+                    <div class="row">
+
+                        <div class="col-lg-4 col-md-6 col-12">
+                            <div class="highlight-thumb">
+                                <img src="img/DOCU7.jpg" class="highlight-image img-fluid" alt="">
+
+                                <div class="highlight-info">
+                                    <h3 class="highlight-title">2019 Highlights</h3>
+
+                                    <a href="#" class="#"></a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-4 col-md-6 col-12">
+                            <div class="highlight-thumb">
+                                <img src="img/DOCU4.jpg" class="highlight-image img-fluid" alt="">
+
+                                <div class="highlight-info">
+                                    <h3 class="highlight-title">2020 Highlights</h3>
+
+                                    <a href="#" class="#"></a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-4 col-md-6 col-12">
+                            <div class="highlight-thumb">
+                                <img src="img/DOCU11.jpg" class="highlight-image img-fluid" alt="">
+
+                                <div class="highlight-info">
+                                    <h3 class="highlight-title">2021 Highlights</h3>
+
+                                    <a href="#" class="#"></a>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+
+
+            <section class="about section-padding" id="section_2">
+                <div class="container">
+                    <div class="row">
+
+                        <div class="col-lg-10 col-12">
+                            <h2 class="mb-4">About US</h2>
+                        </div>
+
+                        <div class="col-lg-6 col-12">
+
+                            <p>The IskolarRealeño program is the Local Government Unit of Real, Quezon's commitment to supporting the educational aspirations of our community's growing student population. Recognizing the challenges associated with manual application and tracking processes, we developed this Scholarship Management Web System. </p>
+                            <p>Our mission is to streamline the entire scholarship journey from application to monitoring ensuring accuracy, transparency, and operational efficiency so that educational assistance reaches those who need it most, faster and more effectively.</p>
+                        </div>
+
+                        <div class="col-lg-6 col-12 mt-5 mt-lg-0">
+                            <h4>Streamlining Education, Empowering Futures.</h4>
+                            <div class="avatar-group border-top py-5 mt-5">
+                                <img src="img/scholarboy.jpg" class="img-fluid avatar-image" alt="">
+
+                                <img src="img/scholargirl.jpg" class="img-fluid avatar-image avatar-image-left" alt="">
+
+                                <img src="img/scholarboy1.jpg" class="img-fluid avatar-image avatar-image-left" alt="">
+
+                                <img src="img/scholargirl1.jpg" class="img-fluid avatar-image avatar-image-left" alt="">
+
+                                <p class="d-inline">99+ Scholars are attending with us</p>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
         
-        <div class="mission-box">
-          <h3>Our Mission</h3>
-          <p>To provide accessible, quality education to talented students from Real, Quezon, empowering them to become leaders and change-makers in their communities.</p>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
 
-<!-- Development Team Section -->
-<section class="team-section">
-  <div class="container">
-    <div class="section-subtitle">Our Team</div>
-    <h2 class="section-title">Meet the <span class="orange-text">Development Team</span></h2>
-    <p class="section-description">
-      The dedicated team behind the ISKOLAREALEÑO Scholarship Portal, working to create a seamless experience for our scholars.
-    </p>
+            <footer class="site-footer">
+                <p>&copy; 2026 ISKOLAREALENO. Real, Quezon City, Philippines | Contact: info@iskolarealeno.ph</p>
+            </footer>
 
-    <!-- Professor Card -->
-    <div class="professor-card">
-      <div class="team-avatar">
-        <span>PR</span>
-      </div>
-      <h3>Prof. Rodriguez</h3>
-      <p class="team-role">Project Adviser</p>
-      <p class="team-bio">Guiding and mentoring the development team throughout the project lifecycle, ensuring alignment with educational goals and best practices.</p>
-    </div>
+        <!-- JAVASCRIPT FILES -->
+        <script src="js/jquery.min.js"></script>
+        <script src="js/bootstrap.min.js"></script>
+        <script src="js/jquery.sticky.js"></script>
+        <script src="js/click-scroll.js"></script>
+        <script src="js/custom.js"></script>
 
-    <!-- Developers Grid -->
-    <div class="team-grid">
-      <div class="team-card">
-        <div class="team-avatar">
-          <span>JD</span>
-        </div>
-        <h3>Juan Dela Cruz</h3>
-        <p class="team-role">Lead Developer</p>
-        <p class="team-bio">Full-stack developer specializing in web applications and database management systems.</p>
-      </div>
-
-      <div class="team-card">
-        <div class="team-avatar">
-          <span>MS</span>
-        </div>
-        <h3>Maria Santos</h3>
-        <p class="team-role">Frontend Developer</p>
-        <p class="team-bio">UI/UX designer focused on creating intuitive and accessible user interfaces for all users.</p>
-      </div>
-
-      <div class="team-card">
-        <div class="team-avatar">
-          <span>AR</span>
-        </div>
-        <h3>Antonio Reyes</h3>
-        <p class="team-role">Backend Developer</p>
-        <p class="team-bio">Systems architect ensuring secure and efficient server-side operations and data management.</p>
-      </div>
-
-      <div class="team-card">
-        <div class="team-avatar">
-          <span>LC</span>
-        </div>
-        <h3>Lisa Cruz</h3>
-        <p class="team-role">Project Manager</p>
-        <p class="team-bio">Coordinating development efforts and ensuring timely delivery of features and updates.</p>
-      </div>
-    </div>
-
-    <div class="tech-stack">
-      <h3>Built With</h3>
-      <div class="tech-badges">
-        <span class="tech-badge">HTML5</span>
-        <span class="tech-badge">CSS3</span>
-        <span class="tech-badge">JavaScript</span>
-        <span class="tech-badge">PHP</span>
-        <span class="tech-badge">MySQL</span>
-      </div>
-    </div>
-  </div>
-</section>
-
-</main>
-
-<footer>
-  <div class="container">
-    &copy; 2026 ISKOLAREALENO. Real, Quezon City, Philippines | Contact: info@iskolarealeno.ph
-  </div>
-</footer>
-
-</body>
+    </body>
 </html>
