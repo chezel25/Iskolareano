@@ -672,6 +672,34 @@ td {
       `;
     }
   }
+// ---------------- Reject Applicant ----------------
+async function rejectApplicant() {
+  if (!selectedApplicant) return;
+
+  if (!confirm(`Reject ${selectedApplicant.first_name}'s scholarship application?`)) return;
+
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/mswd-reject`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ applicant_id: selectedApplicant.id })
+    });
+
+    const data = await res.json();
+
+    if (!data.success) throw new Error(data.error || 'Failed to reject');
+
+    alert('Applicant rejected successfully!');
+    closeModal();
+    await loadPendingApplicants();
+    await loadRejected();
+    await loadStats();
+
+  } catch (err) {
+    console.error('Error rejecting applicant:', err);
+    alert('Error: ' + err.message);
+  }
+}
 
   // ---------------- Load Scholars ----------------
   async function loadScholars() {
@@ -723,112 +751,200 @@ td {
   }
 
   // ---------------- Load Rejected ----------------
-  async function loadRejected() {
-    try {
-      const res = await fetch(`${API_BASE}/api/admin/mswd-applicants`);
-      const data = await res.json();
+  // ---------------- Load Pending Applicants ----------------
+async function loadPendingApplicants() {
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/mswd-applicants`);
+    const data = await res.json();
 
-      const rejected = (data.applicants || []).filter(a => a.application_status === 'rejected');
+    const allApplicants = data.applicants || [];
 
-      const table = document.getElementById('rejectedTable');
+    // Only applicants who passed the exam AND are pending MSWD evaluation
+    const pending = allApplicants.filter(a => 
+      a.exam_passed === true &&
+      (a.application_status === 'exam_pending' || a.application_status === 'mswd_pending')
+    );
 
-      if (rejected.length === 0) {
-        table.innerHTML = `
-          <tr>
-            <td colspan="5" class="empty-state">
-              <h3>No rejected applicants</h3>
-            </td>
-          </tr>
-        `;
-        return;
-      }
+    const table = document.getElementById('pendingTable');
 
-      table.innerHTML = '';
-
-      rejected.forEach(app => {
-        const fullName = `${app.first_name} ${app.middle_name || ''} ${app.last_name}`.trim();
-        const rejectedDate = app.rejected_at ? 
-          new Date(app.rejected_at).toLocaleDateString() : 'Recently';
-
-        const row = document.createElement('tr');
-        row.innerHTML = `
-          <td>${fullName}</td>
-          <td>${app.email}</td>
-          <td><strong class="score-highlight failed">${app.exam_score}%</strong></td>
-          <td>${rejectedDate}</td>
-          <td>
-            <button class="view-btn" onclick="viewApplicant('${app.id}')">
-              View Details
-            </button>
+    if (pending.length === 0) {
+      table.innerHTML = `
+        <tr>
+          <td colspan="6" class="empty-state">
+            <h3>No pending evaluations</h3>
+            <p>All eligible applicants have been evaluated</p>
           </td>
-        `;
-        table.appendChild(row);
-      });
-
-    } catch (err) {
-      console.error('Error loading rejected applicants:', err);
+        </tr>
+      `;
+      return;
     }
-  }
 
-  // ---------------- Load All ----------------
-  async function loadAll() {
-    try {
-      const res = await fetch(`${API_BASE}/api/admin/mswd-applicants`);
-      const data = await res.json();
+    table.innerHTML = '';
 
-      const table = document.getElementById('allTable');
+    pending.forEach(app => {
+      const fullName = `${app.first_name} ${app.middle_name || ''} ${app.last_name}`.trim();
+      const filesCount = app.files_count || 0;
 
-      if ((data.applicants || []).length === 0) {
-        table.innerHTML = `
-          <tr>
-            <td colspan="5" class="empty-state">
-              <h3>No applicants found</h3>
-            </td>
-          </tr>
-        `;
-        return;
-      }
-
-      table.innerHTML = '';
-
-      data.applicants.forEach(app => {
-        const fullName = `${app.first_name} ${app.middle_name || ''} ${app.last_name}`.trim();
-        const scoreClass = app.exam_passed ? 'score-highlight' : 'score-highlight failed';
-
-        const row = document.createElement('tr');
-        row.innerHTML = `
-          <td>${fullName}</td>
-          <td>${app.email}</td>
-          <td><strong class="${scoreClass}">${app.exam_score || 'N/A'}%</strong></td>
-          <td>
-            <span class="badge ${app.application_status}">
-              ${formatStatus(app.application_status)}
-            </span>
-          </td>
-          <td>
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${fullName}</td>
+        <td>${app.email}</td>
+        <td><strong class="score-highlight">${app.exam_score}%</strong></td>
+        <td>${filesCount}/4 files</td>
+        <td>
+          <span class="badge ${app.application_status || 'exam_pending'}">
+            ${formatStatus(app.application_status)}
+          </span>
+        </td>
+        <td>
+          <div class="actions">
             <button class="view-btn" onclick="viewApplicant('${app.id}')">
-              View
+              Evaluate
             </button>
-          </td>
-        `;
-        table.appendChild(row);
-      });
+          </div>
+        </td>
+      `;
+      table.appendChild(row);
+    });
 
-    } catch (err) {
-      console.error('Error loading all applicants:', err);
-    }
+  } catch (err) {
+    console.error('Error loading pending applicants:', err);
+    document.getElementById('pendingTable').innerHTML = `
+      <tr>
+        <td colspan="6" style="text-align: center; color: #dc2626; padding: 40px;">
+          Error: ${err.message}
+        </td>
+      </tr>
+    `;
   }
+}
+
+// ---------------- Load Rejected Applicants ----------------
+async function loadRejected() {
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/mswd-applicants`);
+    const data = await res.json();
+
+    const allApplicants = data.applicants || [];
+
+    // Only applicants who were rejected
+    // Only applicants who were rejected
+const rejected = allApplicants.filter(a => a.application_status === 'mswd_failed');
+
+    const table = document.getElementById('rejectedTable');
+
+    if (rejected.length === 0) {
+      table.innerHTML = `
+        <tr>
+          <td colspan="5" class="empty-state">
+            <h3>No rejected applicants</h3>
+          </td>
+        </tr>
+      `;
+      return;
+    }
+
+    table.innerHTML = '';
+
+    rejected.forEach(app => {
+      const fullName = `${app.first_name} ${app.middle_name || ''} ${app.last_name}`.trim();
+      const rejectedDate = app.rejected_at ? 
+        new Date(app.rejected_at).toLocaleDateString() : 'Recently';
+
+     const row = document.createElement('tr');
+row.innerHTML = `
+  <td>${fullName}</td>
+  <td>${app.email}</td>
+  <td><strong class="score-highlight failed">${app.exam_score}%</strong></td>
+  <td>${rejectedDate}</td>
+  <td>
+    <span class="badge ${app.application_status === 'mswd_failed' ? 'rejected' : app.application_status}">
+      ${formatStatus(app.application_status)}
+    </span>
+  </td>
+  <td>
+    <button class="view-btn" onclick="viewApplicant('${app.id}')">
+      View Details
+    </button>
+  </td>
+`;
+
+      table.appendChild(row);
+    });
+
+  } catch (err) {
+    console.error('Error loading rejected applicants:', err);
+  }
+}
+
+// ---------------- Load All Applicants (only passed exams) ----------------
+async function loadAll() {
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/mswd-applicants`);
+    const data = await res.json();
+
+    const allApplicants = data.applicants || [];
+
+    // Only applicants who passed the exam
+    const passedApplicants = allApplicants.filter(a => a.exam_passed === true);
+
+    const table = document.getElementById('allTable');
+
+    if (passedApplicants.length === 0) {
+      table.innerHTML = `
+        <tr>
+          <td colspan="5" class="empty-state">
+            <h3>No applicants found</h3>
+          </td>
+        </tr>
+      `;
+      return;
+    }
+
+    table.innerHTML = '';
+
+    passedApplicants.forEach(app => {
+      const fullName = `${app.first_name} ${app.middle_name || ''} ${app.last_name}`.trim();
+
+      const badgeClass = app.application_status === 'mswd_failed' ? 'rejected' : app.application_status;
+
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${fullName}</td>
+        <td>${app.email}</td>
+        <td><strong class="score-highlight">${app.exam_score}%</strong></td>
+        <td>
+          <span class="badge ${badgeClass}">
+            ${formatStatus(app.application_status)}
+          </span>
+        </td>
+        <td>
+          <button class="view-btn" onclick="viewApplicant('${app.id}')">
+            View
+          </button>
+        </td>
+      `;
+      table.appendChild(row);
+    });
+
+  } catch (err) {
+    console.error('Error loading all applicants:', err);
+  }
+}
+
 
   // ---------------- Format Status ----------------
   function formatStatus(status) {
-    const labels = {
-      exam_pending: 'Exam Passed',
-      mswd_pending: 'MSWD Pending',
-      scholar: 'Scholar',
-      rejected: 'Rejected'
-    };
-    return labels[status] || status;
-  }
+  const labels = {
+    exam_pending: 'Exam Passed',
+    mswd_pending: 'MSWD Pending',
+    scholar: 'Scholar',
+    mswd_failed: 'Rejected', // map status for display
+  };
+  return labels[status] || status;
+}
+
+  
 
   // ---------------- View Applicant ----------------
   async function viewApplicant(applicantId) {
@@ -952,63 +1068,38 @@ td {
     }
   }
 
-  // ---------------- Reject Applicant ----------------
-  async function rejectApplicant() {
-    if (!selectedApplicant) return;
-
-    const reason = document.getElementById('scholarshipReason').value.trim();
-
-    if (!confirm(`Reject ${selectedApplicant.first_name}?`)) {
-      return;
-    }
-
-    try {
-      const res = await fetch(`${API_BASE}/api/admin/mswd-reject`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          applicant_id: selectedApplicant.id,
-          rejection_reason: reason || 'No reason provided'
-        })
-      });
-
-      const data = await res.json();
-
-      if (!data.success) {
-        throw new Error(data.error || 'Failed to reject');
-      }
-
-      alert('Applicant rejected');
-      closeModal();
-      await loadPendingApplicants();
-      await loadStats();
-
-    } catch (err) {
-      console.error('Error rejecting applicant:', err);
-      alert('Error: ' + err.message);
-    }
-  }
-
-  // ---------------- Load Stats ----------------
+  //=====================
   async function loadStats() {
-    try {
-      const res = await fetch(`${API_BASE}/api/admin/mswd-stats`);
-      const data = await res.json();
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/mswd-applicants`);
+    const data = await res.json();
 
-      if (data.success) {
-        document.getElementById('totalApplicants').textContent = data.total || 0;
-        document.getElementById('pendingCount').textContent = (data.exam_pending || 0) + (data.mswd_pending || 0);
-        document.getElementById('scholarCount').textContent = data.scholar || 0;
-        document.getElementById('rejectedCount').textContent = data.rejected || 0;
-      }
+    const allApplicants = data.applicants || [];
 
-    } catch (err) {
-      console.error('Error loading stats:', err);
-    }
+    // Passed exam (≥85%)
+    const passedCount = allApplicants.filter(a => a.exam_score >= 85).length;
+
+    // Pending evaluation (not yet evaluated)
+    const pendingCount = allApplicants.filter(a => a.application_status === 'pending').length;
+
+    // Approved scholars
+    const scholarCount = allApplicants.filter(a => a.application_status === 'scholar').length;
+
+    // Rejected (MSWD failed or rejected)
+    const rejectedCount = allApplicants.filter(a => a.application_status === 'mswd_failed' || a.application_status === 'rejected').length;
+
+    // Update the HTML
+    document.getElementById('totalApplicants').textContent = passedCount;
+    document.getElementById('pendingCount').textContent = pendingCount;
+    document.getElementById('scholarCount').textContent = scholarCount;
+    document.getElementById('rejectedCount').textContent = rejectedCount;
+
+  } catch (err) {
+    console.error('Error loading stats:', err);
   }
+}
 
+// ---------------- MSWD REJECT ----------------
   // ---------------- Initialize ----------------
   window.addEventListener('DOMContentLoaded', () => {
     loadStats();

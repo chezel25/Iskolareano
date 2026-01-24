@@ -264,7 +264,6 @@ td {
 
     <div class="header-actions">
       <button onclick="location.reload()">Refresh</button>
-      <button onclick="location.href='admin-dashboard.html'">Back to Dashboard</button>
       <button onclick="location.href='admin-login.html'">Logout</button>
     </div>
   </div>
@@ -295,9 +294,10 @@ td {
 
   <!-- TABS -->
   <div class="tabs">
-    <button class="tab active" onclick="switchTab('pending')">Pending Grading</button>
-    <button class="tab" onclick="switchTab('graded')">Graded</button>
-    <button class="tab" onclick="switchTab('all')">All</button>
+   <button class="tab active" onclick="switchTab(event, 'pending')">Pending Grading</button>
+<button class="tab" onclick="switchTab(event, 'graded')">Graded</button>
+<button class="tab" onclick="switchTab(event, 'all')">All</button>
+
   </div>
 
   <!-- PENDING GRADING -->
@@ -371,8 +371,14 @@ td {
   </div>
 
 </div>
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 
 <script>
+  const supabaseClient = supabase.createClient(
+  'https://wwzufquuogpshrlrofiv.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind3enVmcXV1b2dwc2hybHJvZml2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwNTgxMzcsImV4cCI6MjA4MTYzNDEzN30.JXJgJEpX0BEKYHGbWH1zUq6lVv1jetg0AmEsM-HvZQs'
+);
+ 
   (async function protectExaminer() {
   const sessionStr = localStorage.getItem('supabase_session');
   const role = localStorage.getItem('role');
@@ -404,25 +410,21 @@ td {
   let currentTab = 'pending';
 
   // ---------------- Switch Tabs ----------------
-  function switchTab(tab) {
-    currentTab = tab;
-    
-    // Update tab buttons
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    event.target.classList.add('active');
+ function switchTab(event, tab) {
+  currentTab = tab;
 
-    // Show/hide sections
-    document.getElementById('pendingSection').style.display = tab === 'pending' ? 'block' : 'none';
-    document.getElementById('gradedSection').style.display = tab === 'graded' ? 'block' : 'none';
-    document.getElementById('allSection').style.display = tab === 'all' ? 'block' : 'none';
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
 
-    // Load data for the tab
-    if (tab === 'graded') {
-      loadGradedApplicants();
-    } else if (tab === 'all') {
-      loadAllApplicants();
-    }
-  }
+  document.getElementById('pendingSection').style.display = tab === 'pending' ? 'block' : 'none';
+  document.getElementById('gradedSection').style.display = tab === 'graded' ? 'block' : 'none';
+  document.getElementById('allSection').style.display = tab === 'all' ? 'block' : 'none';
+
+  if (tab === 'pending') loadPendingApplicants();
+  if (tab === 'graded') loadGradedApplicants();
+  if (tab === 'all') loadAllApplicants();
+}
+
 
   // ---------------- Load Pending Applicants ----------------
   async function loadPendingApplicants() {
@@ -545,7 +547,7 @@ td {
       // Reload data
       await loadPendingApplicants();
       await loadStats();
-
+await loadGradedApplicants()
     } catch (err) {
       console.error('Error submitting grade:', err);
       alert('Error: ' + err.message);
@@ -553,141 +555,168 @@ td {
   }
 
   // ---------------- Load Graded Applicants ----------------
-  async function loadGradedApplicants() {
-    try {
-      const res = await fetch(`${API_BASE}/api/admin/exam-applicants`);
-      const data = await res.json();
+ async function loadAllApplicants() {
+  try {
+    const [pendingRes, gradedRes] = await Promise.all([
+      fetch(`${API_BASE}/api/admin/exam-applicants`), // pending exam
+      fetch(`${API_BASE}/api/admin/grades`)           // graded
+    ]);
 
-      // Filter graded (has exam_score)
-      const graded = data.filter(a => 
-        a.exam_score !== null && a.exam_score !== undefined
-      );
+    const pending = await pendingRes.json();
+    const graded = await gradedRes.json();
 
-      const table = document.getElementById('gradedTable');
+    // KEEP ONLY PASSED APPLICANTS
+    const passedOnly = graded
+      .filter(g => g.passed === true)
+      .map(g => ({
+        full_name: g.full_name,
+        email: g.email,
+        exam_score: g.score,
+        exam_passed: true,
+        status: g.status
+      }));
 
-      if (graded.length === 0) {
-        table.innerHTML = `
-          <tr>
-            <td colspan="5" class="empty-state">
-              <h3>No graded exams yet</h3>
-              <p>Submit grades to see them here</p>
-            </td>
-          </tr>
-        `;
-        return;
-      }
+    const all = [...pending, ...passedOnly];
 
-      table.innerHTML = '';
+    const table = document.getElementById('allTable');
+    table.innerHTML = '';
 
-      graded.forEach(app => {
-        const fullName = `${app.first_name} ${app.middle_name || ''} ${app.last_name}`.trim();
-        const result = app.exam_passed ? 'Passed' : 'Failed';
-        const badgeClass = app.exam_passed ? 'passed' : 'failed';
-        const gradedDate = app.exam_graded_at ? 
-          new Date(app.exam_graded_at).toLocaleDateString() : 'Recently';
-
-        const row = document.createElement('tr');
-        row.innerHTML = `
-          <td>${fullName}</td>
-          <td>${app.email}</td>
-          <td><strong>${app.exam_score}%</strong></td>
-          <td>
-            <span class="badge ${badgeClass}">${result}</span>
+    if (all.length === 0) {
+      table.innerHTML = `
+        <tr>
+          <td colspan="5" class="empty-state">
+            <h3>No applicants found</h3>
           </td>
-          <td>${gradedDate}</td>
-        `;
-        table.appendChild(row);
-      });
-
-    } catch (err) {
-      console.error('Error loading graded applicants:', err);
+        </tr>
+      `;
+      return;
     }
+
+    all.forEach(app => {
+      const name = app.full_name ||
+        `${app.first_name} ${app.middle_name || ''} ${app.last_name}`.trim();
+
+      const isPending = app.exam_score === null || app.exam_score === undefined;
+
+      const badgeClass = isPending ? 'pending' : 'passed';
+      const statusText = isPending ? 'Pending Exam' : 'Passed';
+
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${name}</td>
+        <td>${app.email}</td>
+        <td>
+          <span class="badge ${badgeClass}">
+            ${statusText}
+          </span>
+        </td>
+        <td>${isPending ? '-' : `${app.exam_score}%`}</td>
+        <td>${statusText}</td>
+      `;
+      table.appendChild(row);
+    });
+
+  } catch (err) {
+    console.error('Error loading all applicants:', err);
   }
+}
+
+
 
   // ---------------- Load All Applicants ----------------
-  async function loadAllApplicants() {
-    try {
-      const res = await fetch(`${API_BASE}/api/admin/exam-applicants`);
-      const data = await res.json();
+  async function loadGradedApplicants() {
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/grades`);
+    const data = await res.json();
 
-      const table = document.getElementById('allTable');
+    const table = document.getElementById('gradedTable');
+    table.innerHTML = '';
 
-      if (data.length === 0) {
-        table.innerHTML = `
-          <tr>
-            <td colspan="5" class="empty-state">
-              <h3>No applicants found</h3>
-              <p>No applicants with approved requirements</p>
-            </td>
-          </tr>
-        `;
-        return;
-      }
-
-      table.innerHTML = '';
-
-      data.forEach(app => {
-        const fullName = `${app.first_name} ${app.middle_name || ''} ${app.last_name}`.trim();
-        const hasGrade = app.exam_score !== null && app.exam_score !== undefined;
-        const status = hasGrade ? 
-          (app.exam_passed ? 'Passed' : 'Failed') : 
-          'Pending';
-        const badgeClass = hasGrade ? 
-          (app.exam_passed ? 'passed' : 'failed') : 
-          'pending';
-
-        const row = document.createElement('tr');
-        row.innerHTML = `
-          <td>${fullName}</td>
-          <td>${app.email}</td>
-          <td>
-            <span class="badge ${badgeClass}">${status}</span>
+    if (!data || data.length === 0) {
+      table.innerHTML = `
+        <tr>
+          <td colspan="5" class="empty-state">
+            <h3>No graded applicants</h3>
           </td>
-          <td>${hasGrade ? `${app.exam_score}%` : '-'}</td>
-          <td>${status}</td>
-        `;
-        table.appendChild(row);
-      });
-
-    } catch (err) {
-      console.error('Error loading all applicants:', err);
+        </tr>
+      `;
+      return;
     }
+
+    data.forEach(app => {
+      const gradedAt = app.graded_at
+        ? new Date(app.graded_at).toLocaleString()
+        : '—';
+
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${app.full_name}</td>
+        <td>${app.email}</td>
+        <td>${app.score}%</td>
+        <td>
+          <span class="badge ${app.passed ? 'passed' : 'failed'}">
+            ${app.passed ? 'Passed' : 'Failed'}
+          </span>
+        </td>
+        <td>${gradedAt}</td>
+      `;
+      table.appendChild(row);
+    });
+
+  } catch (err) {
+    console.error('Error loading graded applicants:', err);
   }
+}
+
 
   // ---------------- Load Stats ----------------
   async function loadStats() {
-    try {
-      const res = await fetch(`${API_BASE}/api/admin/exam-applicants`);
-      const data = await res.json();
+  try {
+    const [pendingRes, gradedRes] = await Promise.all([
+      fetch(`${API_BASE}/api/admin/exam-applicants`), // pending
+      fetch(`${API_BASE}/api/admin/grades`)           // graded
+    ]);
 
-      const total = data.length;
-      const graded = data.filter(a => a.exam_score !== null).length;
-      const passed = data.filter(a => a.exam_passed === true).length;
-      const failed = data.filter(a => a.exam_passed === false).length;
+    const pending = await pendingRes.json();
+    const graded = await gradedRes.json();
 
-      document.getElementById('totalApplicants').textContent = total;
-      document.getElementById('gradedCount').textContent = graded;
-      document.getElementById('passedCount').textContent = passed;
-      document.getElementById('failedCount').textContent = failed;
+    const total = pending.length + graded.length;
+    const gradedCount = graded.length;
 
-      const gradedPercent = total > 0 ? Math.round((graded / total) * 100) : 0;
-      const passRate = graded > 0 ? Math.round((passed / graded) * 100) : 0;
-      const failRate = graded > 0 ? Math.round((failed / graded) * 100) : 0;
+    const passed = graded.filter(a => a.passed === true).length;
+    const failed = graded.filter(a => a.passed === false).length;
 
-      document.getElementById('gradedPercent').textContent = `${gradedPercent}% graded`;
-      document.getElementById('passRate').textContent = `${passRate}% pass rate`;
-      document.getElementById('failRate').textContent = `${failRate}% fail rate`;
+    document.getElementById('totalApplicants').textContent = total;
+    document.getElementById('gradedCount').textContent = gradedCount;
+    document.getElementById('passedCount').textContent = passed;
+    document.getElementById('failedCount').textContent = failed;
 
-    } catch (err) {
-      console.error('Error loading stats:', err);
-    }
+    const gradedPercent = total > 0
+      ? Math.round((gradedCount / total) * 100)
+      : 0;
+
+    const passRate = gradedCount > 0
+      ? Math.round((passed / gradedCount) * 100)
+      : 0;
+
+    const failRate = gradedCount > 0
+      ? Math.round((failed / gradedCount) * 100)
+      : 0;
+
+    document.getElementById('gradedPercent').textContent = `${gradedPercent}% graded`;
+    document.getElementById('passRate').textContent = `${passRate}% pass rate`;
+    document.getElementById('failRate').textContent = `${failRate}% fail rate`;
+
+  } catch (err) {
+    console.error('Error loading stats:', err);
   }
+}
 
   // ---------------- Initialize ----------------
   window.addEventListener('DOMContentLoaded', () => {
-    loadStats();
-    loadPendingApplicants();
-  });
+  loadStats();
+  loadPendingApplicants();
+});
 
 </script>
 

@@ -1994,104 +1994,8 @@ app.post('/api/admin/mswd-reject', async (req, res) => {
 // ================================
 // This ensures applicants automatically go to MSWD after passing exam
 
-app.post('/api/admin/grades', async (req, res) => {
-  const { applicant_id, exam_grade } = req.body;
 
-  if (!applicant_id || exam_grade === undefined) {
-    return res.status(400).json({ 
-      success: false,
-      error: 'applicant_id and exam_grade required' 
-    });
-  }
 
-  const grade = parseFloat(exam_grade);
-  if (isNaN(grade) || grade < 0 || grade > 100) {
-    return res.status(400).json({ 
-      success: false,
-      error: 'Grade must be between 0 and 100' 
-    });
-  }
-
-  try {
-    // Determine if passed (>=85% passes)
-    const examPassed = grade >= 85;
-    
-    // If passed, set to exam_pending (ready for MSWD evaluation)
-    // If failed, keep at requirements_approved
-    const newStatus = examPassed ? 'exam_pending' : 'requirements_approved';
-    
-    const { error: updateError } = await supabase
-      .from('applicants')
-      .update({ 
-        exam_score: grade,
-        exam_passed: examPassed,
-        application_status: newStatus,
-        exam_graded_at: new Date().toISOString()
-      })
-      .eq('id', applicant_id);
-
-    if (updateError) {
-      console.error('Applicant update error:', updateError);
-      throw updateError;
-    }
-
-    // Send email notification
-    const { data: applicant } = await supabase
-      .from('applicants')
-      .select('first_name, email')
-      .eq('id', applicant_id)
-      .single();
-
-    if (applicant) {
-      try {
-        const emailSubject = examPassed 
-          ? '✅ Exam Passed - Next Step: MSWD Evaluation'
-          : 'Exam Results';
-
-        const emailBody = examPassed 
-          ? `
-            <h2>Congratulations ${applicant.first_name}!</h2>
-            <p>You have successfully passed the scholarship examination with a score of <strong>${grade}%</strong>.</p>
-            <p>Your application will now proceed to the final MSWD evaluation stage.</p>
-            <p>Please wait for further updates regarding your application status.</p>
-            <p><strong>Iskolar ng Realeno Team</strong></p>
-          `
-          : `
-            <h2>Dear ${applicant.first_name},</h2>
-            <p>Thank you for taking the scholarship examination.</p>
-            <p>Your score: <strong>${grade}%</strong></p>
-            <p>Unfortunately, you did not meet the passing grade of 85%.</p>
-            <p>We encourage you to apply again in the next cycle.</p>
-            <p><strong>Iskolar ng Realeno Team</strong></p>
-          `;
-
-        await transporter.sendMail({
-          from: `"Iskolar ng Realeno" <${process.env.EMAIL_USER}>`,
-          to: applicant.email,
-          subject: emailSubject,
-          html: emailBody
-        });
-      } catch (emailErr) {
-        console.error('Email sending failed:', emailErr);
-      }
-    }
-
-    res.json({
-      success: true,
-      message: `Grade ${grade}% submitted. ${examPassed ? 'PASSED - Ready for MSWD' : 'FAILED'}`,
-      exam_passed: examPassed,
-      exam_score: grade,
-      application_status: newStatus
-    });
-
-  } catch (err) {
-    console.error('Error submitting grade:', err);
-    res.status(500).json({ 
-      success: false,
-      error: 'Failed to submit grade' 
-    });
-  }
-});
 //------------------------------------------------------------------------//
 //                       ALL ENDPOINT WORKING ABOVE 
 //------------------------------------------------------------------------//
@@ -2205,35 +2109,40 @@ app.post(
         const picPath = `scholars/${scholar_id}.${ext}`;
 
         // 1️⃣ Get current profile pic URL from DB
-        const { data: currentData } = await supabase
-          .from("scholars")
-          .select("profile_pic")
-          .eq("id", scholar_id)
-          .single();
+        // 1️⃣ Get old profile pic
+const { data: currentData } = await supabase
+  .from("scholars")
+  .select("profile_pic")
+  .eq("id", scholar_id)
+  .single();
 
-        const oldPicUrl = currentData?.profile_pic;
+const oldPicUrl = currentData?.profile_pic;
 
-        // 2️⃣ Upload new picture
-        const { error: picError } = await supabase.storage
-          .from("profile-pics")
-          .upload(picPath, profilePic.buffer, {
-            upsert: true,
-            contentType: profilePic.mimetype
-          });
+// 2️⃣ Upload new picture
+const { error: picError } = await supabase.storage
+  .from("profile-pics")
+  .upload(picPath, profilePic.buffer, {
+    upsert: true,
+    contentType: profilePic.mimetype
+  });
 
-        if (picError) return res.status(500).json({ success: false, error: picError.message });
+if (picError) {
+  return res.status(500).json({ success: false, error: picError.message });
+}
 
-        const { data: picData } = supabase.storage
-          .from("profile-pics")
-          .getPublicUrl(picPath);
+// 3️⃣ Get public URL
+const { data: picData } = supabase.storage
+  .from("profile-pics")
+  .getPublicUrl(picPath);
 
-        const profilePicUrl = picData.publicUrl;
+const profilePicUrl = picData.publicUrl;
 
-        // 3️⃣ Update scholars table
-        await supabase
-          .from("scholars")
-          .update({ profile_pic: profilePicUrl })
-          .eq("id", scholar_id);
+// 4️⃣ Update DB AFTER successful upload
+await supabase
+  .from("scholars")
+  .update({ profile_pic: profilePicUrl })
+  .eq("id", scholar_id);
+
 
         // 4️⃣ Delete old picture from storage if it exists and is different
         if (oldPicUrl && oldPicUrl !== profilePicUrl) {
