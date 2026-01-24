@@ -9,7 +9,12 @@ import fetch from 'node-fetch';
 import multer from 'multer';
 import fs from 'fs';
 import pkg from 'pg';
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc.js';
+import timezone from 'dayjs/plugin/timezone.js';
 
+dayjs.extend(utc);
+dayjs.extend(timezone);
 const { Pool } = pkg;
 
 // 1️⃣ Load env first
@@ -2547,15 +2552,21 @@ app.delete('/api/admin/graduates/:id', async (req, res) => {
 // ----------------- ANNOUNCEMENTS -----------------
 
 // GET all announcements
+// GET all announcements
 app.get('/api/announcements', async (req, res) => {
   try {
     const { data, error } = await supabase
-      .from('announcements')
-      .select('*')
-      .order('created_at', { ascending: false });
+  .from('announcements')
+  .select('*')
+  .order('created_at', { ascending: false });
 
-    if (error) throw error;
-    res.json(data);
+const formattedData = data.map(a => ({
+  ...a,
+  created_at_ph: dayjs(a.created_at).tz('Asia/Manila').format('MMMM D, YYYY hh:mm A')
+}));
+
+
+    res.json(formattedData); // send formatted data
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Failed to fetch announcements' });
@@ -2565,37 +2576,68 @@ app.get('/api/announcements', async (req, res) => {
 // POST create announcement
 // POST - Create announcement & send notifications
 // Node.js / Express
+// POST - Create announcement & send notifications
 app.post('/api/admin/announcement', async (req, res) => {
   try {
-    const { title, content, recipients, recipient_type, scholar_ids, scholar_emails, icon, created_by } = req.body;
+    const { 
+      title, 
+      content, 
+      recipients,       // e.g., 'all' or 'specific'
+      recipient_type,   // optional, can use instead of recipients
+      scholar_ids,      // array of specific scholar IDs
+      scholar_emails, 
+      icon, 
+      created_by 
+    } = req.body;
 
-    if (!title || !content) return res.status(400).json({ error: 'Title and content are required' });
+    if (!title || !content) {
+      return res.status(400).json({ error: 'Title and content are required' });
+    }
 
-    // Insert announcement, include scholar_emails
-    const { data: announcement, error: annErr } = await supabase
-      .from('announcements')
-      .insert({
-        title,
-        content,
-        recipient_type,
-        created_by,
-        scholar_emails: scholar_emails || null  // <-- here
-      })
-      .select()
-      .single();
+    // Insert announcement
+  const { data: announcement, error: annErr } = await supabase
+  .from('announcements')
+  .insert({
+    title,
+    content,
+    recipient_type,
+    created_by,
+    scholar_emails: scholar_emails || null
+  })
+  .select()
+  .single();
 
     if (annErr) throw annErr;
 
-    // Insert notifications for specific scholars
-    if (scholar_ids && scholar_ids.length > 0) {
-      const notifications = scholar_ids.map(scholar_id => ({
+    let notifications = [];
+
+    if (recipient_type === 'all') {
+      // Fetch all scholar IDs
+      const { data: allScholars, error: scholarErr } = await supabase
+        .from('scholars')
+        .select('id');
+
+      if (scholarErr) throw scholarErr;
+
+      notifications = allScholars.map(sch => ({
+        announcement_id: announcement.id,
+        scholar_id: sch.id,
+        title,
+        message: content,
+        icon: icon || '📢'
+      }));
+    } else if (scholar_ids && scholar_ids.length > 0) {
+      notifications = scholar_ids.map(scholar_id => ({
         announcement_id: announcement.id,
         scholar_id,
         title,
         message: content,
         icon: icon || '📢'
       }));
+    }
 
+    // Insert notifications if any
+    if (notifications.length > 0) {
       const { error: notifErr } = await supabase
         .from('notifications')
         .insert(notifications);

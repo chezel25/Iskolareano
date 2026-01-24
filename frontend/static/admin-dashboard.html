@@ -745,9 +745,19 @@ textarea {
 
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/utc.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/timezone.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/relativeTime.js"></script>
 
 <script>
+  dayjs.extend(dayjs_plugin_utc);
+  dayjs.extend(dayjs_plugin_timezone);
+  dayjs.extend(dayjs_plugin_relativeTime);
 
+  // Example: convert now to Manila time
+  const manilaTime = dayjs().tz('Asia/Manila').format('YYYY-MM-DD HH:mm:ss');
+  console.log('Manila Time:', manilaTime);
 // Global variables
 let selectedTemplate = null;
 let recipientType = 'all';
@@ -1664,35 +1674,27 @@ const announcementTemplates = {
 async function showAnnouncements() {
   switchTab('Announcements');
   document.getElementById('content').innerHTML = '<div class="loading">Loading announcements...</div>';
- 
+
   let announcements = [];
- 
+
   try {
     // Load scholars
     const scholarsRes = await fetch('http://localhost:5000/api/admin/scholars');
-    if (scholarsRes.ok) {
-      allScholars = await scholarsRes.json();
-    } else {
-      allScholars = [];
-    }
-   
+    allScholars = scholarsRes.ok ? await scholarsRes.json() : [];
+
     // Load announcements
     try {
       const announcementsRes = await fetch('http://localhost:5000/api/announcements');
-      if (announcementsRes.ok) {
-        announcements = await announcementsRes.json();
-      }
+      announcements = announcementsRes.ok ? await announcementsRes.json() : [];
     } catch (err) {
       console.warn("Could not load announcements:", err);
       announcements = [];
     }
 
-
     let html = `
       <h3>Create Announcement</h3>
       <p>Send notifications to scholars and applicants</p>
       <div class="announcement-form">
-
 
         <div class="form-group">
           <label>Select Template</label>
@@ -1706,13 +1708,12 @@ async function showAnnouncements() {
           </div>
         </div>
 
-
         <div class="form-group">
           <label>Recipients</label>
           <select id="recipientType">
-  <option value="all">All Scholars</option>
-  <option value="specific">Specific Scholars</option>
-</select>
+            <option value="all">All Scholars</option>
+            <option value="specific">Specific Scholars</option>
+          </select>
 
           <div class="recipient-selector">
             <div class="recipient-option selected" onclick="selectRecipientType('all')">
@@ -1727,7 +1728,6 @@ async function showAnnouncements() {
           </div>
         </div>
 
-
         <div id="scholarListContainer" style="display:none;">
           <div class="form-group">
             <label>Select Scholars</label>
@@ -1735,68 +1735,65 @@ async function showAnnouncements() {
           </div>
         </div>
 
-
         <div class="form-group">
           <label>Title</label>
           <input id="announcementTitle" placeholder="Enter announcement title">
         </div>
-
 
         <div class="form-group">
           <label>Message</label>
           <textarea id="announcementContent" placeholder="Write your announcement here..."></textarea>
         </div>
 
-
-       <button class="btn-primary" onclick="sendAnnouncement()">
+        <button class="btn-primary" onclick="sendAnnouncement()">
           <i class="fas fa-paper-plane"></i> Send Announcement
         </button>
       </div>
-
 
       <div class="announcement-list">
         <h3>Recent Announcements</h3>
         ${announcements.length === 0
           ? '<p class="empty-state">No announcements yet.</p>'
-          : announcements.map(a => `
-              <div class="announcement-item">
-                <div class="announcement-header">
-                  <div>
-                    <h4 class="announcement-title">${a.title}</h4>
-                    <div class="announcement-meta">
-                     Posted on ${new Date(a.created_at).toLocaleDateString()}
-                     at ${new Date(a.created_at).toLocaleTimeString()}
+          : announcements.map(a => {
+              const manilaTime = dayjs(a.created_at).tz('Asia/Manila');
+              const formattedDate = manilaTime.format('MMMM D, YYYY');
+              const formattedTime = manilaTime.format('hh:mm A');
+              const timeAgo = manilaTime.fromNow();
 
-
+              return `
+                <div class="announcement-item">
+                  <div class="announcement-header">
+                    <div>
+                      <h4 class="announcement-title">${a.title}</h4>
+                      <div class="announcement-meta">
+                          Posted at: ${a.created_at_ph}
+                      </div>
                     </div>
+                    <button class="btn-delete" onclick="deleteAnnouncement('${a.id}')">
+                      <i class="fas fa-trash"></i> Delete
+                    </button>
                   </div>
-                 <button class="btn-delete" onclick="deleteAnnouncement('${a.id}')">
-                  <i class="fas fa-trash"></i> Delete
-                  </button>
 
+                  <div class="announcement-content">${a.content}</div>
+
+                  <div class="announcement-recipients">
+                    Sent to: ${
+                      a.recipient_type === 'specific' && a.scholar_emails?.length > 0
+                        ? a.scholar_emails.join(', ')
+                        : a.recipient_type === 'applicants'
+                        ? 'All Applicants'
+                        : 'All Scholars'
+                    }
+                  </div>
                 </div>
-
-
-                <div class="announcement-content">${a.content}</div>
-
-
-               <div class="announcement-recipients">
-  Sent to: ${
-    a.recipient_type === 'specific' && a.scholar_emails?.length > 0
-      ? a.scholar_emails.join(', ')
-      : 'All Scholars'
-  }
-</div>
-              </div>
-            `).join('')
+              `;
+            }).join('')
         }
       </div>
     `;
 
-
     document.getElementById('content').innerHTML = html;
     updateScholarList();
-
 
   } catch (err) {
     console.error("Critical error:", err);
@@ -1886,29 +1883,25 @@ async function sendAnnouncement() {
     return;
   }
 
-  // Define recipients here BEFORE using it
   let recipients = '';
   let selectedScholarEmails = [];
 
   if (recipientType === 'all') {
     recipients = 'All Scholars';
   } else if (recipientType === 'specific') {
-    if (selectedScholars.length === 0) {
+    if (!selectedScholars || selectedScholars.length === 0) {
       alert('Please select at least one scholar!');
       return;
     }
 
-    // Set recipients string for display
-    recipients = selectedScholars
+    selectedScholarEmails = selectedScholars
       .map(id => {
-        const s = allScholars.find(sch => sch.scholar_id === id);
-        return s ? s.email : '';
+        const scholar = allScholars.find(s => s.scholar_id === id);
+        return scholar?.email;
       })
-      .filter(e => e)  // remove empty strings
-      .join(', ');
+      .filter(Boolean); // remove undefined/null
 
-    // Also send emails array to backend
-    selectedScholarEmails = recipients.split(', ');
+    recipients = selectedScholarEmails.join(', ');
   } else if (recipientType === 'applicants') {
     recipients = 'All Applicants';
   }
@@ -1936,22 +1929,22 @@ async function sendAnnouncement() {
     alert('✅ Announcement posted successfully!');
     showAnnouncements();
 
-    // Reset form safely
+    // Reset form
     selectedTemplate = null;
     selectedScholars = [];
     recipientType = 'all';
-   const titleInput = document.getElementById('announcementTitle');
-const contentInput = document.getElementById('announcementContent');
 
-if (titleInput) titleInput.value = '';
-if (contentInput) contentInput.value = '';
+    const titleInput = document.getElementById('announcementTitle');
+    const contentInput = document.getElementById('announcementContent');
 
-
+    if (titleInput) titleInput.value = '';
+    if (contentInput) contentInput.value = '';
   } catch (err) {
     console.error(err);
     alert('❌ Error posting announcement: ' + err.message);
   }
 }
+
 
 //delete announcement
 async function deleteAnnouncement(id) {
