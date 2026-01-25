@@ -1,3 +1,4 @@
+/* CSS FOR HOMEPAGE */
 /* Color Palette */
 :root {
   --orange: #FF6600;
@@ -730,3 +731,5 @@ nav li a:hover {
   opacity: 1;
   visibility: visible;
 }
+/* CSS FOR ABOUT */
+

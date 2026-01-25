@@ -21,64 +21,260 @@
 
         <link href="css/templatemo-leadership-event.css" rel="stylesheet">
 
+        <style>
+            .site-footer {
+                background-color: #1a234a; 
+                padding: 25px 0;
+                width: 100%;
+                text-align: center;
+            }
 
-<header role="banner"> 
-  <div class="logo" aria-label="Iskolarealeno logo and name">
-    <img src="img/logo.png" alt="Iskolarealeno Logo">
-    <span class="logo-text">ISKOLAREALEÑO</span>
-  </div>
-  <nav aria-label="Main navigation">
-    <ul>
-      <li><a href="landing.html" class="active">Home</a></li>
-      <li><a href="#">Scholarships</a></li>
-      <li><a href="about.html">About</a></li>
-      <li><a href="login.html">Login</a></li>
-    </ul>
-  </nav>
-</header>
+            .site-footer p, 
+            .site-footer p a {
+                color: #ffffff !important; 
+                text-decoration: none;    
+                font-family: Arial, sans-serif;
+                font-size: 14px;
+                opacity: 1;                
+            }
 
-<style>
-  .site-footer {
-    background-color: #1a234a; 
-    padding: 25px 0;
-    width: 100%;
-    text-align: center;
-  }
+            /* Credits Section Styles */
+            .credits {
+                background: #ffffff;
+                padding: 100px 20px;
+                position: relative;
+            }
 
-  .site-footer p, 
-  .site-footer p a {
-    color: #ffffff !important; 
-    text-decoration: none;    
-    font-family: Arial, sans-serif;
-    font-size: 14px;
-    opacity: 1;                
-  }
-</style>
+            .credits-container {
+                max-width: 1400px;
+                margin: 0 auto;
+                position: relative;
+            }
 
-        </head>
+            .credits-card {
+                background: #ffffff;
+                border-radius: 30px;
+                padding: 70px 50px;
+            }
 
-        <body>
+            .credits-title {
+                text-align: center;
+                font-size: 3rem;
+                background: linear-gradient(135deg, #0d2088 0%, #ff7308 100%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+                margin-bottom: 15px;
+                font-weight: 800;
+                letter-spacing: -1px;
+            }
+
+            .credits-intro {
+                text-align: center;
+                color: #555;
+                font-size: 1.15rem;
+                margin-bottom: 60px;
+                max-width: 600px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            .advisor-section {
+                margin-bottom: 60px;
+            }
+
+            .advisor-card {
+                background: linear-gradient(135deg, #0d2088 0%, #1a3ba8 100%);
+                padding: 35px 40px;
+                border-radius: 20px;
+                text-align: center;
+                box-shadow: 0 10px 30px rgba(13, 32, 136, 0.4);
+                max-width: 500px;
+                margin: 0 auto;
+                position: relative;
+                overflow: hidden;
+            }
+
+            .advisor-label {
+                font-size: 0.85rem;
+                text-transform: uppercase;
+                letter-spacing: 3px;
+                margin-bottom: 12px;
+                opacity: 0.95;
+                font-weight: 500;
+                color: #ffffff;
+            }
+
+            .advisor-name {
+                font-size: 1.5rem;
+                font-weight: 700;
+                margin: 0;
+                line-height: 1.3;
+                color: #ffffff;
+            }
+
+            .team-section-title {
+                text-align: center;
+                font-size: 1.8rem;
+                color: #0d2088;
+                margin-bottom: 40px;
+                font-weight: 700;
+                position: relative;
+                padding-bottom: 15px;
+            }
+
+            .team-section-title::after {
+                content: '';
+                position: absolute;
+                bottom: 0;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 80px;
+                height: 4px;
+                background: linear-gradient(90deg, #0d2088, #ff7308);
+                border-radius: 2px;
+            }
+
+            .team-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                gap: 30px;
+                margin-bottom: 50px;
+            }
+
+            .team-card {
+                background: white;
+                padding: 35px 30px;
+                border-radius: 20px;
+                border: 2px solid #e8eaf6;
+                transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                position: relative;
+                overflow: hidden;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            }
+
+            .team-card::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 4px;
+                background: linear-gradient(90deg, #0d2088, #ff7308);
+                transform: scaleX(0);
+                transition: transform 0.4s ease;
+            }
+
+            .team-card:hover::before {
+                transform: scaleX(1);
+            }
+
+            .team-card:hover {
+                transform: translateY(-10px) scale(1.02);
+                box-shadow: 0 15px 40px rgba(13, 32, 136, 0.2);
+                border-color: #0d2088;
+            }
+
+            .team-role {
+                color: #ff7308;
+                font-size: 0.95rem;
+                margin-bottom: 12px;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+            }
+
+            .team-name {
+                color: #0d2088;
+                font-size: 1.25rem;
+                margin: 0;
+                font-weight: 600;
+                line-height: 1.4;
+            }
+
+            .team-grid-center {
+                display: flex;
+                justify-content: center;
+                gap: 30px;
+                flex-wrap: wrap;
+                margin-bottom: 50px;
+            }
+
+            .team-grid-center .team-card {
+                width: 300px;
+            }
+
+            .credits-footer {
+                text-align: center;
+                color: #666;
+                font-size: 1.05rem;
+                margin-top: 40px;
+                padding-top: 30px;
+                border-top: 2px solid #e8eaf6;
+                font-weight: 500;
+            }
+
+            @media (max-width: 768px) {
+                .credits-card {
+                    padding: 40px 25px;
+                }
+
+                .credits-title {
+                    font-size: 2.2rem;
+                }
+
+                .team-grid {
+                    grid-template-columns: 1fr;
+                }
+
+                .team-grid-center {
+                    flex-direction: column;
+                    align-items: center;
+                }
+
+                .team-grid-center .team-card {
+                    width: 100%;
+                    max-width: 300px;
+                }
+
+                .advisor-name {
+                    font-size: 1.3rem;
+                }
+            }
+        </style>
+    </head>
+
+    <body>
+        <header role="banner"> 
+            <div class="logo" aria-label="Iskolarealeno logo and name">
+                <img src="img/logo.png" alt="Iskolarealeno Logo">
+                <span class="logo-text">ISKOLAREALEÑO</span>
+            </div>
+            <nav aria-label="Main navigation">
+                <ul>
+                    <li><a href="homepage2.html" class="active">Home</a></li>
+                    <li><a href="signup.html">Scholarships</a></li>
+                    <li><a href="about.html">About</a></li>
+                    <li><a href="login.html">Login</a></li>
+                </ul>
+            </nav>
+        </header>
+
         <main>
-
             <section class="hero" id="section_1">
                 <div class="container">
                     <div class="row">
-
                         <div class="col-lg-5 col-12 m-auto">
                             <div class="hero-text">
-
-                               <h1 class="mb-4">
-                                 <span style="color: #ff7308;">Iskola</span><span style="color: #0d2088;">realeño</span>
+                                <h1 class="mb-4">
+                                    <span style="color: #ff7308;">Iskola</span><span style="color: #0d2088;">realeño</span>
                                 </h1>
-
 
                                 <p class="text-white">Empowering the Youth of Real, Quezon through Efficient, Transparent Scholarship Support.</p>
 
-                               <a href="#section_2" class="custom-link arrow-icon" style="text-decoration: none; font-size: 32px; color: black;">
-                                 &#x2193; <!-- This is the code for a down arrow (↓) -->
+                                <a href="#section_2" class="custom-link arrow-icon" style="text-decoration: none; font-size: 32px; color: black;">
+                                    &#x2193;
                                 </a>
-
-
                             </div>
                         </div>
                     </div>
@@ -87,21 +283,16 @@
                 <div class="video-wrap">
                     <img src="img/DOCU5.jpg" alt="A relevant description" class="custom-video">
                 </div>
-
             </section>
-
 
             <section class="highlight">
                 <div class="container">
                     <div class="row">
-
                         <div class="col-lg-4 col-md-6 col-12">
                             <div class="highlight-thumb">
                                 <img src="img/DOCU7.jpg" class="highlight-image img-fluid" alt="">
-
                                 <div class="highlight-info">
                                     <h3 class="highlight-title">2019 Highlights</h3>
-
                                     <a href="#" class="#"></a>
                                 </div>
                             </div>
@@ -110,10 +301,8 @@
                         <div class="col-lg-4 col-md-6 col-12">
                             <div class="highlight-thumb">
                                 <img src="img/DOCU4.jpg" class="highlight-image img-fluid" alt="">
-
                                 <div class="highlight-info">
                                     <h3 class="highlight-title">2020 Highlights</h3>
-
                                     <a href="#" class="#"></a>
                                 </div>
                             </div>
@@ -122,30 +311,24 @@
                         <div class="col-lg-4 col-md-6 col-12">
                             <div class="highlight-thumb">
                                 <img src="img/DOCU11.jpg" class="highlight-image img-fluid" alt="">
-
                                 <div class="highlight-info">
                                     <h3 class="highlight-title">2021 Highlights</h3>
-
                                     <a href="#" class="#"></a>
                                 </div>
                             </div>
                         </div>
-
                     </div>
                 </div>
             </section>
 
-
             <section class="about section-padding" id="section_2">
                 <div class="container">
                     <div class="row">
-
                         <div class="col-lg-10 col-12">
                             <h2 class="mb-4">About US</h2>
                         </div>
 
                         <div class="col-lg-6 col-12">
-
                             <p>The IskolarRealeño program is the Local Government Unit of Real, Quezon's commitment to supporting the educational aspirations of our community's growing student population. Recognizing the challenges associated with manual application and tracking processes, we developed this Scholarship Management Web System. </p>
                             <p>Our mission is to streamline the entire scholarship journey from application to monitoring ensuring accuracy, transparency, and operational efficiency so that educational assistance reaches those who need it most, faster and more effectively.</p>
                         </div>
@@ -154,25 +337,73 @@
                             <h4>Streamlining Education, Empowering Futures.</h4>
                             <div class="avatar-group border-top py-5 mt-5">
                                 <img src="img/scholarboy.jpg" class="img-fluid avatar-image" alt="">
-
                                 <img src="img/scholargirl.jpg" class="img-fluid avatar-image avatar-image-left" alt="">
-
                                 <img src="img/scholarboy1.jpg" class="img-fluid avatar-image avatar-image-left" alt="">
-
                                 <img src="img/scholargirl1.jpg" class="img-fluid avatar-image avatar-image-left" alt="">
-
                                 <p class="d-inline">99+ Scholars are attending with us</p>
                             </div>
                         </div>
-
                     </div>
                 </div>
             </section>
-        
 
-            <footer class="site-footer">
-                <p>&copy; 2026 ISKOLAREALENO. Real, Quezon City, Philippines | Contact: info@iskolarealeno.ph</p>
-            </footer>
+            <section class="credits">
+                <div class="credits-container">
+                    <div class="credits-card">
+                        <h2 class="credits-title">Development Team</h2>
+                        <p class="credits-intro">This scholarship management system was created with dedication by our talented team</p>
+
+                        <div class="advisor-section">
+                            <div class="advisor-card">
+                                <p class="advisor-label">Project Advisor</p>
+                                <h3 class="advisor-name">Dr. Rufo I. Marasigan Jr.</h3>
+                            </div>
+                        </div>
+
+                        <h3 class="team-section-title">Core Development Team</h3>
+                        <div class="team-grid">
+                            <div class="team-card">
+                                <h3 class="team-role">Lead Developer</h3>
+                                <p class="team-name">Chezel M. Aguilar</p>
+                            </div>
+                            <div class="team-card">
+                                <h3 class="team-role">Front-End Programmer</h3>
+                                <p class="team-name">Christian Bantasan</p>
+                            </div>
+                            <div class="team-card">
+                                <h3 class="team-role">Front-End Programmer</h3>
+                                <p class="team-name">Dianne S. Dajac</p>
+                            </div>
+                            <div class="team-card">
+                                <h3 class="team-role">Back-End Programmer</h3>
+                                <p class="team-name">Jia Nicole T. Lagrazon</p>
+                            </div>
+                        </div>
+
+                        <div class="team-grid-center">
+                            <div class="team-card">
+                                <h3 class="team-role">Back-End Programmer</h3>
+                                <p class="team-name">Roselette Alexis E. Santos</p>
+                            </div>
+                            <div class="team-card">
+                                <h3 class="team-role">Quality Assurance</h3>
+                                <p class="team-name">Mark Anthony T. Redilla</p>
+                            </div>
+                            <div class="team-card">
+                                <h3 class="team-role">Quality Assurance</h3>
+                                <p class="team-name">Kurt Clark Kiefer K. Romero</p>
+                            </div>
+                        </div>
+
+                        <p class="credits-footer">Built with passion to serve the students of Real, Quezon</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="site-footer">
+            <p>&copy; 2026 ISKOLAREALENO. Real, Quezon City, Philippines | Contact: info@iskolarealeno.ph</p>
+        </footer>
 
         <!-- JAVASCRIPT FILES -->
         <script src="js/jquery.min.js"></script>
@@ -181,5 +412,17 @@
         <script src="js/click-scroll.js"></script>
         <script src="js/custom.js"></script>
 
+        <script>
+            // Smooth scrolling
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                });
+            });
+        </script>
     </body>
 </html>
