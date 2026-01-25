@@ -2491,9 +2491,9 @@ app.post('/api/admin/announcement', async (req, res) => {
     const { 
       title, 
       content, 
-      recipients,       // e.g., 'all' or 'specific'
-      recipient_type,   // optional, can use instead of recipients
-      scholar_ids,      // array of specific scholar IDs
+      recipients,
+      recipient_type,
+      scholar_ids,
       scholar_emails, 
       icon, 
       created_by 
@@ -2503,25 +2503,32 @@ app.post('/api/admin/announcement', async (req, res) => {
       return res.status(400).json({ error: 'Title and content are required' });
     }
 
-    // Insert announcement
-  const { data: announcement, error: annErr } = await supabase
-  .from('announcements')
-  .insert({
-    title,
-    content,
-    recipient_type,
-    created_by,
-    scholar_emails: scholar_emails || null
-  })
-  .select()
-  .single();
+    // Get current Philippine time (UTC + 8 hours)
+    const now = new Date();
+    const philippineTime = new Date(now.getTime() + (8 * 60 * 60 * 1000));
+    
+    console.log('🕐 Philippine Time:', philippineTime.toISOString());
+    console.log('🕐 Current UTC Time:', now.toISOString());
+
+    // Insert announcement with Philippine time
+    const { data: announcement, error: annErr } = await supabase
+      .from('announcements')
+      .insert({
+        title,
+        content,
+        recipient_type,
+        created_by,
+        scholar_emails: scholar_emails || null,
+        created_at: philippineTime.toISOString()  // ✅ Add this line
+      })
+      .select()
+      .single();
 
     if (annErr) throw annErr;
 
     let notifications = [];
 
     if (recipient_type === 'all') {
-      // Fetch all scholar IDs
       const { data: allScholars, error: scholarErr } = await supabase
         .from('scholars')
         .select('id');
@@ -2533,7 +2540,8 @@ app.post('/api/admin/announcement', async (req, res) => {
         scholar_id: sch.id,
         title,
         message: content,
-        icon: icon || '📢'
+        icon: icon || '📢',
+        created_at: philippineTime.toISOString()  // ✅ Add this line
       }));
     } else if (scholar_ids && scholar_ids.length > 0) {
       notifications = scholar_ids.map(scholar_id => ({
@@ -2541,11 +2549,11 @@ app.post('/api/admin/announcement', async (req, res) => {
         scholar_id,
         title,
         message: content,
-        icon: icon || '📢'
+        icon: icon || '📢',
+        created_at: philippineTime.toISOString()  // ✅ Add this line
       }));
     }
 
-    // Insert notifications if any
     if (notifications.length > 0) {
       const { error: notifErr } = await supabase
         .from('notifications')
