@@ -2998,3 +2998,4 @@ app.post('/api/admin/reset-password', async (req, res) => {
   }
 });
 
+export default app;
