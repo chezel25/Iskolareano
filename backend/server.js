@@ -2173,19 +2173,29 @@ await supabase
             .from("profiles")
             .getPublicUrl(filePath);
 
-          const { data: row } = await supabase
-            .from("scholar_profile_files")
-            .insert([{
-              scholar_id,
-              semester,
-              file_name: file.originalname,
-              file_path: filePath,
-              file_url: data.publicUrl,
-              file_size: file.size
-            }])
-            .select();
+          const { data: row, error: insertError } = await supabase
+  .from("scholar_profile_files")
+  .insert([{
+    scholar_id,
+    semester,
+    file_name: file.originalname,
+    file_path: filePath,
+    file_url: data.publicUrl,
+    file_size: file.size
+  }])
+  .select();
 
-          uploaded.push(row[0]);
+if (insertError) {
+  console.error("Insert error:", insertError);
+  throw new Error(insertError.message);
+}
+
+if (!row || row.length === 0) {
+  throw new Error("Insert succeeded but no data returned");
+}
+
+uploaded.push(row[0]);
+
         }
 
         await supabase
