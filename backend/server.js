@@ -38,14 +38,15 @@ pool.on('error', (err) => {
   process.exit(-1);
 });
 // 4️⃣ Email transporter
-export const transporter = nodemailer.createTransport({
-  service: 'gmail',
+const transporter = nodemailer.createTransport({
+  host: "smtp.gmail.com",
+  port: 587,
+  secure: false, // true for 465
   auth: {
     user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
-  }
+    pass: process.env.EMAIL_PASS, // App password if 2FA is on
+  },
 });
-
 transporter.verify((error, success) => {
   if (error) console.log('Email transporter error:', error);
   else console.log('✅ Email transporter ready');
