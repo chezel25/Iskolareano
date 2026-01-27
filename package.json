@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "start": "node iskolarealeno/backend/server.js"
+    "start": "node backend/server.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.89.0",
