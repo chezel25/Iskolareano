@@ -48,9 +48,9 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
-  const API_URL = window.location.hostname.includes('localhost') 
-    ? 'http://localhost:8080' 
-    : 'https://iskolareano-production.up.railway.app';
+  const API_URL = window.location.hostname.includes('localhost')
+  ? 'http://localhost:8080'
+  : 'https://iskolareano-production.up.railway.app';
 
 const supabaseClient = supabase.createClient(
   'https://wwzufquuogpshrlrofiv.supabase.co',
@@ -83,11 +83,11 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
     }
 
     // 2️⃣ Backend role validation
-    const res = await fetch('`${API_URL}/api/admin/login`', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email })
-    });
+    const res = await fetch(`${API_URL}/api/admin/login`, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ email })
+});
 
     const result = await res.json();
 
