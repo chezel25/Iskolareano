@@ -4,6 +4,10 @@ import { createClient } from '@supabase/supabase-js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from "dotenv";
+
+if (process.env.NODE_ENV !== "production") {
+  dotenv.config(); // load .env locally only
+}
 import fetch from 'node-fetch';
 import multer from 'multer';
 import fs from 'fs';
