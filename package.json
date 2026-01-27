@@ -5,6 +5,9 @@
   "scripts": {
     "start": "node backend/server.js"
   },
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "dependencies": {
     "@supabase/supabase-js": "^2.89.0",
     "cors": "^2.8.5",
@@ -19,3 +22,4 @@
     "sqlite3": "^5.1.7"
   }
 }
+
