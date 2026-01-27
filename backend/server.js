@@ -160,15 +160,16 @@ app.post('/api/signup', async (req, res) => {
 
     // 4️⃣ Send verification email
     const verifyLink = `${process.env.FRONTEND_URL}/verify.html?token=${token}`;
-  await transporter.sendMail({
-  from: `"Iskolar ng Realeno" <${process.env.EMAIL_USER}>`,
+ await sgMail.send({
   to: email,
+  from: 'softwaredesign66@gmail.com', // must be verified in SendGrid
   subject: 'Verify your email',
   html: `<p>Hello ${first_name},</p>
          <p>Click below to verify your email:</p>
          <a href="${verifyLink}">${verifyLink}</a>
          <p>Thank you!</p>`
 });
+console.log('✅ Verification email sent to', email);
 
 
     res.json({ message: 'Signup successful! Check your email to verify your account.' });
