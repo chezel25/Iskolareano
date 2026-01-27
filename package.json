@@ -1,0 +1,21 @@
+{
+  "name": "iskolario-backend",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "index.js",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.90.1",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^4.19.2",
+    "multer": "^2.0.2",
+    "nodemailer": "^7.0.12",
+    "uuid": "^13.0.0"
+  }
+}
