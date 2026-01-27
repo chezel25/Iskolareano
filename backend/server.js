@@ -4,7 +4,6 @@ import { createClient } from '@supabase/supabase-js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from "dotenv";
-dotenv.config({ path: "./backend/.env" });
 import fetch from 'node-fetch';
 import multer from 'multer';
 import fs from 'fs';
@@ -25,6 +24,10 @@ dotenv.config();
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use(cors({
+  origin: process.env.FRONTEND_URL,
+  credentials: true
+}));
 
 // 3️⃣ Postgres pool
 const pool = new Pool({ connectionString: process.env.DB_URL });
