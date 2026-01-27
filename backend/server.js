@@ -1,6 +1,5 @@
 import express from 'express';
 import cors from 'cors';
-import nodemailer from 'nodemailer';
 import { createClient } from '@supabase/supabase-js';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -13,7 +12,8 @@ import pkg from 'pg';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc.js';
 import timezone from 'dayjs/plugin/timezone.js';
-
+import sgMail from '@sendgrid/mail';
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 dayjs.extend(utc);
 dayjs.extend(timezone);
 const { Pool } = pkg;
@@ -38,19 +38,22 @@ pool.on('error', (err) => {
   process.exit(-1);
 });
 // 4️⃣ Email transporter
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false, // true for 465
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS, // App password if 2FA is on
-  },
-});
-transporter.verify((error, success) => {
-  if (error) console.log('Email transporter error:', error);
-  else console.log('✅ Email transporter ready');
-});
+// 4️⃣ Send email using SendGrid
+async function sendEmail(to, subject, html) {
+  try {
+    const msg = {
+      to: to,
+      from: 'softwaredesign66@gmail.com', // must be verified sender in SendGrid
+      subject: subject,
+      html: html
+    };
+    await sgMail.send(msg);
+    console.log('✅ Email sent to', to);
+  } catch (err) {
+    console.error('❌ SendGrid error:', err.response?.body || err.message);
+  }
+}
+
 
 // 5️⃣ File paths
 const __filename = fileURLToPath(import.meta.url);
@@ -157,15 +160,16 @@ app.post('/api/signup', async (req, res) => {
 
     // 4️⃣ Send verification email
     const verifyLink = `${process.env.FRONTEND_URL}/verify.html?token=${token}`;
-    await transporter.sendMail({
-      from: `"Iskolar ng Realeno" <${process.env.EMAIL_USER}>`,
-      to: email,
-      subject: 'Verify your email',
-      html: `<p>Hello ${first_name},</p>
-             <p>Click below to verify your email:</p>
-             <a href="${verifyLink}">${verifyLink}</a>
-             <p>Thank you!</p>`
-    });
+  await transporter.sendMail({
+  from: `"Iskolar ng Realeno" <${process.env.EMAIL_USER}>`,
+  to: email,
+  subject: 'Verify your email',
+  html: `<p>Hello ${first_name},</p>
+         <p>Click below to verify your email:</p>
+         <a href="${verifyLink}">${verifyLink}</a>
+         <p>Thank you!</p>`
+});
+
 
     res.json({ message: 'Signup successful! Check your email to verify your account.' });
 
